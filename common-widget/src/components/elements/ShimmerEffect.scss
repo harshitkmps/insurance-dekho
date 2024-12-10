@@ -1,0 +1,90 @@
+/* Content Loader*/
+@-webkit-keyframes placeHolderShimmerlarge {
+    0% {
+        background-position: 35% 0
+    }
+
+    100% {
+        background-position: -35% 0
+    }
+}
+
+@keyframes placeHolderShimmerlarge {
+    0% {
+        background-position: 30% 0
+    }
+
+    100% {
+        background-position: -30% 0
+    }
+}
+
+.contentLoader {
+    background-color: #fff;
+    color: #141823;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    height: auto;
+    margin: 20px;
+}
+
+.contentLoader .animated-background {
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-name: placeHolderShimmerlarge;
+    animation-name: placeHolderShimmerlarge;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    background: #f6f7f8;
+    background: #eeeeee;
+    background: -webkit-gradient(linear, left top, right top, color-stop(8%, #eeeeee), color-stop(18%, #dddddd), color-stop(33%, #eeeeee));
+    background: -webkit-linear-gradient(left, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+    background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+    -webkit-background-size: 400% 16px;
+    background-size: 400% 16px;
+    position: relative;
+    margin-bottom: 10px;
+    height: 50px;
+}
+
+.contentLoader .animated-backgroundlarge {
+    margin: 0 15px 10px;
+    -webkit-animation-duration: 1s;
+    animation-duration: 1s;
+    -webkit-animation-fill-mode: forwards;
+    animation-fill-mode: forwards;
+    -webkit-animation-iteration-count: infinite;
+    animation-iteration-count: infinite;
+    -webkit-animation-name: placeHolderShimmerlarge;
+    animation-name: placeHolderShimmerlarge;
+    -webkit-animation-timing-function: linear;
+    animation-timing-function: linear;
+    background: #f6f7f8;
+    background: #eeeeee;
+    background: -webkit-gradient(linear, left top, right top, color-stop(8%, #eeeeee), color-stop(18%, #dddddd), color-stop(33%, #eeeeee));
+    background: -webkit-linear-gradient(left, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+    background: linear-gradient(to right, #eeeeee 8%, #dddddd 18%, #eeeeee 33%);
+    -webkit-background-size: 400% 16px;
+    background-size: 400% 16px;
+    height: 16px;
+    position: relative;
+    margin-bottom: 10px;
+}
+
+.contentLoader .animated-background.firstRow {
+    width: 85%;
+}
+
+.contentLoader .animated-backgroundlarge.secondRow {
+    width: 70%;
+}
+
+.contentLoader .animated-background.boxLoader {
+    display: inline-block;
+    width: 15%;
+    height: 10px;
+}

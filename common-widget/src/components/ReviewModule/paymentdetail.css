@@ -1,0 +1,29 @@
+body{background: #F5F5F6;}
+.fb_DetailC .detailCard{border-radius:20px; background: #fff; box-shadow: none; }
+.fb_DetailC h2{font-size: 17px;color: #333846;margin: 0 0 8px; padding: 0;font-weight: 600;}
+.fb_DetailC .innerWrap{ padding: 24px;}
+.fb_DetailC .brandLogo{width: 48px;height: 48px;margin-right: 16px;border-radius: 12px;overflow: hidden;}
+.fb_DetailC .brandNam{ display: inline-block;vertical-align: top;}
+.fb_DetailC .brandNam span{letter-spacing: .1px;margin-top: 4px;font-weight: 400;font-size: 10px;
+opacity: .7;display: block;}
+.bold {font-weight: 500!important;}
+.fb_DetailC .dotborderLink{ font-size: 12px; color: #333846; cursor: pointer; padding-bottom: 8px; font-weight: 600; position: relative;display: inline-block;}
+.fb_DetailC .dotborderLink:after{ content: ''; width: 100%; height: 2px; border-bottom: dotted 2px #333846; position: absolute; left: 0;bottom:0; }
+.fb_DetailC .plandlink{position: absolute;right: 30px;}
+
+.lightbutton{background:#fff;border: 2px solid #D6D7DA;border-radius: 6px; cursor: pointer;
+    height: 37px;padding: 0 20px; font-size: 13px;width: 100%;text-align: center;font-weight: 600;color: #F34653;}
+  
+.fb_DetailC.cardfirst .innerWrap{ padding-top: 0px;}
+.fb_DetailC.cardfirst{margin-top: -10px;}
+.fb_DetailC.cardfirst .detailCard{ border-radius: 0 0 20px 20px; }
+.ownerdetail .plandlink, .dogdetail .plandlink{ margin-top: -30px;}
+.dogdetail .photos{ display: inline-block ; width: 64px; height: 36px; margin-right: 8px; cursor: pointer ; border-radius: 8px; }
+.dogdetail .photos:last-child{ margin-right: 0px;}
+.dogdetail .photos[value="pdf"] img{margin : 0px auto;}
+
+@media screen and (min-width:1024px) {
+.fb_DetailC .plandlink{ right: 0px;}
+.dogdetail .photos{ width: 92px; height: 52px; }
+.dogdetail .photos[value="pdf"] img{margin : 10px auto;}
+}

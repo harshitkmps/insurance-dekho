@@ -1,0 +1,18 @@
+.whiteCircle_m {
+    background-image: url(https://img.gaadicdn.com/pwa/img/loading-white.svg)!important;
+    vertical-align: middle;
+    background-repeat: no-repeat!important;
+    background-position: 100%!important;
+    content: "";
+}
+button i.whiteCircle_m, i.whiteCircle_m {
+    position: absolute;
+    z-index: 999999;
+    width: 36px;top: -10px;left: 50%;
+    height: 48px}
+.ctaBtn button{ position: relative;width: auto;padding: 0 20px; cursor: pointer; border: none; } 
+
+@media screen and (max-width:1023px) {
+.ctaBtnSticky{position: fixed;bottom: 0;background: #fff; cursor: pointer; padding: 20px;left: 0;}
+.ctaBtn button{ width: 100%;}
+}

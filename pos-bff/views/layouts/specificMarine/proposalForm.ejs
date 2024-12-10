@@ -1,0 +1,288 @@
+function setDateMinMax() {
+	const currentDate = new Date();
+	const dobMinDate = new Date().setFullYear(currentDate.getFullYear() - 66);
+	const dobMaxDate = new Date().setFullYear(currentDate.getFullYear() - 18);
+	return { dobMaxDate, dobMinDate };
+}
+
+window.specificMarineProposalFormSchema = {
+	formBuilder: {
+		steps: [
+			{
+				submitButtonLabel: "Summary & Payment",
+				fields: {
+					proposalForm: {
+						type: "HeadingComp",
+						span: 12,
+						label: "Proposal Form",
+						name: "proposalForm",
+					},
+					salutation: {
+						hide: false,
+						type: "SelectWithLabel",
+						id: "salutation",
+						name: "salutation",
+						label: "Salutation",
+						labelAuto: "Salutation",
+						options: [
+							{ label: "Mr", value: "Mr" },
+							{ label: "Mrs", value: "Mrs" },
+							{ label: "Ms", value: "Ms" },
+						],
+						span: 6,
+						autoComplete: "given-name",
+						variant: "filled",
+						value: "",
+						validators: ["isEmpty"],
+						errormessages: ["Please select the salutation"],
+					},
+					customerName: {
+						hide: false,
+						type: "TextField",
+						id: "customerName",
+						name: "customerName",
+						label: "Proposer Name",
+						autoComplete: "name",
+						variant: "filled",
+						span: 6,
+						value: "",
+						validators: ["isEmpty", "!isValidName"],
+						errormessages: ["Please enter the proposer name", "Please enter valid proposer name"],
+						onBlur: () => {
+							window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_CustName", "<%= schemaVal.gcd_code %>");
+						},
+					},
+					mobile: {
+						type: "TextField",
+						id: "mobile",
+						name: "mobile",
+						label: "Phone Number (Payment OTP sent here)",
+						variant: "filled",
+						value: "",
+						span: 6,
+						fieldType: "mobile",
+						validators: ["isEmpty"],
+						errormessages: ["Please enter contact number"],
+					},
+					email: {
+						type: "TextField",
+						id: "email",
+						name: "email",
+						label: "Proposer Email",
+						multiline: false,
+						variant: "filled",
+						span: 6,
+						fieldType: "email",
+						validators: ["isEmpty", "!isValidEmail"],
+						errormessages: ["This field is required"],
+					},
+					dob: {
+						hide: false,
+						type: "DatePicker",
+						id: "dob",
+						name: "dob",
+						label: "Date Of Birth",
+						variant: "filled",
+						maxDate: "",
+						minDate: "",
+						span: 6,
+						validators: ["isEmpty"],
+						errormessages: ["This field is required"],
+						onBlur: () => {
+							window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SM_DOB", "<%= schemaVal.gcd_code %>");
+						},
+					},
+					doi: {
+						hide: true,
+						type: "DatePicker",
+						id: "doi",
+						name: "doi",
+						label: "Date of Incorporation",
+						variant: "filled",
+						maxDate: new Date(),
+						minDate: "",
+						span: 6,
+						validators: ["isEmpty"],
+						errormessages: ["This field is required"],
+						onBlur: () => {
+							window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SM_DOI", "<%= schemaVal.gcd_code %>");
+						},
+					},
+					gstNo: {
+						type: "TextField",
+						id: "gstNo",
+						name: "gstNo",
+						label: "Enter GST for printing on policy doc - optional",
+						variant: "filled",
+						value: "",
+						span: 6,
+						inputProps: { minLength: 15, maxLength: 15 },
+						validators: ["isValidGST"],
+						errormessages: ["Please enter a valid GST number"],
+						onBlur: () => {
+							window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SM_GST", "<%= schemaVal.gcd_code %>");
+						},
+					},
+					communicationAddress: {
+						type: "HeadingComp",
+						span: 12,
+						label: "Communication Address",
+						name: "communicationAddress",
+					},
+					addressLine1: {
+						type: "TextField",
+						id: "addressLine1",
+						name: "addressLine1",
+						label: "Address Line 1",
+						value: "",
+						autoComplete: "name",
+						variant: "filled",
+						span: 12,
+						validators: ["isEmpty", "!isValidAddress"],
+						errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+					},
+					addressLine2: {
+						type: "TextField",
+						id: "addressLine2",
+						name: "addressLine2",
+						label: "Address Line 2",
+						value: "",
+						autoComplete: "name",
+						variant: "filled",
+						span: 12,
+						validators: ["isEmpty", "!isValidAddress"],
+						errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+					},
+					pincode: {
+						type: "Pincode",
+						id: "pincode",
+						name: "pincode",
+						label: "Pincode: Enter same as GST Document (If GST Entered)",
+						variant: "filled",
+						stateRequired: false,
+						autoComplete: "name",
+						span: 6,
+						value: {},
+						validators: ["isEmpty"],
+						errormessages: ["This field is required"],
+						onChange: (event, step, next) => {
+							let storeCityName = step.fields.pincode.value && step.fields.pincode.value.city_name ? step.fields.pincode.value.city_name : "";
+							let storeStateName = step.fields.pincode.value && step.fields.pincode.value.state_name ? step.fields.pincode.value.state_name : "";
+							step.fields.state.value = storeStateName;
+							step.fields.state.error = false;
+							step.fields.state.helperText = "";
+							step.fields.city.value = storeCityName;
+							step.fields.city.error = false;
+							step.fields.city.helperText = "";
+							next(step);
+						},
+					},
+					city: {
+						type: "TextField",
+						id: "city",
+						name: "city",
+						label: "City",
+						value: "",
+						readOnly: "true",
+						autoComplete: "given-name",
+						variant: "filled",
+						span: 6,
+						validators: ["isEmpty"],
+						errormessages: ["This field is required"],
+					},
+					state: {
+						type: "TextField",
+						id: "state",
+						name: "state",
+						label: "State",
+						value: "",
+						readOnly: "true",
+						variant: "filled",
+						span: 6,
+						validators: ["isEmpty"],
+						errormessages: ["This field is required"],
+					},
+					spacingone: {
+						span: 8,
+					},
+				},
+
+				onLoad: function (step, next) {
+					try {
+						const { dobMaxDate, dobMinDate } = setDateMinMax();
+						let hundredYearsAgo = new Date();
+						let doiMinDate = hundredYearsAgo.setFullYear(new Date().getFullYear() - 100);
+						const { getSessionStorageItem, setDefaultFormValues, setFormOptions, getSmeMaster } = window.projectGlobals;
+						const { parsedMasterData } = getSmeMaster();
+						const leadDetails = getSessionStorageItem("specificMarineLead");
+						const kycDetails = getSessionStorageItem("kyc_details");
+
+						if (kycDetails && kycDetails.kycData && kycDetails.kycData.customerType == "O") {
+							step.fields.doi.hide = false;
+							step.fields.customerName.hide = true;
+							step.fields.salutation.hide = true;
+							step.fields.dob.hide = true;
+							step.fields["doi"].minDate = doiMinDate;
+						} else {
+							step.fields.doi.hide = true;
+							step.fields.customerName.hide = false;
+							step.fields.salutation.hide = false;
+							step.fields.dob.hide = false;
+							step.fields["dob"].minDate = dobMinDate;
+							step.fields["dob"].maxDate = dobMaxDate;
+						}
+
+						if (leadDetails) {
+							const {
+								proposerDetails: { firstName = "", lastName = "", mobile = "", salutation = "Mr", dob = "", email = "", doi = "" } = {},
+								communicationDetails: { addressLine1 = "", addressLine2 = "", pincode = "" } = {},
+								productDetails: { businessDetails: { gstNo = "" } = {} } = {},
+							} = leadDetails;
+
+							setFormOptions(step.fields, parsedMasterData);
+							const defautlValues = {
+								salutation,
+								customerName: [firstName, lastName].filter(Boolean).join(" "),
+								mobile,
+								email,
+								dob,
+								doi,
+								gstNo,
+								addressLine1,
+								addressLine2,
+								pincode,
+								city: pincode.city_name || "",
+								state: pincode.state_name || "",
+							};
+							setDefaultFormValues(step.fields, defautlValues);
+						}
+						next(step);
+					} catch (error) {
+						console.error("An error occurred", error);
+						next(step);
+					}
+				},
+			},
+		],
+		activeStep: 0,
+		customValidators: {
+			isValidName: function (str) {
+				var regexp = new RegExp(/^\s*[a-zA-Z]([-']?[a-zA-Z]+)*( [a-zA-Z]([-']?[a-zA-Z]+)*)+\s*$/);
+				return regexp.test(str);
+			},
+			isValidEmail: function (str) {
+				var regexp = new RegExp(/^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
+				return regexp.test(str);
+			},
+			isValidAddress: function (str) {
+				var regExp = new RegExp(/^.{0,100}$/);
+				return regExp.test(str);
+			},
+			isValidGST: function (str) {
+				if (!str.length) return false;
+				var regExp = new RegExp(/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}Z[0-9a-zA-Z]{1}$/);
+				return !regExp.test(str);
+			},
+		},
+	},
+};

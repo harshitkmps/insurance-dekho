@@ -1,0 +1,20 @@
+{
+    "all": true,
+    "include": ["src"],
+    "exclude": [
+        "test",
+        "node_modules",
+        ".tmp",
+        "logs",
+        "pids",
+        "src/config",
+        "src/helper",
+        "src/routes.ts",
+        "src/server.ts"
+    ],
+    "reporter": [
+        "text",
+        "lcov"
+    ],
+    "report-dir": "./coverage"
+}

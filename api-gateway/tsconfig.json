@@ -1,0 +1,27 @@
+{
+    "compilerOptions": {
+        "module": "commonjs",
+        "strict": true,
+        "esModuleInterop": true,
+        "target": "es6",
+        "moduleResolution": "node",
+        "sourceMap": true,
+        "outDir": "dist",
+        "baseUrl": ".",
+        "experimentalDecorators": true,
+        "allowJs": true, // source code can contains ts and js files
+        "noImplicitAny": true, // checks all declared function arguments, they should all have types or at least any as a type.
+        "paths": {
+            "*": [
+                "node_modules/*"
+            ]
+        }
+    },
+    "lib": ["es2015"],
+    "files": [
+        "./src/helper/declarations/express.d.ts"
+    ],
+    "include": [
+        "src/**/*"
+    ]
+}

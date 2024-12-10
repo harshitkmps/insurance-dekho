@@ -1,0 +1,370 @@
+window.formBuilderSchemaProposal2 = {
+    formBuilder: {
+      steps: [
+        {
+        name: "Pet Details",
+        submitButtonLabel: "Continue",
+        fields: { 
+            displayPetName : {
+              type: "Display",
+              id: "displayPetName",
+              name: "displayPetName",
+              label: "Labrador",
+              num:"5 years old",
+              image:"/common-widgets/icons/Dog.svg",
+            },
+            dogname: {
+              type: "TextField",
+              id: "dogname",
+              name: "dogname",
+              label: "Pet name",
+              multiline : false,
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty","!isValidName"],
+              errormessages: [
+                 "Please enter the Pet name",
+                 "Please enter valid Pet name"
+              ],
+            },
+            gender: {
+              type: "Radio",
+              options: [
+                { value: "male", label: "Male" },
+                { value: "female", label: "Female" },
+              ],
+              row : true,
+              id: "gender",
+              name: "gender",
+              label: "Pet gender",
+              labelPlacement:"start",
+              variant: "filled",
+              titlePlacement:"start",
+              background:"gray",
+              span: 6,
+              value: "",
+              validators: ["isEmpty"],
+              errormessages: ["Gender is required field"],
+            },
+            petHeading1:{
+              type:"HeadingComp",
+              id:"petHeading1",
+              name:"petHeading1",
+              label:"Pet photos",
+              span:12,
+            },
+            frontSidePhoto :{
+              type:"Upload",
+              id:"frontSidePhoto",
+              name:"frontSidePhoto",
+              icon:"/common-widgets/icons/Frame 2987.svg",
+              label:"Front photo",
+              variant: "outlined",
+              span: 6,
+              validators: ["isEmpty"],
+              parentClass : 'imgUploadWrap',
+              errormessages: ["This field is required"],
+              onChange: (file, step, next) => {
+                let object = {event: 'PetInsuranceLeadFunnel', lead_action: 'front_photo', is_mobile: window.__isMobile}	
+                window.projectGlobals.setDataLayer(null, null, true, false, object);	
+                step.submitButtonDisabled = true;	
+                next(step);
+                let formData = new FormData();
+                formData.append("file", file);
+                axios.post("<%= apiBffUrl %>api/v1/pet/upload-document", formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                    },
+                  }).then((response) => {
+                    if(response && response.data && response.data.data && response.data.data.metaData && response.data.data.metaData.code == 200){
+                      step.fields.frontSidePhoto.value.doc_id = response.data.data.data.doc_id;
+                      if(_.get(step,'fields.frontSidePhoto.value.url') 	
+                          && _.get(step,'fields.frontSidePhoto.value.doc_id')	
+                          &&  _.get(step,'fields.leftSidePhoto.value.url')	
+                          &&  _.get(step,'fields.leftSidePhoto.value.doc_id')	
+                          &&  _.get(step,'fields.rightSidePhoto.value.url')	
+                          &&  _.get(step,'fields.rightSidePhoto.value.doc_id')	
+                          && ( !_.get(step,'fields.healthCertificate.value.url') 	
+                              || (_.get(step,'fields.healthCertificate.value.url') && _.get(step,'fields.healthCertificate.value.doc_id'))	
+                             )	
+                      ){	
+                        step.submitButtonDisabled = false;	
+                      }
+                      next(step);
+                    }
+                    console.log(response)
+                  }).catch((error) => {
+                    console.log(error);
+                });
+              },
+            },
+            leftSidePhoto :{
+              type:"Upload",
+              id:"leftSidePhoto",
+              name:"leftSidePhoto",
+              label:"Left side photo" ,
+              icon:"/common-widgets/icons/Frame 2987 (1).svg",
+              variant: "outlined",
+              span: 6,
+              validators: ["isEmpty"],
+              parentClass : 'imgUploadWrap',
+              errormessages: ["This field is required"],
+              onChange: (file, step, next) => {
+                let object = {event: 'PetInsuranceLeadFunnel', lead_action: 'left_photo', is_mobile: window.__isMobile}	
+                window.projectGlobals.setDataLayer(null, null, true, false, object);	
+                step.submitButtonDisabled = true;	
+                next(step);
+                let formData = new FormData();
+                formData.append("file", file);
+                axios.post("<%= apiBffUrl %>api/v1/pet/upload-document", formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                    },
+                  }).then((response) => {
+                    if(response && response.data && response.data.data && response.data.data.metaData && response.data.data.metaData.code == 200){
+                      step.fields.leftSidePhoto.value.doc_id = response.data.data.data.doc_id;
+                      if(_.get(step,'fields.frontSidePhoto.value.url') 	
+                          && _.get(step,'fields.frontSidePhoto.value.doc_id')	
+                          &&  _.get(step,'fields.leftSidePhoto.value.url')	
+                          &&  _.get(step,'fields.leftSidePhoto.value.doc_id')	
+                          &&  _.get(step,'fields.rightSidePhoto.value.url')	
+                          &&  _.get(step,'fields.rightSidePhoto.value.doc_id')	
+                          && ( !_.get(step,'fields.healthCertificate.value.url') 	
+                              || (_.get(step,'fields.healthCertificate.value.url') && _.get(step,'fields.healthCertificate.value.doc_id'))	
+                             )	
+                      ){	
+                        step.submitButtonDisabled = false;	
+                      }
+                      next(step);
+                    }
+                    console.log(response)
+                  }).catch((error) => {
+                    console.log(error);
+                });
+              },
+            },
+            rightSidePhoto :{
+              type:"Upload",
+              id:"rightSidePhoto",
+              name:"rightSidePhoto",
+              label:"Right side photo",
+              icon:"/common-widgets/icons/Frame 2987 (3).svg",
+              variant: "outlined",
+              span: 6,
+              validators: ["isEmpty"],
+              parentClass : 'imgUploadWrap',
+              errormessages: ["This field is required"],
+              onChange: (file, step, next) => {
+                let object = {event: 'PetInsuranceLeadFunnel', lead_action: 'right_photo', is_mobile: window.__isMobile}	
+                window.projectGlobals.setDataLayer(null, null, true, false, object);	
+                	
+                step.submitButtonDisabled = true;	
+                next(step);
+                let formData = new FormData();
+                formData.append("file", file);
+                axios.post("<%= apiBffUrl %>api/v1/pet/upload-document", formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                    },
+                  }).then((response) => {
+                    if(response && response.data && response.data.data && response.data.data.metaData && response.data.data.metaData.code == 200){
+                      step.fields.rightSidePhoto.value.doc_id = response.data.data.data.doc_id;
+                       if(_.get(step,'fields.frontSidePhoto.value.url') 	
+                          && _.get(step,'fields.frontSidePhoto.value.doc_id')	
+                          &&  _.get(step,'fields.leftSidePhoto.value.url')	
+                          &&  _.get(step,'fields.leftSidePhoto.value.doc_id')	
+                          &&  _.get(step,'fields.rightSidePhoto.value.url')	
+                          &&  _.get(step,'fields.rightSidePhoto.value.doc_id')	
+                          && ( !_.get(step,'fields.healthCertificate.value.url') 	
+                              || (_.get(step,'fields.healthCertificate.value.url') && _.get(step,'fields.healthCertificate.value.doc_id'))	
+                             )	
+                      ){	
+                        step.submitButtonDisabled = false;	
+                      }
+                      next(step);
+                    }
+                    console.log(response)
+                  }).catch((error) => {
+                    console.log(error);
+                });
+              },
+            },
+            identificationMark: {
+              type: "TextField",
+              id: "identificationMark",
+              name: "identificationMark",
+              label: "Identification mark",
+              multiline : false,
+              variant: "filled",
+              span: 12,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            petHeading2:{
+              type:"HeadingComp",
+              id:"petHeading2",
+              name:"petHeading2",
+              note:"note",
+              label:"Type “NONE” if there is no any identification",
+              span:12,
+            },
+            petHeading4:{
+              type:"HeadingComp",
+              id:"petHeading4",
+              name:"petHeading4",
+              label:"Microchip details on the pet (Optional)",
+              span:12,
+            },
+            microchipNum: {
+              type: "TextField",
+              id: "microchipNum",
+              name: "microchipNum",
+              label: "Microchip number",
+              multiline : false,
+              variant: "filled",
+              span: 12,
+              onBlur : (event) => {	
+                let object = {event: 'PetInsuranceLeadFunnel', lead_action: 'microchip_number', is_mobile: window.__isMobile}	
+                window.projectGlobals.setDataLayer(null, null, true, false, object);	
+              }
+            },
+            petHeading6:{
+              type:"HeadingComp",
+              id:"petHeading6",
+              name:"petHeading6",
+              label:"Certificate of good health issued by a qualified veterinary doctor (Optional)",
+              span:12,
+            },
+            healthCertificate :{
+              type:"Upload",
+              id:"healthCertificate",
+              name:"healthCertificate",
+              label:"Certificate",
+              accept:{"application/pdf":[]},
+              icon:"/common-widgets/icons/Frame 2987 (4).svg",
+              span:6,
+              onChange: (file, step, next) => {
+                let object = {event: 'PetInsuranceLeadFunnel', lead_action: 'vet_certificate', is_mobile: window.__isMobile}	
+                window.projectGlobals.setDataLayer(null, null, true, false, object);	
+                	
+                step.submitButtonDisabled = true;	
+                next(step);
+                let formData = new FormData();
+                formData.append("file", file);
+                axios.post("<%= apiBffUrl %>api/v1/pet/upload-document", formData, {
+                    headers: {
+                      "Content-Type": "multipart/form-data",
+                    },
+                  }).then((response) => {
+                    if(response && response.data && response.data.data && response.data.data.metaData && response.data.data.metaData.code == 200){
+                      step.fields.healthCertificate.value.doc_id = response.data.data.data.doc_id;
+                      if(_.get(step,'fields.frontSidePhoto.value.url') 	
+                          && _.get(step,'fields.frontSidePhoto.value.doc_id')	
+                          &&  _.get(step,'fields.leftSidePhoto.value.url')	
+                          &&  _.get(step,'fields.leftSidePhoto.value.doc_id')	
+                          &&  _.get(step,'fields.rightSidePhoto.value.url')	
+                          &&  _.get(step,'fields.rightSidePhoto.value.doc_id')	
+                          && ( !_.get(step,'fields.healthCertificate.value.url') 	
+                              || (_.get(step,'fields.healthCertificate.value.url') && _.get(step,'fields.healthCertificate.value.doc_id'))	
+                             )	
+                      ){	
+                        step.submitButtonDisabled = false;	
+                      }
+                      next(step);
+                    }
+                    console.log(response)
+                  }).catch((error) => {
+                    console.log(error);
+                });
+              },
+            },
+        },
+        onSubmit: function (data, resolve, reject) {
+          console.log("Proposal Step 2", data);
+          resolve({ message: "" });
+        },
+        onLoad: function (step, next){
+          let getLocalStorageItem = (key) => {
+              if (typeof window.localStorage !== 'undefined') {
+                  let data = localStorage.getItem(key);
+                  if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                      let obj = JSON.parse(localStorage.getItem(key));
+                      return obj;
+                  }
+              }
+              return {};
+          }
+          let getSessionStorageItem = (key) => {
+            if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+                let data = sessionStorage.getItem(key);
+              if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                  let obj = JSON.parse(sessionStorage.getItem(key));
+                  return obj;
+              }
+            }
+            return {};
+          }
+          let petuserinfo = getLocalStorageItem('petuserinfo');
+          let breedList = getSessionStorageItem('breedList');
+          let breedId = _.get(petuserinfo,'insuredMembers[0].breedId',1);
+          let breed = (breedList.find((item)=>item.id == breedId)).name;
+          step.fields.displayPetName.label = breed;
+          let ageString = '';
+          if(_.get(petuserinfo,'insuredMembers[0].ageYears',0) > 0){
+            if(_.get(petuserinfo,'insuredMembers[0].ageYears',0) > 1)
+              ageString = (`${_.get(petuserinfo,'insuredMembers[0].ageYears',0)} Years`);
+            else
+              ageString = (`${_.get(petuserinfo,'insuredMembers[0].ageYears',0)} Year`)
+          } else{
+            if(_.get(petuserinfo,'insuredMembers[0].ageMonths',0) > 1)	
+              ageString = (`${_.get(petuserinfo,'insuredMembers[0].ageMonths',0)} Months`);	
+            else	
+              ageString = (`${_.get(petuserinfo,'insuredMembers[0].ageMonths',0)} Month`)
+          }
+          ageString += ' old'
+          step.fields.displayPetName.num = ageString;
+
+          if(_.get(petuserinfo,'insuredMembers[0].petName')){
+            step.fields.dogname.value = _.get(petuserinfo,'insuredMembers[0].petName')
+          }
+          if(_.get(petuserinfo,'insuredMembers[0].gender')){
+            step.fields.gender.value = _.get(petuserinfo,'insuredMembers[0].gender')
+          }
+          if(_.get(petuserinfo,'insuredMembers[0].identificationMark')){
+            step.fields.identificationMark.value = _.get(petuserinfo,'insuredMembers[0].identificationMark')
+          }
+          if(_.get(petuserinfo,'insuredMembers[0].tagNo')){
+            step.fields.microchipNum.value = _.get(petuserinfo,'insuredMembers[0].tagNo')
+          }
+          if(_.get(petuserinfo,'insuredMembers[0].documents')){
+            let document = _.get(petuserinfo,'insuredMembers[0].documents');
+            document.forEach((item)=>{
+              let obj = {
+                "doc_ids" : [item.documentId]
+              }
+              axios.post("/pos-bff-hybrid/api/v1/register-document/pet",obj).then((res)=>{
+                if(_.get(res,'data.data.data.docs[0]')){
+                  if(!step.fields[item.documentType].value)
+                    step.fields[item.documentType].value = {};
+                  step.fields[item.documentType].value.url =  `<%= docServiceUrl %>doc-service/v1/documents/${_.get(res,'data.data.data.docs[0]')}`;
+                  step.fields[item.documentType].value.doc_id = item.documentId;
+                  next(step);
+                }
+              })
+            })
+          }
+          next(step);
+        }
+      },
+      ],
+      activeStep: 0,
+      customValidators: {
+      isValidName: function (str) {
+          var regexp = new RegExp(
+            /^(?=.{1,40}$)[a-zA-Z]+(?:[-'\s][a-zA-Z]+)*$/i
+          );
+          return regexp.test(str);
+      },
+    },
+    },
+  }

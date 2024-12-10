@@ -1,0 +1,1603 @@
+let DealerCityAndList = function(event, step, next) {
+  <% if(schemaVal.showDealerDropDown) { %>
+    if(!step.fields.dealerCitySingleSelect){
+      step.fields['dealerCitySingleSelect'] = {
+        type: "SingleSelectReactselect",
+        options: [],
+        id: "dealerCitySingleSelect",
+        name: "dealerCitySingleSelect",
+        label: "Select Dealer City",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        onChange: (event, step, next) => {
+              let item = step.fields.dealerCitySingleSelect.value[0];
+              let uuid = '<%= schemaVal.uuid %>';
+              step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+              step.fields["dealerSingleSelect"]["value"] = [];
+              let dataParams = {};
+                <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getAllDealers: true
+                }
+                <% } else { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getHierarchyUsers: true,
+                  reporting_sfa_uuids: uuid
+                }
+              <% } %>
+              axios.get('/pos-bff/api/v1/dealers', {
+                params: dataParams
+              }).then((res) => {
+                var dealerSelect = [];
+                if (res.status == 200) {
+                  if (res.data && res.data && res.data.data && res.data.data.data) {
+                    res.data.data.data.map((item) => {
+                      dealerSelect.push({ value: item.iam_uuid, label: item.name });
+                    });
+                  }
+                }
+                step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                next(step);  
+              }).catch((err) => {
+                next(step);
+              });
+        }
+      }
+    }
+    let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+    if(dealerCityList) {
+      var dealerCitySelect = [];
+      dealerCityList.map((item) => {
+        dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+      });
+    } else {
+      dealerCitySelect.push([]);
+    }
+    step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+
+    if(!step.fields.dealerSingleSelect){
+      step.fields['dealerSingleSelect'] = {
+        type: "AsyncReactSelect",
+        options: [],
+        id: "dealerSingleSelect",
+        name: "dealerSingleSelect",
+        label: "Select Dealer",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        loadOptions: (input, step, resolve) => {
+        let item = step.fields.dealerCitySingleSelect.value[0];
+        let uuid = '<%= schemaVal.uuid %>';
+        <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            getAllDealers: true,
+            name: input
+          }
+          <% } else { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            reporting_sfa_uuids: uuid,
+            getHierarchyUsers: true,
+            name: input
+          }
+        <% } %>
+        axios
+          .get(
+            "/pos-bff/api/v1/dealers",
+            {
+              params: dataParams
+            }
+          )
+          .then((res) => {
+            var dealerSelect = [];
+            if (res.status == 200) {
+              if (
+                res.data &&
+                res.data &&
+                res.data.data &&
+                res.data.data.data
+              ) {
+                res.data.data.data.map((item) => {
+                  dealerSelect.push({
+                    value: item.iam_uuid,
+                    label: item.name,
+                  });
+                });
+              }
+            } else {
+              resolve([]);
+            }
+            resolve(dealerSelect)
+          });
+      },
+      }
+    }
+    <% } %>
+}
+
+
+
+window.formBuilderSchemaTravel =
+{
+  formBuilder: {
+
+    steps: [
+      {
+        currStep: 0,
+        hideSubmitButton: true,
+        submitButtonDisabled: true,
+        submitButtonLabel: "Search Plans",
+        totalMembersAllowed: 6,
+        alignment: "vertical",
+        nullSpacing: true,
+        errors: {},
+        isStepValid: [false, false, false],
+        fields: {
+          TitleBox: {
+            size: 12,
+            type: "Group",
+            name: "TitleBox",
+            className: "TravelTitleBox",
+            children: {
+              countriesMultiSelect: {
+                hide: false,
+                type: "MultiSelectReactSelectWithNumbers",
+                id: "countriesMultiSelect",
+                name: "countriesMultiSelect",
+                mobile: 12,
+                className: "CountrySelect",
+              },
+              TripDateBox: {
+                hide: false,
+                type: "TypoGraphyBox",
+                id: "TripDateBox",
+                name: "TripDateBox",
+                mobile: 6,
+                className: "tripStart",
+              },
+              TripEndDateBox: {
+                hide: false,
+                type: "TypoGraphyBox",
+                id: "TripEndDateBox",
+                name: "TripEndDateBox",
+                mobile: 6,
+                className: "tripEnd",
+              },
+              TravellerCount: {
+                hide: false,
+                type: "TypoGraphyBox",
+                id: "TravellerCount",
+                name: "TravellerCount",
+                mobile: 12,
+                className: "travellerCount",
+              },
+              SubmitButton: {
+                hide: false,
+                type: "SubmitButton",
+                size: 12,
+                name: "SubmitButton",
+              },
+            },
+          },
+          BottomDrawer: {
+            type: "DrawerWithContent",
+            name: "BottomDrawer",
+            gridName:"travelPop_step1",
+            className: "BottomDrawer",
+            open: false,
+            label: "This is a drawer",
+            children: {
+              countriesMultiSelectDrawer: {
+                hide: false,
+                type: "MultiSelectReactSelectWithNumbers",
+                id: "countriesMultiSelectDrawer",
+                name: "countriesMultiSelectDrawer",
+                mobile: 12,
+                className: "countriesSelect",
+              },
+              countriesGrid: {
+                hide: false,
+                type: "MultiSelectWithoutImages",
+                id: "countriesGrid",
+                name: "countriesGrid",
+                value: [],
+              },
+              TripDateBox: {
+                hide: true,
+                mobile: 6,
+                disabled: false,
+                type: "TypoGraphyBox",
+                alignment: "horizontal",
+                id: "TripDateBox",
+                name: "TripDateBox",
+                title: "Trip Start Date",
+                label: "Add Date",
+                variant: "filled",
+                span: 12,
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+                className: "tripStart",
+              },
+              TripEndDateBox: {
+                hide: true,
+                mobile: 6,
+                type: "TypoGraphyBox",
+                alignment: "horizontal",
+                id: "TripEndDateBox",
+                name: "TripEndDateBox",
+                title: "Trip End Date",
+                label: "Add Date",
+                variant: "filled",
+                span: 12,
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+                className: "tripEnd",
+              },
+              tripDate: {
+                hide: true,
+                type: "DateRangeWithHorizontal",
+                month: 1,
+                id: "tripDate",
+                name: "tripDate",
+                label: "Trip Date",
+                span: 12,
+              },
+              TravellerCount: {
+                mobile: 12,
+                count: 0,
+                self: 0,
+                student: false,
+                type: "TypoGraphyBox",
+                alignment: "horizontal",
+                id: "TravellerCount",
+                name: "TravellerCount",
+                title: "Traveller",
+                label: "Add Traveller",
+                variant: "filled",
+                span: 12,
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+                onClick: function (event, step, next) {
+                  step.setStep(step, 3);
+                  next(step);
+                },
+                className: "travellerCount",
+              },
+              travellerColumn: {
+                type: "Group",
+                name: "travellerColumn",
+                id: "travellerColumn",
+                hide: true,
+              },
+              SubmitButton: {
+                hide: false,
+                type: "SubmitButton",
+                size: 12,
+                name: "SubmitButton",
+              },
+            },
+            onClick: function (e, step, next) {
+              step.fields.BottomDrawer.open = false;
+              step.setStep(step, 0);
+              step.validateStep(step,0);
+              next(step);
+            },
+          },
+          countriesMultiSelect: {
+            hide: true,
+            mobile: 12,
+            type: "Proxy",
+            isDisabled: true,
+            dropDownOpen: false,
+            maxToShow: 2,
+            alignment: "horizontal",
+            popupOpen: false,
+            options: [],
+            id: "countriesMultiSelect",
+            name: "countriesMultiSelect",
+            label: "Travelling to",
+            placeholder: "Add places",
+            variant: "outlined",
+            span: 12,
+            value: [],
+            max: 10,
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Country is required field"],
+            onDivClick: function (event, step, next) {
+              step.setStep(step, 1);
+              step.validateStep(step, 1);
+              next(step);
+            },
+          },
+          countriesMultiSelectDrawer: {
+            hide: false,
+            mobile: 12,
+            type: "Proxy",
+            dropDownOpen: false,
+            maxToShow: 10,
+            alignment: "horizontal",
+            popupOpen: false,
+            options: [],
+            id: "countriesMultiSelectDrawer",
+            name: "countriesMultiSelectDrawer",
+            label: "Travelling to",
+            placeholder: "Add places",
+            variant: "outlined",
+            span: 12,
+            value: [],
+            max: 10,
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Country is required field"],
+            onChange: (event, step, newVal, next) => {
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'select_country',lead_label: 'user_selected', is_mobile: window.__isMobile};
+              window.projectGlobals.setDataLayer(null, null, true, false, o);
+              if (!Array.isArray(step.fields.countriesMultiSelect.value)) {
+                step.fields.countriesMultiSelect.value = [];
+                step.fields.countriesMultiSelectDrawer.value = [];
+              }
+              let value = [...step.fields.countriesMultiSelect.value];
+              if (newVal["option"] != undefined) {
+                value.push(newVal["option"]);
+              } else if (newVal["removedValue"] != undefined) {
+                value.splice(value.indexOf(newVal["removedValue"]), 1);
+              } else {
+                for (let i in newVal["removedValues"]) {
+                  value.splice(value.indexOf(newVal["removedValues"][i]));
+                }
+              }
+              step.fields.countriesMultiSelect.value = value;
+              step.fields.countriesMultiSelectDrawer.value = value;
+
+              step.fields.countriesGrid.value = [];
+              let options = step.fields.countriesGrid.options;
+              step.fields.countriesMultiSelect.value.forEach((item) => {
+                let element = options.find((obj) => obj.value == item.value);
+                if (element)
+                  step.fields.countriesGrid.value.push(element.value);
+              });
+
+              if (
+                step.fields.countriesMultiSelect.value.length ==
+                step.fields.countriesMultiSelect.max
+              ) {
+                step.fields.countriesMultiSelectDrawer.disabled = true;
+                step.fields.countriesGrid.disabled = true;
+                step.fields.countriesMultiSelectDrawer.helperText =
+                  "Max Limit Reached";
+              } else {
+                step.fields.countriesMultiSelectDrawer.disabled = false;
+                step.fields.countriesGrid.disabled = false;
+                step.fields.countriesMultiSelectDrawer.helperText = "";
+              }
+              if(step.fields.countriesMultiSelect.value.length>=4){
+                step.fields.BottomDrawer.children.countriesMultiSelectDrawer.className="countriesSelect multiSelected";
+              }
+              else{
+                step.fields.BottomDrawer.children.countriesMultiSelectDrawer.className="countriesSelect";
+              }
+              step.validateStep(step, 1);
+              next(step);
+            },
+          },
+          TripDateBox: {
+            hide: true,
+            mobile: 6,
+            disabled: false,
+            type: "Proxy",
+            alignment: "horizontal",
+            id: "TripDateBox",
+            name: "TripDateBox",
+            title: "Trip Start Date",
+            label: "Add Date",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty"],
+            errormessages: ["Trip date is required"],
+            value: null,
+            onClick: function (event, step, next) {
+              step.setStep(step, 2);
+              step.validateStep(step, 2);
+              next(step);
+            },
+          },
+          TripEndDateBox: {
+            hide: true,
+            mobile: 6,
+            type: "Proxy",
+            alignment: "horizontal",
+            id: "TripEndDateBox",
+            name: "TripEndDateBox",
+            title: "Trip End Date",
+            label: "Add Date",
+            variant: "filled",
+            span: 12,
+            value: null,
+            validators: ["isEmpty"],
+            errormessages: ["Trip date is required"],
+            onClick: function (event, step, next) {
+              step.setStep(step, 2);
+              step.validateStep(step, 2);
+              next(step);
+            },
+          },
+          TravellerCount: {
+            hide: true,
+            mobile: 12,
+            count: 0,
+            self: 0,
+            student: false,
+            type: "Proxy",
+            alignment: "horizontal",
+            id: "TravellerCount",
+            name: "TravellerCount",
+            title: "Traveller",
+            label: "Add Traveller",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onClick: function (event, step, next) {
+              step.setStep(step, 3);
+              step.validateStep(step, 3);
+              next(step);
+            },
+          },
+          countriesGrid: {
+            hide: true,
+            type: "Proxy",
+            id: "countriesGrid",
+            popupOpen: false,
+            name: "countriesGrid",
+            label: "Popular Countries",
+            span: 12,
+            validators: [],
+            value: [],
+            errormessages: [],
+            options: [],
+            onChange: (event, step, next) => {
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'select_country',lead_label: 'user_selected', is_mobile: window.__isMobile};
+              window.projectGlobals.setDataLayer(null, null, true, false, o);
+              const options = step.fields.countriesMultiSelect.options;
+              const gridOptions = step.fields.countriesGrid.options;
+              const gridValues = step.fields.countriesGrid.value;
+              let reactSelectValues = step.fields.countriesMultiSelect.value;
+              const maxLimit = step.fields.countriesMultiSelect.max;
+
+              step.fields.countriesGrid.value.forEach((item) => {
+                const element = options.find((obj) => obj.value === item);
+                if (
+                  !reactSelectValues.find((obj) => obj.value === element.value)
+                ) {
+                  step.fields.countriesMultiSelect.value.push(element);
+                }
+              });
+
+              const temp = reactSelectValues.filter((item) => {
+                return (
+                  gridOptions.findIndex((obj) => obj.value === item.value) <
+                    0 || gridValues.findIndex((obj) => obj === item.value) >= 0
+                );
+              });
+              step.fields.countriesMultiSelect.value = temp;
+
+              step.fields.countriesMultiSelect.disabled =
+              step.fields.countriesMultiSelect.length === maxLimit;
+              step.fields.countriesGrid.disabled =
+              step.fields.countriesMultiSelect.length === maxLimit;
+              step.fields.countriesMultiSelect.helperText =
+              step.fields.countriesMultiSelect.length === maxLimit
+                  ? "Max Limit Reached"
+                  : "";
+                  step.fields.countriesMultiSelectDrawer.helperText =
+                reactSelectValues.length === maxLimit
+                  ? "Max Limit Reached"
+                  : "";
+                  if(step.fields.countriesMultiSelect.value.length>=4){
+                    step.fields.BottomDrawer.children.countriesMultiSelectDrawer.className="countriesSelect multiSelected";
+                  }
+                  else{
+                    step.fields.BottomDrawer.children.countriesMultiSelectDrawer.className="countriesSelect";
+                  }
+              step.fields.countriesMultiSelectDrawer.value =
+                step.fields.countriesMultiSelect.value;
+              let d = reactSelectValues.length;
+              step.validateStep(step, 1);
+              next(step);
+            },
+          },
+          tripDate: {
+            hide: true,
+            month: 2,
+            orientation:"vertical",
+            type: "Proxy",
+            popupOpen: false,
+            id: "tripDate",
+            name: "tripDate",
+            label: "Trip Date",
+            variant: "outlined",
+            maxDate: new Date(),
+            closed: false,
+            minDate: new Date(),
+            span: 12,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the trip date."],
+            onChange: (event, step, next) => {
+              step.clickCount++;
+
+              let selectedData = _.cloneDeep(step.fields.tripDate.value);
+              let minStartDate = new Date();
+              let maxStartDate = new Date();
+              maxStartDate.setDate(maxStartDate.getDate() + 179);
+              if (selectedData.startDate > maxStartDate) {
+                selectedData.startDate = maxStartDate;
+                step.fields.tripDate.value.startDate = maxStartDate;
+              }
+              let minEndDate = _.cloneDeep(selectedData.startDate);
+              let maxEndDate = _.cloneDeep(selectedData.startDate);
+              maxEndDate.setDate(maxEndDate.getDate() + 179);
+              step.fields.tripDate.maxDate = new Date(maxEndDate);
+              if(selectedData.startDate<selectedData.endDate)
+                {
+                    let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'trip_end_date',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                    window.projectGlobals.setDataLayer(null, null, true, false, o);
+                  step.fields.TripDateBox.label=JSON.stringify(new Date(selectedData.startDate.getTime() - (selectedData.startDate.getTimezoneOffset() * 60000))).substring(1,11);
+                  step.fields.TripEndDateBox.label=JSON.stringify(new Date(selectedData.endDate.getTime() - (selectedData.endDate.getTimezoneOffset() * 60000))).substring(1,11);
+                  step.fields.TripDateBox.value=selectedData.startDate
+                  step.fields.TripDateBox.helperText=""
+                  step.fields.TripEndDateBox.value=selectedData.endDate
+                }
+                else{
+                  let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'trip_start_date',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                  window.projectGlobals.setDataLayer(null, null, true, false, o);
+                }
+              step.validateStep(step, 2);
+              next(step);
+            },
+          },
+          travellerColumn: {
+            type: "Group",
+            name: "travellerColumn",
+            hide: true,
+            children: {
+              travelerDetails: {
+                hide: true,
+                type: "DatePickerWithCrossIcon",
+                id: "travelerDetails",
+                name: "travelerDetails",
+                span: 12,
+                size: 12,
+              },
+              selfCheckBox: {
+                hide: true,
+                type: "GenericCheckBox",
+                id: "selfCheckBox",
+                name: "selfCheckBox",
+                span: 12,
+                size: 12,
+              },
+              EmptyDiv: {
+                size: 12,
+                hide: true,
+                name: "EmptyDiv",
+                className:"EmptyDiv",
+                type: "SpanBox",
+              },
+              SpanBox1: {
+                size: 3,
+                hide: true,
+                name: "SpanBox1",
+                type: "SpanBox",
+              },
+              AddTraveller: {
+                size: 4.5,
+                hide: true,
+                type: "AddButton",
+                id: "AddTraveller",
+                name: "AddTraveller",
+                span: 12,
+              },
+              AddDaughter: {
+                size: 4.5,
+                hide: true,
+                type: "AddButton",
+                id: "AddDaughter",
+                name: "AddDaughter",
+                span: 12,
+              },
+              SpanBox2: {
+                size: 3,
+                hide: true,
+                name: "SpanBox2",
+                type: "SpanBox",
+              },
+              AddSon: {
+                size: 4.5,
+                hide: true,
+                type: "AddButton",
+                id: "AddSon",
+                name: "AddSon",
+                span: 12,
+              },
+              AddParents: {
+                size: 4.5,
+                hide: true,
+                type: "AddButton",
+                id: "AddParents",
+                name: "AddParents",
+                span: 12,
+              },
+            },
+          },
+          travelerDetails: {
+            hide: true,
+            type: "Proxy",
+            toShow:null,
+            alignment: "vertical",
+            popupOpen: false,
+            id: "travelerDetails",
+            name: "travelerDetails",
+            title: "You",
+            variant: "filled",
+            minDate: "15-07-2023",
+            maxDate: "15-01-2024",
+            span: 12,
+            size: 12,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onClick:function (event,step,next){
+              step.totalMembersAllowed=step.totalMembersAllowed+1
+             delete step.fields.travellerColumn.children['travelerDetails']
+             delete step.fields['travelerDetails']
+             delete step.errors['travelerDetails'];
+              step.onTravellerChange(step,"remove")
+              step.validateStep(step,3)
+              step.handleSelfSpouse(step,'self','remove')
+            },
+            onChange:function(event,step,next){
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'self_age',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                window.projectGlobals.setDataLayer(null, null, true, false, o);
+              step.validateStep(step,3)
+              if(step.errors)
+              delete step.errors["travelerDetails"]
+            }
+          },
+          selfCheckBox: {
+            hide: true,
+            type: "Proxy",
+            alignment: "vertical",
+            id: "selfCheckBox",
+            name: "selfCheckBox",
+            toDisable: false,
+            label: "Are you a student Traveller ?",
+            span: 12,
+            size: 12,
+            validators: [],
+            errormessages: [],
+            options: [{ value: "check" }],
+            value: [],
+            onChange: function (event, step, next) {},
+            onClick: function (event, step, next) {
+              if(step){
+                let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'student_trip',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                window.projectGlobals.setDataLayer(null, null, true, false, o);
+              if (!Array.isArray(step.fields.selfCheckBox.value)) {
+                step.fields.selfCheckBox.value = [];
+              }
+              let value = [...step.fields.selfCheckBox.value];
+              if (value.indexOf(event.target.value) == -1) {
+                value = [event.target.value];
+              } else {
+                value = [];
+              }
+              step.fields.selfCheckBox.value = value;
+              if (step.fields.travelerDetails.title == "student") {
+                let selfMaxDate = new Date();
+                let selfMinDate = new Date();
+                selfMinDate.setYear(selfMinDate.getFullYear() - 99);
+                selfMinDate.setDate(selfMinDate.getDate() + 1);
+                selfMaxDate.setYear(selfMaxDate.getFullYear() - 18);
+                step.fields.travelerDetails.minDate = selfMinDate;
+                step.fields.travelerDetails.maxDate = selfMaxDate;
+                step.fields.AddTraveller.disabled = false;
+                step.fields.AddDaughter.disabled = false;
+                step.fields.AddSon.disabled = false;
+                step.fields.AddParents.disabled = false;
+                step.fields.travelerDetails.title = "You";
+              } else {
+                let studentMaxDate = new Date();
+                let studentMinDate = new Date();
+                studentMinDate.setYear(studentMinDate.getFullYear() - 40);
+                studentMinDate.setDate(studentMinDate.getDate() + 1);
+                studentMaxDate.setYear(studentMaxDate.getFullYear() - 16);
+                step.fields.travelerDetails.minDate = studentMinDate;
+                step.fields.travelerDetails.maxDate = studentMaxDate;
+                step.fields.AddTraveller.disabled = true;
+                step.fields.AddDaughter.disabled = true;
+                step.fields.AddSon.disabled = true;
+                step.fields.AddParents.disabled = true;
+                step.fields.travelerDetails.title = "student";
+              }
+              next(step);
+              step.onTravellerChange(step, "student");
+              step.validateStep(step,3)
+            }
+            },
+          },
+          AddSelf:{
+            size:4.5,
+            hide:true,
+            type:"Proxy",
+          id:"AddSelf",
+          name:"AddSelf",
+          title:"Self",
+          label:"Add Self",
+          variant: "filled",
+          disabled:false,
+          span: 12,
+          validators: ["isEmpty"],
+          helperText:'',
+          errormessages: ["This Field is required"],
+          onChange: function (event,step,next) {
+            let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'add_self',lead_label: 'user_selected', is_mobile: window.__isMobile};
+            window.projectGlobals.setDataLayer(null, null, true, false, o);
+           let totalMember=step.totalMembersAllowed
+           if(!step.fields['travelerDetails'] && totalMember>0){
+            step.addField(step,'travelerDetails')
+            step.totalMembersAllowed=step.totalMembersAllowed-1
+            let selfMaxDate = new Date();
+            let selfMinDate = new Date();
+            selfMinDate.setYear(selfMinDate.getFullYear() - 99);
+            selfMinDate.setDate(selfMinDate.getDate() + 1);
+            selfMaxDate.setYear(selfMaxDate.getFullYear() - 18);
+            step.fields['travelerDetails']={
+                type:"Proxy",
+                id:"travelerDetails",
+                toShow:false,
+                name:"travelerDetails",
+                title:"You",
+                variant: "filled",
+                minDate:selfMinDate,
+                maxDate:selfMaxDate,
+                span: 12,
+                size:12,
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+                onChange:function(event,step,next){
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'self_age',lead_label: 'user_selected', is_mobile: window.__isMobile};
+              window.projectGlobals.setDataLayer(null, null, true, false, o);
+                  step.validateStep(step,3)
+                  if(step.errors)
+                  delete step.errors["travelerDetails"]
+                },
+                onClick:function (event,step,next){
+                  step.totalMembersAllowed=step.totalMembersAllowed+1
+                  delete step.fields.travellerColumn.children['travelerDetails'];
+                  delete step.fields['travelerDetails'];
+                  delete step.errors['travelerDetails'];
+                  step.fields.AddSelf.disabled=false
+                  step.onTravellerChange(step,"remove")
+                  step.handleSelfSpouse(step,'self','remove')
+                  step.validateStep(step,3)
+                }
+            };
+            step.fields.selfCheckBox.toDisable=true
+            step.fields.AddTraveller.disabled=true
+           }
+           if(step.totalMembersAllowed<1){
+            step.fields.AddTraveller.disabled=true
+            step.fields.AddDaughter.disabled=true
+            step.fields.AddSon.disabled=true
+            step.fields.AddParents.disabled=true
+           }
+           next(step)
+           step.onTravellerChange(step,"add")
+           step.validateStep(step,3)
+           step.handleSelfSpouse(step,'self','add')
+          }
+
+          },
+          AddTraveller: {
+            size: 4.5,
+            hide: true,
+            type: "Proxy",
+            id: "AddTraveller",
+            name: "AddTraveller",
+            title: "Spouse",
+            label: "Add Spouse",
+            variant: "filled",
+            disabled: false,
+            span: 12,
+            validators: [""],
+            errormessages: [""],
+            onChange: function (event, step, next) {
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'add_spouse',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                window.projectGlobals.setDataLayer(null, null, true, false, o);
+              let totalMember = step.totalMembersAllowed;
+              if (!step.fields["spouseBox"] && totalMember > 0) {
+                step.addField(step, "spouseBox");
+                step.totalMembersAllowed = step.totalMembersAllowed - 1;
+                let spouseMaxDate = new Date();
+                let spouseMinDate = new Date();
+                spouseMinDate.setYear(spouseMinDate.getFullYear() - 99);
+                spouseMinDate.setDate(spouseMinDate.getDate() + 1);
+                spouseMaxDate.setYear(spouseMaxDate.getFullYear() - 18);
+                step.validateStep(step,3)
+                step.fields["spouseBox"] = {
+                  type: "Proxy",
+                  id: "spouseBox",
+                  toShow: false,
+                  name: "spouseBox",
+                  title: "Spouse",
+                  variant: "filled",
+                  minDate: spouseMinDate,
+                  maxDate: spouseMaxDate,
+                  span: 12,
+                  size: 12,
+                  validators: ["isEmpty"],
+                  errormessages: ["This field is required"],
+                  onClick: function (event, step, next) {
+                    step.totalMembersAllowed = step.totalMembersAllowed + 1;
+                    delete step.fields.travellerColumn.children["spouseBox"];
+                    delete step.fields["spouseBox"];
+                    delete step.errors["spouseBox"];
+                    step.fields.AddTraveller.disabled = false;
+                    step.onTravellerChange(step, "remove");
+                    step.handleSelfSpouse(step,'spouse','remove')
+                    step.validateStep(step,3)
+                  },
+                  onChange:function(event,step,next){
+                    let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'spouse_age',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                window.projectGlobals.setDataLayer(null, null, true, false, o);
+                    step.validateStep(step,3)
+                    if(step.errors)
+                    delete step.errors["spouseBox"]
+                  }
+                };
+                step.validateStep(step,3)
+                step.fields.selfCheckBox.toDisable = true;
+                step.fields.AddTraveller.disabled = true;
+              }
+              if (step.totalMembersAllowed < 1) {
+                step.fields.AddTraveller.disabled = true;
+                step.fields.AddSelf.disabled=true;  
+                step.fields.AddDaughter.disabled = true;
+                step.fields.AddSon.disabled = true;
+                step.fields.AddParents.disabled = true;
+              }
+              next(step);
+              step.onTravellerChange(step, "add");
+              step.handleSelfSpouse(step,'spouse','add')
+              step.validateStep(step,3)
+            },
+          },
+          AddDaughter: {
+            size: 4.5,
+            hide: true,
+            type: "Proxy",
+            id: "AddDaughter",
+            name: "AddDaughter",
+            title: "Daughter",
+            label: "Add Daughter",
+            variant: "filled",
+            value: "Add Daughter",
+            disabled: false,
+            span: 12,
+            validators: [""],
+            errormessages: [""],
+            onChange: function (event, step, next) {
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'add_daughter',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                window.projectGlobals.setDataLayer(null, null, true, false, o);
+              let totalMember = step.totalMembersAllowed;
+              let childMinDate = new Date();
+              let childMaxDate = new Date();
+              childMinDate.setYear(childMinDate.getFullYear() - 24);
+              childMaxDate.setMonth(childMaxDate.getMonth() - 3);
+              childMinDate.setDate(childMinDate.getDate() + 1);
+              if (!step.fields["daughterBox"]) {
+                if (totalMember > 0) {
+                  step.totalMembersAllowed = totalMember - 1;
+                  let daughterFieldId = 'daughterBox' + totalMember;
+                  if(step.fields.hasOwnProperty(daughterFieldId)){
+                    daughterFieldId='daughterBox'+(totalMember-1);
+                  }
+                  step.addField(step, daughterFieldId);
+                  step.fields[daughterFieldId] = {
+                    type: "Proxy",
+                    id: daughterFieldId,
+                    toShow: false,
+                    name: daughterFieldId,
+                    title: "Daughter",
+                    variant: "filled",
+                    minDate: childMinDate,
+                    maxDate: childMaxDate,
+                    span: 12,
+                    size: 12,
+                    validators: ["isEmpty"],
+                    errormessages: ["This field is required"],
+                    onClick: function (event, step, next) {
+                      step.totalMembersAllowed = step.totalMembersAllowed + 1;
+                      step.validateStep(step,3)
+                      delete step.fields.travellerColumn.children[
+                        daughterFieldId
+                      ];
+                      delete step.fields[daughterFieldId];
+                      delete step.errors[daughterFieldId];
+                      step.fields.AddDaughter.disabled = false;
+                      next(step);
+                      step.onTravellerChange(step, "remove");
+                      step.handleSelfSpouse(step,'daughter','remove')
+                      step.validateStep(step,3)
+                    },
+                    onChange:function(event,step,next){
+                      let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'daughter_age',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                window.projectGlobals.setDataLayer(null, null, true, false, o);
+                      step.validateStep(step,3)
+                      if(step.errors)
+                      delete step.errors[daughterFieldId]
+                    }
+                  };
+                  step.validateStep(step,3)
+                  step.fields.selfCheckBox.toDisable = true;
+                }
+                next(step);
+                step.onTravellerChange(step, "add");
+                step.handleSelfSpouse(step,'daughter','add')
+                step.validateStep(step,3)
+              }
+              if (step.totalMembersAllowed < 1) {
+                step.fields.AddTraveller.disabled = true;
+                step.fields.AddParents.disabled = true;
+                step.fields.AddSelf.disabled=true;
+                step.fields.AddDaughter.disabled = true;
+                step.fields.AddSon.disabled = true;
+              }
+            },
+          },
+          AddSon: {
+            size: 4.5,
+            hide: true,
+            type: "Proxy",
+            id: "AddSon",
+            name: "AddSon",
+            title: "Son",
+            variant: "filled",
+            label: "Add Son",
+            value: "Add Son",
+            disabled: false,
+            span: 12,
+            validators: [""],
+            errormessages: [""],
+            onChange: function (event, step, next) {
+              let totalMember = step.totalMembersAllowed;
+              let childMinDate = new Date();
+              let childMaxDate = new Date();
+              childMinDate.setYear(childMinDate.getFullYear() - 24);
+              childMaxDate.setMonth(childMaxDate.getMonth() - 3);
+              childMinDate.setDate(childMinDate.getDate() + 1);
+              if (!step.fields["sonBox"] && totalMember > 0) {
+                let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'add_son',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                window.projectGlobals.setDataLayer(null, null, true, false, o);
+                step.totalMembersAllowed = totalMember - 1;
+                let sonFieldId = 'sonBox' + totalMember; 
+                if(step.fields.hasOwnProperty(sonFieldId)){
+                  sonFieldId='sonBox'+(totalMember-1);
+                }
+                step.addField(step, sonFieldId);
+                step.validateStep(step,3)
+                step.fields[sonFieldId] = {
+                  type: "Proxy",
+                  id: sonFieldId,
+                  name: sonFieldId,
+                  toShow: false,
+                  title: "Son",
+                  variant: "filled",
+                  minDate: childMinDate,
+                  maxDate: childMaxDate,
+                  span: 12,
+                  size: 12,
+                  validators: ["isEmpty"],
+                  errormessages: ["This field is required"],
+                  onClick: function (event, step, next) {
+                    step.validateStep(step,3)
+                    step.totalMembersAllowed = step.totalMembersAllowed + 1;
+                    delete step.fields.travellerColumn.children[sonFieldId];
+                    delete step.fields[sonFieldId];
+                    delete step.errors[sonFieldId];
+                    step.fields.AddSon.disabled = false;
+                    next(step);
+                    step.onTravellerChange(step, "remove");
+                    step.handleSelfSpouse(step,'son','remove')
+                  },
+                  onChange:function(event,step,next){
+                    let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'son_age',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                window.projectGlobals.setDataLayer(null, null, true, false, o);
+                    step.validateStep(step,3)
+                    if(step.errors)
+                    delete step.errors[sonFieldId]
+                  }
+                };
+                step.fields.selfCheckBox.toDisable = true;
+                next(step);
+                step.onTravellerChange(step,"add")
+                step.handleSelfSpouse(step,'son','add')
+                step.validateStep(step,3)
+              }
+              if (step.totalMembersAllowed < 1) {
+                step.fields.AddTraveller.disabled = true;
+                step.fields.AddSelf.disabled=true;
+                step.fields.AddDaughter.disabled = true;
+                step.fields.AddSon.disabled = true;
+                step.fields.AddParents.disabled = true;
+              }
+            },
+          },
+          AddParents: {
+            size: 4.5,
+            hide: true,
+            type: "Proxy",
+            id: "AddParents",
+            name: "AddParents",
+            title: "Parents",
+            toShow: false,
+            variant: "filled",
+            label: "Add Parents",
+            value: "Add Parents",
+            disabled: false,
+            span: 12,
+            validators: [""],
+            errormessages: [""],
+            onChange: function (event, step, next) {
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'add_parents',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                window.projectGlobals.setDataLayer(null, null, true, false, o);
+              let totalMember = step.totalMembersAllowed;
+              let fatherMinDate = new Date();
+              let fatherMaxDate = new Date();
+              fatherMinDate.setYear(fatherMinDate.getFullYear() - 99);
+              fatherMinDate.setDate(fatherMinDate.getDate() + 1);
+              fatherMaxDate.setYear(fatherMaxDate.getFullYear() - 18);
+              let motherMinDate = new Date();
+              let motherMaxDate = new Date();
+              motherMinDate.setYear(motherMinDate.getFullYear() - 99);
+              motherMinDate.setDate(motherMinDate.getDate() + 1);
+              motherMaxDate.setYear(motherMaxDate.getFullYear() - 18);
+              step.validateStep(step,3)
+
+              if (
+                !step.fields["fatherBox"] &&
+                !step.fields["motherBox"] &&
+                totalMember > 0
+              ) {
+                step.totalMembersAllowed = step.totalMembersAllowed - 2;
+                step.addField(step, "fatherBox");
+                step.addField(step, "motherBox");
+                step.fields["fatherBox"] = {
+                  type: "Proxy",
+                  id: "fatherBox",
+                  name: "fatherBox",
+                  toShow: false,
+                  title: "Father",
+                  variant: "filled",
+                  minDate: fatherMinDate,
+                  maxDate: fatherMaxDate,
+                  span: 12,
+                  size: 12,
+                  validators: ["isEmpty"],
+                  errormessages: ["This field is required"],
+                  onClick: function (event, step, next) {
+                    step.validateStep(step,3)
+                    step.totalMembersAllowed = step.totalMembersAllowed + 1;
+                    delete step.fields.travellerColumn.children["fatherBox"];
+                    delete step.fields["fatherBox"];
+                    delete step.errors["fatherBox"];
+                    if(!step.fields["motherBox"])
+                    {
+                    step.fields.AddParents.disabled = false;
+                    }
+                    step.onTravellerChange(step, "remove");
+                    step.validateStep(step,3)
+                  },
+                  onChange:function(event,step,next){
+                    step.validateStep(step,3)
+                    if(step.errors)
+                    delete step.errors["fatherBox"]
+                  }
+                };
+                step.fields["motherBox"] = {
+                  type: "Proxy",
+                  id: "motherBox",
+                  name: "motherBox",
+                  toShow: false,
+                  title: "Mother",
+                  variant: "filled",
+                  minDate: motherMinDate,
+                  maxDate: motherMaxDate,
+                  span: 12,
+                  size: 12,
+                  validators: ["isEmpty"],
+                  errormessages: ["This field is required"],
+                  onClick: function (event, step, next) {
+                    step.totalMembersAllowed = step.totalMembersAllowed + 1;
+                    delete step.fields.travellerColumn.children["motherBox"];
+                    delete step.fields["motherBox"];
+                    delete step.errors["motherBox"];
+                    if(!step.fields["fatherBox"])
+                    {
+                    step.fields.AddParents.disabled = false;
+                    }
+                    step.onTravellerChange(step, "remove");
+                    step.handleSelfSpouse(step,'mother','remove')
+                    step.validateStep(step,3)
+                  },
+                  onChange:function(event,step,next){
+                    step.validateStep(step,3)
+                    if(step.errors)
+                    delete step.errors["motherBox"]
+                  }
+                };
+                step.validateStep(step,3)
+                step.fields.AddParents.disabled = true;
+                step.fields.selfCheckBox.toDisable = true;
+                next(step);
+                step.onTravellerChange(step,"add","parent")
+                step.handleSelfSpouse(step,'parents','add')
+                step.validateStep(step,3)
+              }
+              if (step.totalMembersAllowed < 1) {
+                step.fields.AddTraveller.disabled = true;
+                step.fields.AddSelf.disabled=true;
+                step.fields.AddDaughter.disabled = true;
+                step.fields.AddSon.disabled = true;
+                step.fields.AddParents.disabled = true;
+              }
+            },
+          },
+          SubmitButton: {
+            hide: true,
+            type: "SubmitButton",
+            size: 12,
+            heading: null,
+            name: "SubmitButton",
+          },
+        },
+        onLoad: function (step, next) {
+          DealerCityAndList(event,step, next);
+          let minDate = new Date();
+          step.fields.tripDate.minDate = minDate;
+          let maxDate = new Date();
+          maxDate.setDate(maxDate.getDate() + 179);
+          step.fields.tripDate.maxDate = maxDate;
+          let selfMaxDate = new Date();
+          let selfMinDate = new Date();
+          selfMinDate.setYear(selfMinDate.getFullYear() - 99);
+          selfMinDate.setDate(selfMinDate.getDate() + 1);
+          selfMaxDate.setYear(selfMaxDate.getFullYear() - 18);
+          step.fields.travelerDetails.minDate = selfMinDate;
+          step.fields.travelerDetails.maxDate = selfMaxDate;
+          const totalMemberAllowed = step.totalMembersAllowed;
+          if (step.fields["travelerDetails"]) {
+            step.totalMembersAllowed = totalMemberAllowed - 1;
+          }
+          next(step);
+          let getSessionStorageItem = (key) => {
+            if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+                let data = sessionStorage.getItem(key);
+              if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                  let obj = JSON.parse(sessionStorage.getItem(key));
+                  return obj;
+              }
+            }
+            return {};
+        }
+        let countryList = getSessionStorageItem('countryList')
+        let countries = [];
+        let popularCountriesList=[31,106,107,158,176,188,189];
+        let popularCountries = [];
+        countryList && countryList.map((item) => {
+          countries.push({ value: item.id, label: item.country });
+          if(popularCountriesList.includes(item.id))
+            popularCountries.push({value:item.id,label:item.country});
+        });
+        step.fields["countriesMultiSelect"]["options"]=countries;
+        step.fields["countriesMultiSelectDrawer"]["options"]=countries;       
+        step.fields["countriesGrid"]["options"] = popularCountries;
+        next(step);
+        },
+        onSubmit: function (data, resolve, reject, step, next, isValid) {
+          step.validateStep(step,step.currStep)
+          if (step.submitButtonDisabled === true) {
+            if (step.currStep === 0) {
+              let error = "Add ";
+              if (!step.errors) {
+                step.errors = {};
+              }
+              if (step.fields.countriesMultiSelect.value.length === 0) {
+                error = error + "Countries, ";
+              }
+              if (!step.fields.TripDateBox.value) {
+                error = error + "TripDate, ";
+                step.fields.TripDateBox.helperText = "Trip date is required";
+              } else {
+                step.fields.TripDateBox.helperText = "";
+              }
+              if (step.fields.travelerDetails && !step.fields.travelerDetails.value) {
+                error = error + " Traveller details ";
+                step.fields.travelerDetails.helperText =
+                  "This field is required";
+                step.fields.travellerColumn.helperText =
+                  "This field is required";
+              } else if (Object.keys(step.errors).length !== 0) {
+                if (
+                  Object.keys(step.errors).indexOf("countriesMultiSelectDrawer") ===
+                    -1 ||
+                  Object.keys(step.errors).length > 1
+                ) {
+                  error = error + " Traveller details ";
+                }
+              } else if(step.fields.travelerDetails && step.fields.travelerDetails.value){
+                step.fields.travelerDetails.helperText = "";
+              }
+              error += "Before continuing";
+
+              step.fields.SubmitButton.heading = error;
+              reject({ message: error });
+              isValid(false);
+              return;
+            } else if (step.currStep === 1) {
+              step.fields.SubmitButton.heading = "Select countries";
+            } else if (step.currStep === 2) {
+              step.fields.SubmitButton.heading = "Select Trip Date";
+              step.fields.TripDateBox.helperText = "Trip date is required";
+            } else {
+              step.fields.SubmitButton.heading = "Add Traveller Details";
+              if (step.fields.travelerDetails && !step.fields.travelerDetails.value)
+                step.fields.travelerDetails.helperText =
+                  "This field is required";
+            }
+          } else {
+            if (step.currStep !== 0 && step.currStep < 3) {
+              step.setStep(step, step.currStep + 1);
+              step.validateStep(step, step.currStep);
+              return;
+            } else if (step.currStep === 0) {
+          let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'search_plans',lead_label: '', is_mobile: window.__isMobile};
+          window.projectGlobals.setDataLayer(null, null, true, false, o);
+              step.fields.SubmitButton.heading = null;
+              step.fields.BottomDrawer.open = false;
+              isValid(true);
+            } else if(step.currStep===3){
+
+              let errorInStep = false;
+              let tripStartDate = new Date(data?.tripDate?.startDate || Date.now());
+        Object.keys(step.fields).forEach((item)=>{
+            if(item.includes('son') || item.includes('daughter')){
+                let selfAge = (step.fields.travelerDetails && step.getAgeFromDate(step.fields.travelerDetails.value,tripStartDate)) || 99;
+                let spouseAge = (step.fields.spouseBox && step.getAgeFromDate(step.fields.spouseBox.value,tripStartDate)) || 99;
+                if(Math.min(selfAge,spouseAge) - step.getAgeFromDate(step.fields[item].value,tripStartDate) < 15){
+                    step.fields[item].error = true;
+                    step.fields[item].helperText = "Ensure age gap between parent & child.";
+                    errorInStep=true;
+                    next(step);
+                }
+                else{
+                    step.fields[item].error = false;
+                    step.fields[item].helperText = "";
+                    next(step);
+                }
+            }
+            if(item.includes('fatherBox') || item.includes('motherBox')){
+                let selfAge = (step.fields.travelerDetails && step.getAgeFromDate(step.fields.travelerDetails.value,tripStartDate)) || 99;
+                const itemAge = step.getAgeFromDate(step.fields[item].value,tripStartDate);
+                if ((step.fields.travelerDetails && itemAge - selfAge < 15) || (!step.fields.travelerDetails && selfAge - itemAge < 15)) {
+                    step.fields[item].error = true;
+                    step.fields[item].helperText = "Ensure age gap between parent & child.";
+                    errorInStep=true;
+                    next(step);
+                }
+                else{
+                    step.fields[item].error = false;
+                    step.fields[item].helperText = "";
+                    next(step);
+                }
+            }
+        });
+              if(!errorInStep){
+              step.fields.SubmitButton.heading = null;
+              step.fields.BottomDrawer.open = false;
+              isValid(true);
+              step.setStep(step,0)}
+            }
+          }
+        },
+        onTravellerChange: function (step, change,member) {
+          let count = step.fields.TravellerCount.count;
+          if (change === "self") {
+            step.fields.TravellerCount.self = 1;
+          } else if (change === "student") {
+            step.fields.TravellerCount.student =
+              !step.fields.TravellerCount.student;
+          }
+          else if(member=="parent" && change==="add")
+          {
+           count=count+2
+          }
+          else if(change==="add" && !member)
+          {
+            count++;
+          } else if (change === "remove") {
+            count--;
+            if (count === 4) {
+              if (!step.fields["spouseBox"]) {
+                step.fields.AddTraveller.disabled = false;
+              }
+              if (!step.fields["fatherBox"] && !step.fields["motherBox"]) {
+                step.fields.AddParents.disabled = false;
+              }
+              step.fields.AddSon.disabled = false;
+              step.fields.AddDaughter.disabled = false;
+            }
+          }
+          if (count===0)
+          {
+            if(!step.fields.travelerDetails){
+              step.fields.TravellerCount.label=""+(count+step.fields.TravellerCount.self)+" Travellers"
+            }
+            else{
+              step.fields.TravellerCount.label="You"
+            }
+          } 
+          else {
+            step.fields.TravellerCount.label =
+              "" + (count + step.fields.TravellerCount.self) + " Travellers";
+          }
+          if (step.fields.TravellerCount.student === true) {
+            step.fields.TravellerCount.label = "Student";
+          }
+          step.fields.TravellerCount.count = count;
+          if (count === 0 && !step.fields.spouseBox) {
+            step.fields.selfCheckBox.toDisable = false;
+          }
+          if(step.currStep===3 &&step.totalMembersAllowed===0)
+          {
+            step.fields.SubmitButton.heading="Only six travellers at a time"
+          }
+          else{
+            step.fields.SubmitButton.heading=""
+          }
+          if(count===4 && step.fields.AddParents.disabled===false)
+          {
+            step.fields.AddParents.disabled=true
+          }
+        },
+        addField: function (step, fieldName) {
+          let keys = Object.keys(step.fields.travellerColumn.children);
+          let newFields = {};
+          for (let i = 0; i < keys.length; i++) {
+            if (keys[i] === "selfCheckBox") {
+              newFields[fieldName] = {
+                hide: false,
+                name: fieldName,
+                span: 12,
+                size: 12,
+                id: fieldName,
+                type: "DatePickerWithCrossIcon",
+              };
+            }
+            newFields[keys[i]] = step.fields.travellerColumn.children[keys[i]];
+          }
+          step.fields.travellerColumn.children = newFields;
+        },
+        setStep: function (step, newStep) {
+          step.currStep = newStep;
+          step.fields.SubmitButton.heading = "";
+
+          let keys = Object.keys(step.fields.BottomDrawer.children);
+          for (let i = 0; i < keys.length; i++) {
+            step.fields.BottomDrawer.children[keys[i]].hide = true;
+          }
+          if (newStep === 0) {
+            step.fields.BottomDrawer.open = false;
+            step.submitButtonLabel = "Search Plans";
+          } else if (newStep === 1) {
+            step.fields.BottomDrawer.open = true;
+            step.fields.BottomDrawer.gridName="travelPop_step1";
+            step.fields.BottomDrawer.children.countriesMultiSelectDrawer.hide = false;
+            step.fields.BottomDrawer.children.countriesGrid.hide = false;
+            step.fields.BottomDrawer.children.SubmitButton.hide = false;
+            step.submitButtonLabel = "Select Date";
+            step.fields.BottomDrawer.label = "Travelling to";
+          } else if (newStep === 2) {
+            step.fields.BottomDrawer.gridName="travelPop_step2";
+            step.fields.BottomDrawer.open = true;
+            step.fields.BottomDrawer.children.TripDateBox.hide = false;
+            step.fields.BottomDrawer.children.TripEndDateBox.hide = false;
+            step.fields.BottomDrawer.children.tripDate.hide = false;
+            step.fields.BottomDrawer.children.SubmitButton.hide = false;
+            step.submitButtonLabel = "Next";
+            step.fields.BottomDrawer.label = "Select Trip Date";
+          } else if (newStep === 3) {
+            step.fields.BottomDrawer.gridName="travelPop_step3";
+            step.onTravellerChange(step, "self");
+            step.fields.BottomDrawer.open = true;
+            for (let i = 0; i < keys.length; i++) {
+              step.fields.BottomDrawer.children[keys[i]].hide = false;
+            }
+            step.fields.BottomDrawer.children.countriesMultiSelectDrawer.hide = true;
+            step.fields.BottomDrawer.children.countriesGrid.hide = true;
+            step.fields.BottomDrawer.children.TripDateBox.hide = true;
+            step.fields.BottomDrawer.children.TripEndDateBox.hide = true;
+            step.fields.BottomDrawer.children.tripDate.hide = true;
+            step.fields.BottomDrawer.children.SubmitButton.hide = false;
+            step.submitButtonLabel = "Show Me Plans";
+            step.fields.BottomDrawer.label =
+              "Add Travellers You,spouse,Kids and parents only";
+          }
+        },
+        handleSelfSpouse : function (step,member,change){
+          let count =step.fields.TravellerCount.count+1
+          let fieldNames = ['spouseBox', 'fatherBox', 'motherBox', 'daughterBox5', 'daughterBox4', 'daughterBox3', 'daughterBox2', 'daughterBox1', 'daughterBox','sonBox5', 'sonBox4', 'sonBox3', 'sonBox2', 'sonBox1'];
+          if (change === 'remove') {
+            if (count === 1) {
+                if (step.fields.travelerDetails) {
+                    step.fields.travelerDetails['toShow'] = null;
+                }
+        
+                for (const fieldName of fieldNames) {
+                    if (step.fields[fieldName]) {
+                        step.fields[fieldName]['toShow'] = null;
+                    }
+                }
+                if(member=="spouse"){
+                  step.fields.travellerColumn.children.AddTraveller.id = "AddTraveller";
+                step.fields.travellerColumn.children.AddTraveller.name = "AddTraveller";
+                }
+                if(member=="self"){
+                  step.fields.travellerColumn.children.AddTraveller.id = "AddSelf";
+                  step.fields.travellerColumn.children.AddTraveller.name = "AddSelf";
+                }
+               
+            } else if (member === 'self') {
+                for (const fieldName of fieldNames) {
+                    if (step.fields[fieldName] && count === 1) {
+                        step.fields[fieldName]['toShow'] = null;
+                    }
+                }
+        
+                step.fields.travellerColumn.children.AddTraveller.id = "AddSelf";
+                step.fields.travellerColumn.children.AddTraveller.name = "AddSelf";
+            }
+        }
+        
+        else {
+          const fieldNames = [
+            'sonBox5', 'sonBox1', 'sonBox2', 'sonBox3', 'sonBox4', 'sonBox',
+            'spouseBox', 'fatherBox', 'motherBox', 'daughterBox', 'daughterBox1',
+            'daughterBox2', 'daughterBox3', 'daughterBox4', 'daughterBox5', 'travelerDetails'
+          ];        
+          if ((count === 2 || (member === "parents" && count > 2))) {
+            for (const fieldName of fieldNames) {
+              if (step.fields[fieldName]) {
+                step.fields[fieldName]['toShow'] = false;
+              }
+            }
+          }
+        }
+        
+           
+
+          },
+          validateStep: function (step, validStep) {
+          if (validStep === 0) {
+            let errors = 0;
+            if (!step.errors) {
+              step.errors = {};
+            }
+            if (step.fields.countriesMultiSelect.value.length === 0) {
+              errors++;
+            }
+            if (!step.fields.TripDateBox.value) {
+              errors++;
+            } else {
+              step.fields.TripDateBox.helperText = "";
+            }
+            if (step.fields.travelerDetails && !step.fields.travelerDetails.value) {
+              errors++;
+            } else if (Object.keys(step.errors).length !== 0) {
+              if (
+                Object.keys(step.errors).indexOf("countriesMultiSelect") ===
+                  -1 ||
+                Object.keys(step.errors).length > 1
+              ) {
+                errors++;
+              }
+            }
+            if (errors !== 0) {
+              step.submitButtonDisabled = true;
+            }
+          } else if (validStep === 1) {
+            if (step.currStep === 1) {
+              if (step.fields.countriesMultiSelect.value.length === 0) {
+                step.submitButtonDisabled = true;
+              } else {
+                step.submitButtonDisabled = false;
+              }
+            }
+          } else if (validStep === 2) {
+            if (!step.fields.TripDateBox.value) {
+              step.submitButtonDisabled = true;
+            } else {
+              step.submitButtonDisabled = false;
+              let startdate=new Date(step.fields.TripDateBox.value)
+              let enddate=new Date(step.fields.TripEndDateBox.value)
+              let dateDiff=(enddate.getTime()-startdate.getTime())/(1000*60*60*24)
+              step.fields.SubmitButton.heading="You are travelling for "+dateDiff+" Days"
+            }
+          } else if (validStep === 3) {
+            if (step.fields.travelerDetails && !step.fields.travelerDetails.value) {
+              step.submitButtonDisabled = true;
+            } else if (Object.keys(step.errors).length !== 0) {
+              if (
+                Object.keys(step.errors).indexOf("countriesMultiSelectDrawer") ===
+                  -1 ||
+                Object.keys(step.errors).length > 1
+              ) {
+                step.submitButtonDisabled = true;
+              } else {
+                step.submitButtonDisabled = false;
+              }
+            } else {
+              step.submitButtonDisabled = false;
+            }
+            if(step.totalMembersAllowed===0)
+            {
+              step.fields.SubmitButton.heading="Only six travellers at a time"
+            }
+          }
+        },
+        getAgeFromDate:function (dateString,relativeDate=new Date()) {
+          var today = relativeDate;
+          var birthDate = new Date(dateString);
+          var age = today.getFullYear() - birthDate.getFullYear();
+          var m = today.getMonth() - birthDate.getMonth();
+          if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+              age--;
+          }
+          return age;
+      },
+      },
+    ],
+
+    activeStep: 0,
+    customValidators: {
+      isValidName: function (str) {
+        var regexp = new RegExp(/^[a-zA-Z ]{2,30}$/);
+        return regexp.test(str);
+      },
+    },
+  },
+  }

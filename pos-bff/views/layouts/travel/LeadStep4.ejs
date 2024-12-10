@@ -1,0 +1,201 @@
+window.formBuilderSchemaTravel4 = {
+    formBuilder: {
+      heading: "Select DOB of the Travelers",
+      steps: [
+        {
+          submitButtonLabel: "Show Me Plans",
+          submitButtonSticky: true,
+          fields: {
+            
+          },
+          onLoad: function (step, next) {
+            let obj = JSON.parse(sessionStorage.getItem('traveluserinfo'));
+            let selfMaxDate = new Date();
+            let selfMinDate = new Date();
+            selfMinDate.setYear(selfMinDate.getFullYear() - 99);
+            selfMinDate.setDate(selfMinDate.getDate() + 1);
+            selfMaxDate.setYear(selfMaxDate.getFullYear() - 18);
+
+            let childMinDate = new Date();
+            let childMaxDate = new Date();
+            childMinDate.setYear(childMinDate.getFullYear() - 24);
+            childMaxDate.setMonth(childMaxDate.getMonth() - 3)
+            childMinDate.setDate(childMinDate.getDate() + 1);
+
+            if(obj.productDetails && obj.productDetails.tripType == 'student'){
+                let studentMaxDate = new Date();	
+                let studentMinDate = new Date();	
+                studentMinDate.setYear(studentMinDate.getFullYear() - 35);	
+                studentMinDate.setDate(studentMinDate.getDate() + 1);	
+                studentMaxDate.setYear(studentMaxDate.getFullYear() - 16);
+                step.fields['selfAge'] = {
+                    type:"DatePicker",
+                    id:"selfAge",
+                    name:"selfAge",
+                    title:"Student",
+                    variant: "filled",
+                    minDate:studentMinDate,	
+                    maxDate:studentMaxDate,
+                    span: 12,
+                    validators: ["isEmpty"],
+                    errormessages: ["This field is required"],
+                }
+
+                if(!step.fields.medicalSwitch){
+                    step.fields['medicalSwitch'] = {
+                        type: "Switch",
+                        id: "medicalSwitch",
+                        name: "medicalSwitch",
+                        label: "",
+                        span: 12,
+                        labelPlacement: "end",
+                        question:
+                            "Any traveler has pre-existing medical condition like Diabetes, Cancer, etc?",
+                    }
+                } else{
+                    let temp = {};
+                    Object.keys(step.fields).forEach((key)=>{
+                        if(key != 'medicalSwitch'){
+                            temp[key]=step.fields[key];
+                        }
+                    })
+                    temp['medicalSwitch'] = step.fields['medicalSwitch'];
+                    console.log(168,Object.keys(temp));
+                    step.fields = temp
+                    console.log(170,Object.keys(step.fields));
+                }
+            }
+            else{
+                let step3 = obj.step3
+                let selfCheckBox = step3.selfCheckBox;
+                let spouseCheckBox = step3.spouseCheckBox;
+                let sonCheckBox = step3.sonCheckBox;
+                let daughterCheckBox = step3.daughterCheckBox;
+                let fatherCheckBox = step3.fatherCheckBox;
+                let motherCheckBox = step3.motherCheckBox;
+                if(selfCheckBox && !step.fields.selfAge){
+                    step.fields['selfAge'] = {
+                        type:"DatePicker",
+                        id:"selfAge",
+                        name:"selfAge",
+                        title:"You",
+                        variant: "filled",
+                        minDate:selfMinDate,
+                        maxDate:selfMaxDate,
+                        span: 12,
+                        validators: ["isEmpty"],
+                        errormessages: ["This field is required"],
+                    }
+                }
+                if(spouseCheckBox && !step.fields.spouseAge){
+                    step.fields['spouseAge'] = {
+                        type:"DatePicker",
+                        id:"spouseAge",
+                        name:"spouseAge",
+                        title:"Spouse",
+                        variant: "filled",
+                        minDate:selfMinDate,
+                        maxDate:selfMaxDate,
+                        span: 12,
+                        validators: ["isEmpty"],
+                        errormessages: ["This field is required"],
+                    }
+                }
+                if(sonCheckBox>0){
+                    for(let i=0;i<sonCheckBox;i++){
+                        if(!step.fields[`son${i+1}Age`]){
+                            step.fields[`son${i+1}Age`] = {
+                                type:"DatePicker",
+                                id:`son${i+1}Age`,
+                                name:`son${i+1}Age`,
+                                title:"Son",
+                                variant: "filled",
+                                minDate:childMinDate,
+                                maxDate:childMaxDate,
+                                span: 12,
+                                validators: ["isEmpty"],
+                                errormessages: ["This field is required"],
+                            }
+                        }
+                    }
+                }
+                if(daughterCheckBox>0){
+                    for(let i=0;i<daughterCheckBox;i++){
+                        if(!step.fields[`daughter${i+1}Age`]){
+                            step.fields[`daughter${i+1}Age`] = {
+                                type:"DatePicker",
+                                id:`daughter${i+1}Age`,
+                                name:`daughter${i+1}Age`,
+                                title:"Daughter",
+                                variant: "filled",
+                                minDate:childMinDate,
+                                maxDate:childMaxDate,
+                                span: 12,
+                                validators: ["isEmpty"],
+                                errormessages: ["This field is required"],
+                            }
+                        }
+                    }
+                }
+                if(fatherCheckBox && !step.fields.fatherAge){
+                    step.fields['fatherAge'] = {
+                        type:"DatePicker",
+                        id:'fatherAge',
+                        name:'fatherAge',
+                        title:"Father",
+                        variant: "filled",
+                        minDate:selfMinDate,
+                        maxDate:selfMaxDate,
+                        span: 12,
+                        validators: ["isEmpty"],
+                        errormessages: ["This field is required"],
+                    }
+                }
+                if(motherCheckBox && !step.fields.motherAge){
+                    step.fields['motherAge'] = {
+                        type:"DatePicker",
+                        id:'motherAge',
+                        name:'motherAge',
+                        title:"Mother",
+                        variant: "filled",
+                        minDate:selfMinDate,
+                        maxDate:selfMaxDate,
+                        span: 12,
+                        validators: ["isEmpty"],
+                        errormessages: ["This field is required"],
+                    }
+                }
+
+                if(!step.fields.medicalSwitch){
+                    step.fields['medicalSwitch'] = {
+                        type: "Switch",
+                        id: "medicalSwitch",
+                        name: "medicalSwitch",
+                        label: "",
+                        span: 12,
+                        labelPlacement: "end",
+                        question:
+                            "Any traveler has pre-existing medical condition like Diabetes, Cancer, etc?",
+                    }
+                } else{
+                    let temp = {};
+                    Object.keys(step.fields).forEach((key)=>{
+                        if(key != 'medicalSwitch'){
+                            temp[key]=step.fields[key];
+                        }
+                    })
+                    temp['medicalSwitch'] = step.fields['medicalSwitch'];
+                    console.log(168,Object.keys(temp));
+                    step.fields = temp
+                    console.log(170,Object.keys(step.fields));
+                }
+            }
+            next(step);
+          },
+        },
+      ],
+      activeStep: 0,
+      customValidators: {
+      },
+    },
+  }

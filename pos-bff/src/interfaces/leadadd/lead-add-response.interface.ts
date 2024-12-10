@@ -1,0 +1,3 @@
+// interface LeadAddResponse {
+//   data: LeadAdd;
+// }

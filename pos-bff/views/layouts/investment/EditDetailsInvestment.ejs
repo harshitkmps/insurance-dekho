@@ -1,0 +1,135 @@
+window.formBuilderSchemaEditDetailsInvestment = {
+    formBuilder: {
+      heading:"Edit details",
+      steps: [
+        {
+          submitButtonLabel: "View Plans",
+          submitButtonSticky: false,
+          submitButtonLoader: false,
+          fields: {
+            genderHeadInvest:{
+              type:"HeadingComp",
+              id:"genderHeadInvest",
+              name:"genderHeadInvest",
+              label:"Gender",
+              span:12,
+            },
+            gender: {
+              type: "Radio",
+              options: [
+                { value: "male", label: "Male" },
+                { value: "female", label: "Female" },
+              ],
+              row : true,
+              id: "gender",
+              name: "gender",
+              label: "Gender",
+              labelPlacement:"start",
+              variant: "filled",
+              titlePlacement:"start",
+              background:"gray",
+              span: 10,
+              value: "",
+              validators: ["isEmpty"],
+              errormessages: ["Gender is required field"],
+            },
+            nameHeadInvest:{
+              type:"HeadingComp",
+              id:"nameHeadInvest",
+              name:"nameHeadInvest",
+              label:"Your Name",
+              span:12,
+            },
+            name: {
+              title:"Your Name",
+              type: "TextField",
+              id: "name",
+              name: "name",
+              label: "Name",
+              value: "",
+              autoComplete: "name",
+              variant: "filled",
+              span: 12,
+              validators: ["isEmpty","isSpecialChar", "isContainNumber", "!isAtLeadThreeChar","!isValidName"],
+              errormessages: [
+              "Please enter the name.",
+              "Special Characters are not allowed in Full Name.",
+              "Numbers are not allowed in Full Name.",
+              "Please enter at least three characters",
+              "Please enter Full Name."
+              ],
+              onChange: (event, step, next) => {
+              }
+            },
+            dobEditHeadInvest:{
+              type:"HeadingComp",
+              id:"dobEditHeadInvest",
+              name:"dobEditHeadInvest",
+              label:"Date Of Birth",
+              span:12,
+            },
+            dob: {
+              type: "DatePicker",
+              id: "dob",
+              name: "dob",
+              label: "Date Of Birth",
+              variant: "filled",
+              maxDate:'',
+              minDate:'',
+              span: 12,
+              validators: [],
+              errormessages: ["This field is required"],
+            },
+          },
+          onLoad: function (step, next){
+            let maxDate = new Date();
+            let minDate = new Date();
+            minDate.setYear(minDate.getFullYear() - 66);
+            minDate.setDate(minDate.getDate() + 1);
+            maxDate.setYear(maxDate.getFullYear() - 18);
+            step.fields.dob.minDate = minDate.toISOString().slice(0,10);
+            step.fields.dob.maxDate = maxDate.toISOString().slice(0,10);
+            next(step);
+
+            let leadinfo = window.projectGlobals.getSessionStorageItem('__inv_l_data__');
+            if(_.get(leadinfo,'customer_name')){
+              step.fields.name.value = _.get(leadinfo,'customer_name');
+              step.fields.dob.value = _.get(leadinfo,'date_of_birth');
+              step.fields.gender.value = _.get(leadinfo,'customer_gender')==='M'?"male":"female";
+            }
+
+        
+            next(step);
+
+          }
+        },
+      ],
+      activeStep: 0,
+      customValidators: {
+        isValidName: function (str) {
+          var regexp = new RegExp(
+            /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+          );
+          return regexp.test(str);
+        },
+        isSpecialChar: function (str) {
+          var regexp = new RegExp(
+            "[!@#$%&*()_+=|<>?{}\\[\\]~-]"
+          );
+          return regexp.test(str);
+        },
+        isContainNumber: function (str) {
+          var regexp = new RegExp(
+            "[0-9]"
+          );
+          return regexp.test(str);
+        },
+        isAtLeadThreeChar: function (str) {
+          var regexp = new RegExp(
+            /(.*[a-z]){3,}/i
+          );
+          return regexp.test(str);
+        },
+      },
+    },
+  }

@@ -1,0 +1,250 @@
+// TODO: ADD GA Events
+function getYearOptions() {
+  const currentYear = new Date().getFullYear();
+  const options = [];
+  for (let year = currentYear; year >= currentYear - 90; year--) {
+    options.push({ label: year.toString(), value: year.toString() });
+  }
+  return options;
+}
+
+const proposerRelianceFields = {
+  medicalBranch: {
+    type: "SelectWithLabel",
+    id: "medicalBranch",
+    name: "medicalBranch",
+    label: "Medical Branch",
+    labelAuto: "Medical Branch",
+    options: [
+      { label: "Allopathy", value: "Allopathy" },
+      { label: "Homeopathy", value: "Homeopathy" },
+      { label: "Ayurvedic", value: "Ayurvedic" },
+      { label: "Any Other", value: "Any Other" }
+    ],
+    value: "",
+    variant: "filled",
+    span: 6,
+    validators: ["isEmpty"],
+    errormessages: ["Please select the medical branch"],
+    onBlur: () => {
+      window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Medical_Branch', '<%= schemaVal.gcd_code %>');
+    },
+  },
+  maritalStatus: {
+    type: "SelectWithLabel",
+    id: "maritalStatus",
+    name: "maritalStatus",
+    label: "Marital Status",
+    labelAuto: "Marital Status",
+    options: [],
+    value: "",
+    variant: "filled",
+    span: 6,
+    validators: ["isEmpty"],
+    errormessages: ["Please select the marital status"],
+    onBlur: () => {
+      window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Marital_Status', '<%= schemaVal.gcd_code %>');
+    },
+  },
+  sez: {
+    type: "Radio",
+    id: "sez",
+    name: "sez",
+    label: "Do you belong to a special economic zone?",
+    options: [
+      { value: "Yes", label: "Yes" },
+      { value: "No", label: "No" },
+    ],
+    value: '',
+    variant: "filled",
+    background: "gray",
+    validators: ["isEmpty"],
+    errormessages: ["Please select a option"],
+    onBlur: () => {
+      window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_SEZ', '<%= schemaVal.gcd_code %>');
+    },
+  }
+}
+
+
+const otherFields = {
+  isPreviouslyClaimed: {
+    type: "Radio",
+    id: "isPreviouslyClaimed",
+    name: "isPreviouslyClaimed",
+    label: "Do you have a claim history?",
+    value: "",
+    options: [
+      { value: true, label: "Yes" },
+      { value: false, label: "No" },
+    ],
+    variant: "filled",
+    background: "gray",
+    validators: ["isEmpty"],
+    errormessages: ["Please select a option"],
+    onBlur: () => {
+      window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Previously_Claimed', '<%= schemaVal.gcd_code %>');
+    },
+  }
+}
+
+window.PIProposerDetailsForm = {
+  formBuilder: {
+    steps: [
+      {
+        heading: "Proposer Details",
+        submitButtonLabel: "Next",
+        fields: {
+          specializationInfo: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Specialization Information",
+            name: "specializationInfo",
+          },
+          registrationNo: {
+            type: "TextField",
+            id: "registrationNo",
+            name: "registrationNo",
+            label: "Registration Number",
+            variant: "filled",
+            value: "",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please enter registration number"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_RegistrationNo', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          yearOfRegistration: {
+            type: "SelectWithLabel",
+            id: "yearOfRegistration",
+            name: "yearOfRegistration",
+            label: "Year of Registration",
+            labelAuto: "Year of Registration",
+            options: [],
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the year of registration"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_YearOfRegistration', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          qualification: {
+            type: "SelectWithLabel",
+            id: "qualification",
+            name: "qualification",
+            label: "Qualification (Degree)",
+            labelAuto: "Qualification (Degree)",
+            options: [],
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the qualification"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Qualification', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          licenseYear: {
+            type: "SelectWithLabel",
+            id: "licenseYear",
+            name: "licenseYear",
+            label: "License Year",
+            labelAuto: "License Year",
+            options: [],
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the license year"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_LicenseYear', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          noOfPracticeYears: {
+            type: "TextField",
+            id: "noOfPracticeYears",
+            name: "noOfPracticeYears",
+            label: "Number of practice years",
+            variant: "filled",
+            value: "",
+            span: 6,
+            inputProps: { maxLength: 2 },
+            validators: ["isEmpty", "!isInt"],
+            errormessages: [
+              "Please enter practice years",
+              "Please enter a valid practice years",
+            ],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_PracticeYears', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          jurisdiction: {
+            type: "SelectWithLabel",
+            id: "jurisdiction",
+            name: "jurisdiction",
+            label: "Country/Jurisdiction",
+            labelAuto: "Country/Jurisdiction",
+            options: [
+              { value: "India", label: "India" },
+              { value: "Worldwide excluding USA/Canada", label: "Worldwide excluding USA/Canada" },
+              { value: "Worldwide including USA/Canada", label: "Worldwide including USA/Canada" },
+            ],
+            value: "India",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the country/jurisdiction"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Jurisdiction', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          endSpacing: {
+            span: 12,
+          },
+        },
+        onLoad: function (step, next) {
+          const { getSessionStorageItem, setDefaultFormValues, setFormOptions, getSmeMaster } = window.projectGlobals;
+          const leadDetails = getSessionStorageItem("professionalIndemnityLead");
+          const { insurerId = '' } = leadDetails && leadDetails.selectedQuotesResponse || {};
+          const { parsedMasterData, rawMasterData } = getSmeMaster();
+
+          if (insurerId == 2) {
+            step.fields = { ...step.fields, ...proposerRelianceFields, ...otherFields };
+          } else {
+            step.fields = { ...step.fields, ...otherFields };
+          }
+
+          step.fields["licenseYear"].options = getYearOptions();
+          step.fields["yearOfRegistration"].options = getYearOptions();
+
+          if (leadDetails) {
+            const { productDetails: {
+              sez = 'No',
+              specializationDetails: { registrationNo = "", yearOfRegistration = "", qualificationId = "", licenseYear = "", noOfPracticeYears = "", jurisdiction = "", medicalBranch = "", maritalStatus: maritalStatusId = "" } = {},
+              claimDetails: { isPreviouslyClaimed = false } = {}
+            } } = leadDetails;
+
+            const qualification = rawMasterData.professionalQualification?.find(item => item.id === qualificationId)?.professionalQualificationName;
+            const maritalStatus = rawMasterData.maritalStatus?.find(item => item.mId == maritalStatusId)?.maritalStatus || "";
+            const defautlValues = { registrationNo, yearOfRegistration, qualification, licenseYear, noOfPracticeYears, jurisdiction, medicalBranch, maritalStatus, isPreviouslyClaimed: isPreviouslyClaimed.toString(), sez };
+            setFormOptions(step.fields, parsedMasterData);
+            setDefaultFormValues(step.fields, defautlValues);
+            next(step);
+          }
+        },
+      }
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidName: function (str) {
+        var regexp = new RegExp(
+          /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+        );
+        return !regexp.test(str);
+      },
+    },
+  },
+};

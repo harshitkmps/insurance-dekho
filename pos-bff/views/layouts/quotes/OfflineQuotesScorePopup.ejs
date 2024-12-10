@@ -1,0 +1,63 @@
+<div class="earnmorescorepopup">
+  <div class="closeMarkwater" id="closeMarkwater">
+    <img src="<%= `${folderPath}/newcross.svg` %>" width="10" height="10" />
+  </div>
+  <div class="topPointTop">
+    <div class="topPointTopLeft">
+      <h3>Score chart</h3>
+    </div>
+    <div class="d-flex jsb mb-10 checktabl">
+      <p>
+        Check the table below for your&nbsp; <%_ if(policyType===1) { _%>
+        Comprehensive <%_ } else if(policyType===2) { _%> Third Party 
+        <%_ } else { _%> Own Damage <%_} _%> &nbsp;policy
+      </p>
+      <span class="restoration">
+        <img
+          src="<%= `${folderPath}/img-Restoration.svg` %>"
+          width="58"
+          height="58"
+        />
+      </span>
+    </div>
+  </div>
+  <%_ if (scoreDetails?.length) { _%>
+  <div class="transform">
+    <div class="wmark">
+      <ul>
+        <%_ for(let i=0;i<40;i++) { _%>
+        <li><%- gcdWithTimeStamp _%></li>
+        <%_ } _%>
+      </ul>
+    </div>
+    <div class="earnmorescoreWatermark">
+      <ul class="pointBox">
+        <div class="pointBoxScroll">
+          <%_ scoreDetails.forEach(score => { _%>
+          <li class="<%= score.rules[0].ruleValue.insurerId %>">
+            <span class="plogo"><%- score.insurerShortName _%></span>
+            <span class="pointsPolicy">
+              <img
+                src="<%= score.rules[0].ruleValue.commissionTypeFlag === 'N' ? `${folderPath}/points-third-party.svg` : `${folderPath}/points-own-damage.svg` %>"
+              />
+            </span>
+            <div class="pointP">
+                <span><%- `${score.rules[0].ruleValue.commissionAttributes.totalCommission}${score.rules[0].ruleValue.commissionAttributes.commissionableType
+                  === "pct" ? " s" : " x" }` -%></span>    
+            </div>
+          </li>
+          <%_ }); _%>
+        </div>
+      </ul>
+    </div>
+  </div>
+
+  <div class="desclaimer">
+    Disclaimer: Scores are effective as on the current date and time.
+  </div>
+  <%_ } else { _%>
+  <div style="margin: 20px auto;">Scores are not available right now</div>
+  <%_ } _%>
+</div>
+
+<div class="popupBlack"></div>

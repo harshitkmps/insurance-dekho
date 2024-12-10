@@ -1,0 +1,288 @@
+let DealerCityAndList = function(event, step, next) {
+  <% if(schemaVal.showDealerDropDown) { %>
+    if(!step.fields.dealerCitySingleSelect){
+      step.fields['dealerCitySingleSelect'] = {
+        type: "SingleSelectReactselect",
+        options: [],
+        id: "dealerCitySingleSelect",
+        name: "dealerCitySingleSelect",
+        label: "Select Dealer City",
+        variant: "outlined",
+        span: 6,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        onChange: (event, step, next) => {
+              let item = step.fields.dealerCitySingleSelect.value[0];
+              let uuid = '<%= schemaVal.uuid %>';
+              step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+              step.fields["dealerSingleSelect"]["value"] = [];
+              let dataParams = {};
+                <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getAllDealers: true
+                }
+                <% } else { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getHierarchyUsers: true,
+                  reporting_sfa_uuids: uuid,
+                  product: 'sme',
+                }
+              <% } %>
+              axios.get('/pos-bff/api/v1/dealers', {
+                params: dataParams
+              }).then((res) => {
+                var dealerSelect = [];
+                if (res.status == 200) {
+                  if (res.data && res.data && res.data.data && res.data.data.data) {
+                    res.data.data.data.map((item) => {
+                      dealerSelect.push({ value: item.iam_uuid, label: item.name });
+                    });
+                    step.fields["dealerSingleSelect"].validators = ["isEmpty"]
+                  } else {
+                    step.fields["dealerSingleSelect"].validators = []
+                  }
+                }
+                step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                next(step);  
+              }).catch((err) => {
+                next(step);
+              });
+        }
+      }
+    }
+    let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+    if(dealerCityList) {
+      var dealerCitySelect = [];
+      dealerCityList.map((item) => {
+        dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+      });
+    } else {
+      dealerCitySelect.push([]);
+    }
+    step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+
+    if(!step.fields.dealerSingleSelect){
+      step.fields['dealerSingleSelect'] = {
+        type: "AsyncReactSelect",
+        options: [],
+        id: "dealerSingleSelect",
+        name: "dealerSingleSelect",
+        label: "Select Dealer",
+        variant: "outlined",
+        span: 6,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer name"],
+        loadOptions: (input, step, resolve) => {
+        let item = step.fields.dealerCitySingleSelect.value[0];
+        let uuid = '<%= schemaVal.uuid %>';
+        <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            getAllDealers: true,
+            name: input
+          }
+          <% } else { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            reporting_sfa_uuids: uuid,
+            getHierarchyUsers: true,
+            name: input,
+            product: 'sme',
+          }
+        <% } %>
+        axios
+          .get(
+            "/pos-bff/api/v1/dealers",
+            {
+              params: dataParams
+            }
+          )
+          .then((res) => {
+            var dealerSelect = [];
+            if (res.status == 200) {
+              if (
+                res.data &&
+                res.data &&
+                res.data.data &&
+                res.data.data.data
+              ) {
+                res.data.data.data.map((item) => {
+                  dealerSelect.push({
+                    value: item.iam_uuid,
+                    label: item.name,
+                  });
+                });
+              }
+            } else {
+              resolve([]);
+            }
+            resolve(dealerSelect)
+          });
+      },
+      }
+    }
+    <% } %>
+}
+
+window.PIBasicDetailsForm = {
+  formBuilder: {
+    steps: [
+      {
+        heading: "Basic Details",
+        submitButtonLabel: "Next",
+        fields: {
+          basicDetail: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Basic Details",
+            name: "basicDetail",
+          },
+          salutation: {
+            type: "SelectWithLabel",
+            id: "salutation",
+            name: "salutation",
+            label: "Salutation",
+            labelAuto: "Salutation",
+            options: [
+              { label: "Mr", value: "Mr" },
+              { label: "Mrs", value: "Mrs" },
+              { label: "Ms", value: "Ms" },
+            ],
+            span: 6,
+            variant: "filled",
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["Please select the salutation"],
+          },
+          customerName: {
+            type: "TextField",
+            id: "customerName",
+            name: "customerName",
+            label: "Customer Name",
+            autoComplete: "name",
+            variant: "filled",
+            span: 6,
+            value: "",
+            validators: ["isEmpty", "!isValidName"],
+            errormessages: [
+              "Please enter the customer name",
+              "Please enter valid customer name",
+            ],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_CustName', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          mobile: {
+            type: "TextField",
+            id: "mobile",
+            name: "mobile",
+            label: "Phone Number (Payment OTP sent here)",
+            variant: "filled",
+            value: "",
+            span: 6,
+            fieldType: "mobile",
+            validators: ["isEmpty"],
+            errormessages: ["Please enter contact number"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Mobile', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          profession: {
+            type: "SelectWithLabel",
+            id: "profession",
+            name: "profession",
+            label: "Profession",
+            labelAuto: "Profession",
+            options: [],
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the profession"],
+            onChange: (event, step, next) => {
+              if (step.fields.profession.value === "Doctor") {
+                step.fields.specialization.hide = false;
+              } else {
+                step.fields.specialization.hide = true;
+                step.fields.specialization.value = "";
+              }
+              next(step);
+            },
+          },
+          specialization: {
+            hide: true,
+            type: "SelectWithLabel",
+            id: "specialization",
+            name: "specialization",
+            label: "Type of Specialization",
+            labelAuto: "Type of Specialization",
+            options: [],
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the specialization"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Specialization', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          endSpacing: {
+            span: 12,
+          },
+        },
+        onLoad: function (step, next) {
+          DealerCityAndList(event, step, next);
+          const { getSessionStorageItem, setDefaultFormValues, setFormOptions, getSmeMaster } = window.projectGlobals;
+          const { parsedMasterData, rawMasterData } = getSmeMaster();
+          const leadDetails = getSessionStorageItem("professionalIndemnityLead");
+          if (leadDetails) {
+            const {
+              proposerDetails: { salutation = "Mr", firstName = "", lastName = "", mobile = "" } = {},
+              productDetails: { professionId = "", specializationDetails: { specializationId = "" } = {} } = {},
+            } = leadDetails;
+            const profession = rawMasterData.profession?.find(item => item.id === professionId)?.professionName || "Doctor";
+            const specialization = rawMasterData.professionalSpecialization?.find(item => item.id === specializationId)?.professionalSpecializationName;
+            if (profession === "Doctor") {
+              step.fields.specialization.hide = false;
+            } else {
+              step.fields.specialization.hide = true;
+              step.fields.specialization.value = "";
+            }
+            setFormOptions(step.fields, parsedMasterData);
+            const defautlValues = { salutation, customerName: [firstName, lastName].filter(Boolean).join(' '), mobile, profession, specialization, };
+            setDefaultFormValues(step.fields, defautlValues);
+          }
+
+          next(step);
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidName: function (str) {
+        const regexp = new RegExp(/^\s*[a-zA-Z]([-']?[a-zA-Z]+)*( [a-zA-Z]([-']?[a-zA-Z]+)*)+\s*$/);
+        return regexp.test(str);
+      },
+    },
+  },
+};

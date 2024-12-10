@@ -1,0 +1,552 @@
+#OTPLogin {
+  h2 {
+    font-style: normal;
+    font-weight: 500;
+    font-size: 18px;
+    line-height: 21px;
+    color: #333846;
+    margin-bottom: 30px;
+  }
+  .inputborderbox input {
+    border: none;
+    margin: 0;
+  }
+  .inputborderbox ::-webkit-input-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox :-moz-placeholder,
+  .inputborderbox ::-moz-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox :-ms-input-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox input[type="tel"] {
+    background-color: transparent;
+    border: none;
+    outline: 0;
+    height: 30px;
+    width: 100%;
+    font-size: 15px;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    box-sizing: content-box;
+    transition: all 0.1s;
+    color: #24272c;
+  }
+  .inputborderbox .gsc_mtl_field {
+    position: relative;
+    padding: 4px 1rem;
+    margin-top: 1rem !important;
+  }
+  .inputborderbox .gsc_mtl_field label {
+    color: #9e9e9e;
+    position: absolute;
+    top: 1px;
+    font-size: 15px;
+    cursor: text;
+    transition: 0.2s ease-out;
+  }
+  .inputborderbox .gsc_mtl_field label.active {
+    font-size: 10px;
+    -webkit-transform: translateY(-40%);
+    transform: translateY(-40%);
+  }
+  .inputborderbox {
+    border-radius: 6px;
+    box-shadow: none;
+    border: 1px solid #d9d9d9;
+    background-color: #fff;
+    height: 55px;
+    margin: 0 0 15px;
+    background: #fff;
+  }
+  .inputborderbox {
+    background: #f7f7f7;
+  }
+  .inputborderbox.white {
+    background: #fff;
+  }
+  .inputborderbox .gsc_mtl_field label.active {
+    padding: 0 !important;
+  }
+  .inputborderbox {
+    margin-bottom: 0;
+  }
+  .inputborderbox input {
+    border: none;
+    margin: 0;
+  }
+  .inputborderbox ::-webkit-input-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox :-moz-placeholder,
+  .inputborderbox ::-moz-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox :-ms-input-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox input[type="tel"] {
+    background-color: transparent;
+    border: none;
+    outline: 0;
+    height: 30px;
+    width: 100%;
+    font-size: 15px;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    box-sizing: content-box;
+    transition: all 0.1s;
+    color: #24272c;
+  }
+  .inputborderbox .gsc_mtl_field {
+    position: relative;
+    padding: 4px 1rem;
+    margin-top: 1rem !important;
+  }
+  .inputborderbox .gsc_mtl_field label {
+    color: #9e9e9e;
+    position: absolute;
+    top: 1px;
+    font-size: 15px;
+    cursor: text;
+    transition: 0.2s ease-out;
+  }
+  .inputborderbox .gsc_mtl_field label.active {
+    font-size: 10px;
+    -webkit-transform: translateY(-40%);
+    transform: translateY(-40%);
+  }
+  .inputborderbox input:-webkit-autofill,
+  .inputborderbox input:-webkit-autofill:active,
+  .inputborderbox input:-webkit-autofill:focus,
+  .inputborderbox input:-webkit-autofill:hover {
+    -webkit-transition: "color 9999s ease-out, background-color white 9999s ease-out";
+    -webkit-transition-delay: 9999s;
+    -webkit-box-shadow: 0 0 0 500px #fff inset;
+  }
+  .inputborderbox {
+    border-radius: 6px;
+    box-shadow: none;
+    border: 1px solid #d9d9d9;
+    background-color: #fff;
+    height: 55px;
+    margin: 0 0 15px;
+    background: #fff;
+  }
+  .inputborderbox {
+    background: #f7f7f7;
+  }
+  .inputborderbox.white {
+    background: #fff;
+  }
+  .inputborderbox .gsc_mtl_field label.active {
+    padding: 0 !important;
+  }
+
+  .left1rem .input-field label {
+    left: 1rem !important;
+  }
+  .left1rem .input-field label {
+    left: 1.5rem !important;
+  }
+  .left1rem .input-field input {
+    padding-left: 7px !important;
+    padding-top: 3px;
+    box-sizing: border-box;
+  }
+  .left1rem .input-field label {
+    left: 1rem !important;
+  }
+  .left1rem .input-field label {
+    left: 1.5rem !important;
+  }
+  .left1rem .input-field input {
+    padding-left: 7px !important;
+    padding-top: 3px;
+    box-sizing: border-box;
+  }
+
+  .RedButton {
+    height: 50px;
+    border-radius: 6px;
+    background-color: #f34653;
+    text-align: center;
+    line-height: 50px;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0 30px;
+  }
+  .pointer {
+    cursor: pointer;
+  }
+
+  /*! CSS Used from: Embedded */
+  input {
+    font: inherit;
+    display: block;
+    margin: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+  }
+  input {
+    overflow: visible;
+  }
+  ::-webkit-input-placeholder {
+    color: inherit;
+    opacity: 0.54;
+  }
+  input:focus {
+    outline: 0;
+  }
+  *,
+  :after,
+  :before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  :focus {
+    outline: 0 auto -webkit-focus-ring-color;
+  }
+  :focus {
+    outline: 0;
+  }
+  .inputborderbox input {
+    border: none;
+    margin: 0;
+  }
+  .inputborderbox ::-webkit-input-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox :-moz-placeholder,
+  .inputborderbox ::-moz-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox :-ms-input-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox .gsc_mtl_field {
+    position: relative;
+    padding: 4px 1rem;
+    margin-top: 1rem !important;
+  }
+  .inputborderbox .gsc_mtl_field label {
+    color: #9e9e9e;
+    position: absolute;
+    top: 1px;
+    font-size: 15px;
+    cursor: text;
+    transition: 0.2s ease-out;
+  }
+  .input-field input {
+    width: 100%;
+    padding: 6px 20px 0;
+  }
+  .input-field label {
+    left: 2.75rem !important;
+  }
+  .inputborderbox {
+    border-radius: 6px;
+    box-shadow: none;
+    border: 1px solid #d9d9d9;
+    background-color: #fff;
+    height: 55px;
+    margin: 0 0 15px;
+    background: #fff;
+  }
+  .left1rem .input-field label {
+    left: 1rem !important;
+  }
+  .left1rem .input-field label {
+    left: 1.5rem !important;
+  }
+  .left1rem .input-field input {
+    padding-left: 7px !important;
+    padding-top: 3px;
+    box-sizing: border-box;
+  }
+  .inputborderbox {
+    background: #f7f7f7;
+  }
+  /*! CSS Used from: https://static.insurancedekho.com/pwa/css/main-fac0939c.css */
+  input {
+    font: inherit;
+    display: block;
+    margin: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+  }
+  input {
+    overflow: visible;
+  }
+  ::-webkit-input-placeholder {
+    color: inherit;
+    opacity: 0.54;
+  }
+  input:focus {
+    outline: 0;
+  }
+  *,
+  :after,
+  :before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  :focus {
+    outline: 0 auto -webkit-focus-ring-color;
+  }
+  :focus {
+    outline: 0;
+  }
+  .inputborderbox input {
+    border: none;
+    margin: 0;
+  }
+  .inputborderbox ::-webkit-input-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox :-moz-placeholder,
+  .inputborderbox ::-moz-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox :-ms-input-placeholder {
+    color: #d1d1d1;
+  }
+  .inputborderbox input[type="number"] {
+    background-color: transparent;
+    border: none;
+    outline: 0;
+    height: 30px;
+    width: 100%;
+    font-size: 15px;
+    margin: 0;
+    padding: 0;
+    box-shadow: none;
+    box-sizing: content-box;
+    transition: all 0.1s;
+    color: #24272c;
+  }
+  .inputborderbox .gsc_mtl_field {
+    position: relative;
+    padding: 4px 1rem;
+    margin-top: 1rem !important;
+  }
+  .inputborderbox .gsc_mtl_field label {
+    color: #9e9e9e;
+    position: absolute;
+    top: 1px;
+    font-size: 15px;
+    cursor: text;
+    transition: 0.2s ease-out;
+  }
+  .input-field input {
+    width: 100%;
+    padding: 6px 20px 0;
+  }
+  .input-field label {
+    left: 2.75rem !important;
+  }
+  .inputborderbox {
+    border-radius: 6px;
+    box-shadow: none;
+    border: 1px solid #d9d9d9;
+    background-color: #fff;
+    height: 55px;
+    margin: 0 0 15px;
+    background: #fff;
+  }
+  .left1rem .input-field label {
+    left: 1rem !important;
+  }
+  .left1rem .input-field label {
+    left: 1.5rem !important;
+  }
+  .left1rem .input-field input {
+    padding-left: 7px !important;
+    padding-top: 3px;
+    box-sizing: border-box;
+  }
+  .inputborderbox {
+    background: #f7f7f7;
+  }
+  /*! CSS Used from: Embedded */
+  button {
+    font: inherit;
+    display: block;
+    margin: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+  }
+  button {
+    overflow: visible;
+  }
+  button {
+    text-transform: none;
+  }
+  button {
+    -webkit-appearance: button;
+  }
+  ::-webkit-input-placeholder {
+    color: inherit;
+    opacity: 0.54;
+  }
+  button:focus {
+    outline: 0;
+  }
+  *,
+  :after,
+  :before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  :focus {
+    outline: 0 auto -webkit-focus-ring-color;
+  }
+  :focus {
+    outline: 0;
+  }
+  /*! CSS Used from: https://static.insurancedekho.com/pwa/css/main-fac0939c.css */
+  button {
+    font: inherit;
+    display: block;
+    margin: 0;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+  }
+  button {
+    overflow: visible;
+  }
+  button {
+    text-transform: none;
+  }
+  button {
+    -webkit-appearance: button;
+  }
+  ::-webkit-input-placeholder {
+    color: inherit;
+    opacity: 0.54;
+  }
+  button:focus {
+    outline: 0;
+  }
+  *,
+  :after,
+  :before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  :focus {
+    outline: 0 auto -webkit-focus-ring-color;
+  }
+  :focus {
+    outline: 0;
+  }
+  .RedButton {
+    height: 50px;
+    border-radius: 6px;
+    background-color: #f34653;
+    text-align: center;
+    line-height: 50px;
+    color: #fff;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    display: inline-block;
+    padding: 0 30px;
+  }
+  .RedButton.margin-L0 {
+    margin-left: 0 !important;
+  }
+  button {
+    display: block;
+    width: 100%;
+    height: 38px;
+    line-height: 38px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  /*! CSS Used from: Embedded */
+  small {
+    font-size: 80%;
+  }
+  b {
+    font-weight: 400;
+  }
+  ::-webkit-input-placeholder {
+    color: inherit;
+    opacity: 0.54;
+  }
+  *,
+  :after,
+  :before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  :focus {
+    outline: 0 auto -webkit-focus-ring-color;
+  }
+  b {
+    font-weight: 500 !important;
+    color: #24272c !important;
+  }
+  :focus {
+    outline: 0;
+  }
+  .pointer {
+    cursor: pointer;
+  }
+  /*! CSS Used from: https://static.insurancedekho.com/pwa/css/main-fac0939c.css */
+  small {
+    font-size: 75%;
+  }
+  b {
+    font-weight: 400;
+  }
+  ::-webkit-input-placeholder {
+    color: inherit;
+    opacity: 0.54;
+  }
+  *,
+  :after,
+  :before {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+  }
+  :focus {
+    outline: 0 auto -webkit-focus-ring-color;
+  }
+  .blue {
+    color: #007fff;
+  }
+  b {
+    font-weight: 500 !important;
+    color: #24272c !important;
+  }
+  :focus {
+    outline: 0;
+  }
+  .pointer {
+    cursor: pointer;
+  }
+  small {
+    font-size: 10px;
+    text-align: center;
+    display: block;
+  }
+}

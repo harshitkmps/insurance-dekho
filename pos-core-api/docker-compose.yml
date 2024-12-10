@@ -1,0 +1,16 @@
+version: '3.3'
+services:
+  api:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    volumes:
+      - $HOME/.m2:/root/.m2
+      - ./:/usr/app
+    working_dir: /usr/app
+    ports:
+      - 8080:8080
+      - 35729:35729
+      - 5005:5005
+volumes:
+  maven-repository:

@@ -1,0 +1,99 @@
+window.formBuilderSchema1 = {
+  formBuilder: {
+    heading:"What is the breed of your dog?",
+    steps: [
+      {
+        submitButtonLabel: "Next",
+        submitButtonSticky: true,
+        fields: {
+          breedsSingleSelect : {
+            type: "SingleSelectReactselect",
+            options: [],
+            id: "breedsSingleSelect",
+            name: "breedsSingleSelect",
+            label: "Eg. German shepard",
+            variant: "outlined",
+            span: 12,
+            value: [],
+            max: 1,
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the breed of the Dog"],
+            onChange: (event, step, next) => {
+                step.fields.breedsGrid.value = [];
+                let options = step.fields.breedsGrid.options;
+                step.fields.breedsSingleSelect.value.forEach((item)=>{
+                  let element = options.find(obj => obj.value == item.value)
+                  if(element)
+                    step.fields.breedsGrid.value.push(element.value)
+                })
+                next(step);
+            }
+          },
+          breedsGrid:{
+            type: "ImageMultiSelect",
+            id: "breedsGrid",
+            name: "breedsGrid",
+            label: "Popular dog breads",
+            span: 8,
+            validators: [],
+            value:[],
+            errormessages: [],
+            options:[],
+            onChange: (event, step, next) => {
+                if(step.fields.breedsGrid.value.length > 1){
+                  step.fields.breedsGrid.value.splice(0,1);
+                }
+                step.fields.breedsSingleSelect.value = [];
+                let reactSelectValues = step.fields.breedsSingleSelect.value;
+                let options = step.fields.breedsSingleSelect.options;
+                step.fields.breedsGrid.value.forEach((item)=>{
+                  let element = options.find(obj => obj.value == item)
+                  step.fields.breedsSingleSelect.value.push(element)
+                })
+                next(step);
+            }
+          }
+        },
+        onSubmit: function (data, resolve, reject) {
+          console.log("Lead form 1 onSubmit", data);
+          resolve({ message: "" });
+        },
+        onLoad: function (step, next) {
+          let getSessionStorageItem = (key) => {
+              if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+                  let data = sessionStorage.getItem(key);
+                if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                    let obj = JSON.parse(sessionStorage.getItem(key));
+                    return obj;
+                }
+              }
+              return {};
+          }
+          let breedList = getSessionStorageItem('breedList')
+          let breeds = [];
+          let popularbreeds = [];
+          breedList.map((item) => {
+            breeds.push({ value: item.id, label: item.name });
+            if(item.isPopular)
+              popularbreeds.push({value:item.id,label:item.name,icon:item.breedLogo});
+          });
+          step.fields["breedsSingleSelect"]["options"] = breeds;
+          step.fields["breedsGrid"]["options"] = popularbreeds;
+          next(step);
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      checkMaxbreedsSelected: function(str){
+        //console.log(str)
+        let arr = str.split(',');
+        if(arr.length>=1 && arr.length<=10)
+          return false;
+        else
+          return true;
+      }
+    },
+  },
+}

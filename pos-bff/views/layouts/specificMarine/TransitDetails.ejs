@@ -1,0 +1,1255 @@
+const getIciciAndBajajFields = () => {
+  const fieldObj = {
+    transitStartLocation: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Transit Start Location",
+      name: "transitStartLocation",
+    },
+    address: {
+      type: "TextField",
+      id: "address",
+      name: "address",
+      label: "Address",
+      autoComplete: "name",
+      variant: "filled",
+      span: 12,
+      value: "",
+      validators: ["isEmpty", "!isValidAddress"],
+      errormessages: ["Please enter address", "Address Limit of 100 characters"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitStartAddr", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    countriesSelect: {
+      type: "SelectWithLabel",
+      options: [],
+      id: "countriesSelect",
+      name: "countriesSelect",
+      label: "Country",
+      labelAuto: "Country",
+      variant: "filled",
+      span: 6,
+      value: "",
+      max: 1,
+      disabled: false,
+      validators: ["isEmpty"],
+      errormessages: ["Country is required field"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitStartCountry", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    transitEndLocation: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Transit End Location",
+      name: "transitEndLocation",
+    },
+
+    addressEnd: {
+      type: "TextField",
+      id: "addressEnd",
+      name: "addressEnd",
+      label: "Address",
+      autoComplete: "name",
+      variant: "filled",
+      span: 12,
+      value: "",
+      validators: ["isEmpty", "!isValidAddress"],
+      errormessages: ["Please enter address", "Address Limit of 100 characters"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitEndAddr", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    countriesSelectEnd: {
+      type: "SelectWithLabel",
+      options: [],
+      id: "countriesSelectEnd",
+      name: "countriesSelectEnd",
+      label: "Country",
+      labelAuto: "Country",
+      variant: "filled",
+      span: 6,
+      value: "",
+      max: 1,
+      disabled: false,
+      validators: ["isEmpty"],
+      errormessages: ["Country is required field"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitEndCountry", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    spacingtwo: {
+      span: 8,
+    },
+    cargoHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Additional Cargo Details",
+      name: "cargoHeading",
+      hide: true,
+    },
+    lrNumber: {
+      type: "TextField",
+      id: "lrNumber",
+      name: "lrNumber",
+      label: "LR Number",
+      value: "",
+      hide: true,
+      autoComplete: "name",
+      variant: "filled",
+      span: 6,
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_LR_Number", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    lrDate: {
+      type: "DatePicker",
+      id: "lrDate",
+      name: "lrDate",
+      label: "LR Date",
+      variant: "outlined",
+      hide: true,
+      minDate: new Date(),
+      maxDate: new Date(new Date().setDate(new Date().getDate() + 60)),
+      value: "",
+      span: 6,
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_LR_Date", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    inShipHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Provide the Invoice Details",
+      name: "inShipHeading",
+    },
+    invoiceDate: {
+      type: "DatePicker",
+      id: "invoiceDate",
+      name: "invoiceDate",
+      label: "Invoice Date",
+      variant: "outlined",
+      minDate: new Date(new Date().setDate(new Date().getDate() - 60)),
+      maxDate: new Date(),
+      span: 6,
+      validators: ["isEmpty"],
+      errormessages: ["Please select invoice date"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_IDInvoiceDate", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    invoiceNumber: {
+      type: "TextField",
+      id: "invoiceNumber",
+      name: "invoiceNumber",
+      label: "Invoice Number",
+      autoComplete: "name",
+      variant: "filled",
+      span: 6,
+      value: "",
+      validators: ["isEmpty", "!isValidInvoice"],
+      errormessages: ["Please enter invoice number", "Length Limit of 75 characters"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_IDInvoiceNumber", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    invoiceDoc: {
+      type: "Upload",
+      id: "invoiceDoc",
+      name: "invoiceDoc",
+      label: "Upload Invoice (JPEG, PNG, PDF only)",
+      icon: "/common-widgets/icons/increment.svg",
+      accept: { "application/pdf": [], "image/jpeg": [], "image/png": [] },
+      variant: "outlined",
+      span: 6,
+      validators: ["isEmpty"],
+      errormessages: ["Please upload the invoice"],
+      onChange: (file, step, next) => {
+        step.submitButtonDisabled = true;
+        next(step);
+        let formData = new FormData();
+        formData.append("file", file);
+        axios
+          .post(`<%= apiBffUrl %>api/v1/specific_marine/upload-document`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((response) => {
+            if (response?.data?.data?.metaData?.code == 200) {
+              step.fields.invoiceDoc.value.doc_id = response.data.data.data.doc_id;
+              step.submitButtonDisabled = false;
+              next(step);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        next(step);
+      },
+    },
+    spacingtwo: {
+      span: 8,
+    },
+    basisHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Basis of Valuation",
+      name: "basisHeading",
+    },
+    basisOfValuation: {
+      type: "SelectWithLabel",
+      options: [],
+      hide: false,
+      id: "basisOfValuation",
+      name: "basisOfValuation",
+      label: "Choose basis of valuation",
+      labelAuto: "Choose basis of valuation",
+      variant: "filled",
+      span: 12,
+      value: "",
+      autoComplete: "given-name",
+      max: 1,
+      disabled: false,
+      validators: ["isEmpty"],
+      errormessages: ["Please specify basis of valuation"],
+      onChange: (event, step, next) => {
+        if (step.fields.basisOfValuation.value == "Other") {
+          step.fields.basisOfValuationOther.hide = false;
+        } else {
+          step.fields.basisOfValuationOther.value = "";
+          step.fields.basisOfValuationOther.hide = true;
+        }
+      },
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_BOV", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    basisOfValuationOther: {
+      type: "TextField",
+      id: "basisOfValuationOther",
+      name: "basisOfValuationOther",
+      label: "Enter Basis of Valuation description",
+      variant: "filled",
+      span: 12,
+      value: "",
+      hide: true,
+      validators: ["isEmpty"],
+      errormessages: ["Please enter valuation description"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_BOV_Other", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    hypothecationDetails: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Hypothecation Details (Optional)",
+      name: "hypothecationDetails",
+      id: "hypothecationDetails",
+    },
+    mentionBank: {
+      type: "SelectWithLabel",
+      id: "mentionBank",
+      name: "mentionBank",
+      label: "Mention Bank /Financial Institution",
+      labelAuto: "Mention Bank/Financial Institutions",
+      variant: "outlined",
+      span: 6,
+      value: "",
+      max: 1,
+      options: [],
+      onChange: (event, step, next) => hypothecationValidation(step),
+    },
+    bankAddress: {
+      type: "TextField",
+      id: "bankAddress",
+      name: "bankAddress",
+      label: "Mention Financial Institutions Address",
+      value: "",
+      variant: "filled",
+      span: 6,
+      onChange: (event, step, next) => hypothecationValidation(step),
+    },
+  };
+
+  return fieldObj;
+};
+
+let getDigitFields = () => {
+  return {
+    transitStartLocation: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Transit Start Location",
+      name: "transitStartLocation",
+    },
+    address: {
+      type: "TextField",
+      id: "address",
+      name: "address",
+      label: "Address",
+      autoComplete: "name",
+      variant: "filled",
+      span: 12,
+      value: "",
+      validators: ["isEmpty", "!isValidAddress"],
+      errormessages: ["Please enter address", "Address Limit of 100 characters"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitStartAddr", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    countriesSelect: {
+      type: "SelectWithLabel",
+      options: [],
+      id: "countriesSelect",
+      name: "countriesSelect",
+      label: "Country",
+      labelAuto: "Country",
+      variant: "filled",
+      span: 6,
+      value: "",
+      max: 1,
+      disabled: false,
+      validators: ["isEmpty"],
+      errormessages: ["Country is required field"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitStartCountry", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    transitEndLocation: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Transit End Location",
+      name: "transitEndLocation",
+    },
+
+    addressEnd: {
+      type: "TextField",
+      id: "addressEnd",
+      name: "addressEnd",
+      label: "Address",
+      autoComplete: "name",
+      variant: "filled",
+      span: 12,
+      value: "",
+      validators: ["isEmpty", "!isValidAddress"],
+      errormessages: ["Please enter address", "Address Limit of 100 characters"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitEndAddr", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    countriesSelectEnd: {
+      type: "SelectWithLabel",
+      options: [],
+      id: "countriesSelectEnd",
+      name: "countriesSelectEnd",
+      label: "Country",
+      labelAuto: "Country",
+      variant: "filled",
+      span: 6,
+      value: "",
+      max: 1,
+      disabled: false,
+      validators: ["isEmpty"],
+      errormessages: ["Country is required field"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitEndCountry", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    spacingtwo: {
+      span: 8,
+    },
+    cargoHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Additional Cargo Details",
+      name: "cargoHeading",
+      hide: false,
+    },
+    lrNumber: {
+      type: "TextField",
+      id: "lrNumber",
+      name: "lrNumber",
+      label: "LR Number",
+      value: "",
+      hide: false,
+      autoComplete: "name",
+      variant: "filled",
+      span: 6,
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_LR_Number", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    lrDate: {
+      type: "DatePicker",
+      id: "lrDate",
+      name: "lrDate",
+      label: "LR Date",
+      variant: "outlined",
+      hide: false,
+      minDate: new Date(),
+      maxDate: new Date(new Date().setDate(new Date().getDate() + 60)),
+      value: "",
+      span: 6,
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_LR_Date", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    isNewCargoBrand: {
+      type: "Radio",
+      options: [
+        { value: "Yes", label: "Yes", labelPlacement: "start" },
+        { value: "No", label: "No", labelPlacement: "start" },
+      ],
+      row: true,
+      id: "isNewCargoBrand",
+      name: "isNewCargoBrand",
+      label: "Is the cargo brand new in manufacturer's packing?",
+      value: "",
+      variant: "filled",
+      labelPlacement: "start",
+      titlePlacement: "start",
+      parentClass: "radioTwoRow",
+      span: 12,
+      validators: ["isEmpty"],
+      errormessages: ["This is a required field"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_IsNewCargo", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    cargoType: {
+      type: "Radio",
+      options: [
+        { value: "ODC", label: "ODC" },
+        { value: "NODC", label: "NODC" },
+        { value: "BCA", label: "BCA (Bulk Cargo)" },
+      ],
+      row: true,
+      id: "cargoType",
+      name: "cargoType",
+      label: "Over dimensional (ODC) or Bulk cargo?",
+      value: "",
+      labelPlacement: "start",
+      titlePlacement: "start",
+      parentClass: "radioTwoRow",
+      span: 12,
+      validators: ["isEmpty"],
+      errormessages: ["This is a required field"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_CargoType", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    inShipHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Provide the Invoice Details",
+      name: "inShipHeading",
+    },
+    invoiceDate: {
+      type: "DatePicker",
+      id: "invoiceDate",
+      name: "invoiceDate",
+      label: "Invoice Date",
+      variant: "outlined",
+      minDate: new Date(new Date().setDate(new Date().getDate() - 60)),
+      maxDate: new Date(),
+      span: 6,
+      validators: ["isEmpty"],
+      errormessages: ["Please select invoice date"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_IDInvoiceDate", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    invoiceNumber: {
+      type: "TextField",
+      id: "invoiceNumber",
+      name: "invoiceNumber",
+      label: "Invoice Number",
+      autoComplete: "name",
+      variant: "filled",
+      span: 6,
+      value: "",
+      validators: ["isEmpty", "!isValidInvoice"],
+      errormessages: ["Please enter invoice number", "Length Limit of 75 characters"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_IDInvoiceNumber", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    invoiceDoc: {
+      type: "Upload",
+      id: "invoiceDoc",
+      name: "invoiceDoc",
+      label: "Upload Invoice (JPEG, PNG, PDF only)",
+      icon: "/common-widgets/icons/increment.svg",
+      accept: { "application/pdf": [], "image/jpeg": [], "image/png": [] },
+      variant: "outlined",
+      span: 6,
+      validators: ["isEmpty"],
+      errormessages: ["Please upload the invoice"],
+      onChange: (file, step, next) => {
+        step.submitButtonDisabled = true;
+        next(step);
+        let formData = new FormData();
+        formData.append("file", file);
+        axios
+          .post(`<%= apiBffUrl %>api/v1/specific_marine/upload-document`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((response) => {
+            if (response?.data?.data?.metaData?.code == 200) {
+              step.fields.invoiceDoc.value.doc_id = response.data.data.data.doc_id;
+              step.submitButtonDisabled = false;
+              next(step);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        next(step);
+      },
+    },
+    spacingtwo: {
+      span: 8,
+    },
+    basisHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Basis of Valuation",
+      name: "basisHeading",
+    },
+    basisOfValuation: {
+      type: "SelectWithLabel",
+      options: [],
+      hide: false,
+      id: "basisOfValuation",
+      name: "basisOfValuation",
+      label: "Choose basis of valuation",
+      labelAuto: "Choose basis of valuation",
+      variant: "filled",
+      span: 12,
+      value: "",
+      autoComplete: "given-name",
+      max: 1,
+      disabled: false,
+      validators: ["isEmpty"],
+      errormessages: ["Please specify basis of valuation"],
+      onChange: (event, step, next) => {
+        if (step.fields.basisOfValuation.value == "Other") {
+          step.fields.basisOfValuationOther.hide = false;
+        } else {
+          step.fields.basisOfValuationOther.value = "";
+          step.fields.basisOfValuationOther.hide = true;
+        }
+      },
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_BOV", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    basisOfValuationOther: {
+      type: "TextField",
+      id: "basisOfValuationOther",
+      name: "basisOfValuationOther",
+      label: "Enter Basis of Valuation description",
+      variant: "filled",
+      span: 12,
+      value: "",
+      hide: true,
+      validators: ["isEmpty"],
+      errormessages: ["Please enter valuation description"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_BOV_Other", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    hypothecationDetails: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Hypothecation Details (Optional)",
+      name: "hypothecationDetails",
+      id: "hypothecationDetails",
+    },
+    mentionBank: {
+      type: "SelectWithLabel",
+      id: "mentionBank",
+      name: "mentionBank",
+      label: "Mention Bank /Financial Institution",
+      labelAuto: "Mention Bank/Financial Institutions",
+      variant: "outlined",
+      span: 6,
+      value: "",
+      max: 1,
+      options: [],
+      onChange: (event, step, next) => {
+        hypothecationValidation(step);
+      },
+    },
+    bankAddress: {
+      type: "TextField",
+      id: "bankAddress",
+      name: "bankAddress",
+      label: "Mention Financial Institutions Address",
+      value: "",
+      variant: "filled",
+      span: 6,
+      onChange: (event, step, next) => {
+        hypothecationValidation(step);
+      },
+    },
+  };
+};
+
+let getRelianceFields = () => {
+  const fieldObj = {
+    transitStartLocation: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Transit Start Location",
+      name: "transitStartLocation",
+    },
+    address: {
+      type: "TextField",
+      id: "address",
+      name: "address",
+      label: "Address",
+      autoComplete: "name",
+      variant: "filled",
+      span: 12,
+      value: "",
+      validators: ["isEmpty", "!isValidAddress"],
+      errormessages: ["Please enter address", "Address Limit of 100 characters"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitStartAddr", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    countriesSelect: {
+      type: "SelectWithLabel",
+      options: [],
+      id: "countriesSelect",
+      name: "countriesSelect",
+      label: "Country",
+      labelAuto: "Country",
+      variant: "filled",
+      span: 6,
+      value: "",
+      max: 1,
+      disabled: false,
+      validators: ["isEmpty"],
+      errormessages: ["Country is required field"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitStartCountry", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    transitEndLocation: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Transit End Location",
+      name: "transitEndLocation",
+    },
+
+    addressEnd: {
+      type: "TextField",
+      id: "addressEnd",
+      name: "addressEnd",
+      label: "Address",
+      autoComplete: "name",
+      variant: "filled",
+      span: 12,
+      value: "",
+      validators: ["isEmpty", "!isValidAddress"],
+      errormessages: ["Please enter address", "Address Limit of 100 characters"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitEndAddr", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    countriesSelectEnd: {
+      type: "SelectWithLabel",
+      options: [],
+      id: "countriesSelectEnd",
+      name: "countriesSelectEnd",
+      label: "Country",
+      labelAuto: "Country",
+      variant: "filled",
+      span: 6,
+      value: "",
+      max: 1,
+      disabled: false,
+      validators: ["isEmpty"],
+      errormessages: ["Country is required field"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_TransitEndCountry", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    spacingtwo: {
+      span: 8,
+    },
+    cargoHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Additional Cargo Details",
+      name: "cargoHeading",
+      hide: false,
+    },
+    transShipmentDetails: {
+      type: "TextField",
+      id: "transShipmentDetails",
+      name: "transShipmentDetails",
+      label: "Trans-Shipment Details (If Applicable)",
+      autoComplete: "name",
+      variant: "filled",
+      span: 6,
+      value: "",
+      validators: [],
+      errormessages: [],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_Trans_Shipment_Details", "<%= schemaVal.gcd_code %>");
+      },
+      onChange: (event, step, next) => addValidation(step),
+    },
+    consigneeConsignorName: {
+      type: "TextField",
+      id: "consigneeConsignorName",
+      name: "consigneeConsignorName",
+      label: "Consignor / Consignee Name",
+      value: "",
+      autoComplete: "name",
+      variant: "filled",
+      span: 6,
+      validators: [],
+      errormessages: [],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_ConsigneeConsignor_Name", "<%= schemaVal.gcd_code %>");
+      },
+      onChange: (event, step, next) => addValidation(step),
+    },
+    carrierName: {
+      type: "TextField",
+      id: "carrierName",
+      name: "carrierName",
+      label: "Carrier Name / Voyage No / Transporter Name / Vessel Name",
+      autoComplete: "name",
+      variant: "filled",
+      span: 12,
+      value: "",
+      onChange: (event, step, next) => {
+        addValidation(step);
+        next(step);
+      },
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_Carrier_Name", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    noOfContainers: {
+      type: "TextField",
+      id: "noOfContainers",
+      name: "noOfContainers",
+      label: "Number of Containers",
+      autoComplete: "name",
+      variant: "filled",
+      span: 6,
+      value: "",
+      validators: ["isEmpty", "!isNumeric"],
+      errormessages: ["Please enter a valid number", "Please enter a valid number"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_Container_Numbers", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    documentHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Document Details",
+      name: "documentHeading",
+    },
+    typeOfDocument: {
+      hide: false,
+      type: "SelectWithLabel",
+      id: "typeOfDocument",
+      name: "typeOfDocument",
+      label: "Type of Document",
+      labelAuto: "Type of Document",
+      options: [
+        { label: "BL", value: "BL" },
+        { label: "AWB", value: "AWB" },
+        { label: "LR", value: "LR" },
+        { label: "RR", value: "RR" },
+        { label: "CN", value: "CN" },
+        { label: "GR", value: "GR" },
+      ],
+      span: 12,
+      autoComplete: "given-name",
+      variant: "filled",
+      value: "",
+      onChange: (event, step, next) => {
+        const docType = step.fields.typeOfDocument.value || "Document";
+        step.fields.docNumber.label = `${docType} Number`;
+        step.fields.docDate.label = `${docType} Date`;
+        addValidation(step);
+        next(step);
+      },
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_Document_Type", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    docNumber: {
+      type: "TextField",
+      id: "docNumber",
+      name: "docNumber",
+      label: "Document Number",
+      autoComplete: "name",
+      variant: "filled",
+      span: 6,
+      value: "",
+      onChange: (event, step, next) => {
+        addValidation(step);
+        next(step);
+      },
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_Doc_Number", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    docDate: {
+      type: "DatePicker",
+      id: "docDate",
+      name: "docDate",
+      label: "Document Date",
+      variant: "outlined",
+      minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
+      maxDate: new Date(),
+      value: "",
+      span: 6,
+      onChange: (event, step, next) => {
+        addValidation(step);
+        next(step);
+      },
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_Doc_Date", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    inShipHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Provide the Invoice Details",
+      name: "inShipHeading",
+    },
+    invoiceDate: {
+      type: "DatePicker",
+      id: "invoiceDate",
+      name: "invoiceDate",
+      label: "Invoice Date",
+      variant: "outlined",
+      minDate: new Date(new Date().setDate(new Date().getDate() - 60)),
+      maxDate: new Date(),
+      span: 6,
+      validators: ["isEmpty"],
+      errormessages: ["Please select invoice date"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_IDInvoiceDate", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    invoiceNumber: {
+      type: "TextField",
+      id: "invoiceNumber",
+      name: "invoiceNumber",
+      label: "Invoice Number",
+      autoComplete: "name",
+      variant: "filled",
+      span: 6,
+      value: "",
+      validators: ["isEmpty", "!isValidInvoice"],
+      errormessages: ["Please enter invoice number", "Length Limit of 75 characters"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_IDInvoiceNumber", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    invoiceDoc: {
+      type: "Upload",
+      id: "invoiceDoc",
+      name: "invoiceDoc",
+      label: "Upload Invoice (JPEG, PNG, PDF only)",
+      icon: "/common-widgets/icons/increment.svg",
+      accept: { "application/pdf": [], "image/jpeg": [], "image/png": [] },
+      variant: "outlined",
+      span: 6,
+      validators: ["isEmpty"],
+      errormessages: ["Please upload the invoice"],
+      onChange: (file, step, next) => {
+        step.submitButtonDisabled = true;
+        next(step);
+        let formData = new FormData();
+        formData.append("file", file);
+        axios
+          .post(`<%= apiBffUrl %>api/v1/specific_marine/upload-document`, formData, {
+            headers: {
+              "Content-Type": "multipart/form-data",
+            },
+          })
+          .then((response) => {
+            if (response?.data?.data?.metaData?.code == 200) {
+              step.fields.invoiceDoc.value.doc_id = response.data.data.data.doc_id;
+              step.submitButtonDisabled = false;
+              next(step);
+            }
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+        next(step);
+      },
+    },
+    spacingtwo: {
+      span: 8,
+    },
+    basisHeading: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Basis of Valuation",
+      name: "basisHeading",
+    },
+    basisOfValuation: {
+      type: "SelectWithLabel",
+      options: [],
+      hide: false,
+      id: "basisOfValuation",
+      name: "basisOfValuation",
+      label: "Choose basis of valuation",
+      labelAuto: "Choose basis of valuation",
+      variant: "filled",
+      span: 12,
+      value: "",
+      autoComplete: "given-name",
+      max: 1,
+      disabled: false,
+      validators: ["isEmpty"],
+      errormessages: ["Please specify basis of valuation"],
+      onChange: (event, step, next) => {
+        if (step.fields.basisOfValuation.value == "Other") {
+          step.fields.basisOfValuationOther.hide = false;
+        } else {
+          step.fields.basisOfValuationOther.value = "";
+          step.fields.basisOfValuationOther.hide = true;
+        }
+      },
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_BOV", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    basisOfValuationOther: {
+      type: "TextField",
+      id: "basisOfValuationOther",
+      name: "basisOfValuationOther",
+      label: "Enter Basis of Valuation description",
+      variant: "filled",
+      span: 12,
+      value: "",
+      hide: true,
+      validators: ["isEmpty"],
+      errormessages: ["Please enter valuation description"],
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_BOV_Other", "<%= schemaVal.gcd_code %>");
+      },
+    },
+    hypothecationDetails: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Hypothecation Details (Optional)",
+      name: "hypothecationDetails",
+      id: "hypothecationDetails",
+    },
+    mentionBank: {
+      type: "SelectWithLabel",
+      id: "mentionBank",
+      name: "mentionBank",
+      label: "Mention Bank /Financial Institution",
+      labelAuto: "Mention Bank/Financial Institutions",
+      variant: "outlined",
+      span: 6,
+      value: "",
+      max: 1,
+      options: [],
+      onChange: (event, step, next) => {
+        hypothecationAndLCValidation(step);
+      },
+    },
+    bankAddress: {
+      type: "TextField",
+      id: "bankAddress",
+      name: "bankAddress",
+      label: "Mention Financial Institutions Address",
+      value: "",
+      variant: "filled",
+      span: 6,
+      onChange: (event, step, next) => {
+        hypothecationAndLCValidation(step);
+      },
+    },
+    lcNumber: {
+      type: "TextField",
+      id: "lcNumber",
+      name: "lcNumber",
+      label: "LC Number",
+      value: "",
+      variant: "filled",
+      span: 6,
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_LC_Number", "<%= schemaVal.gcd_code %>");
+      },
+      onChange: (event, step, next) => hypothecationAndLCValidation(step),
+    },
+    lcDate: {
+      type: "DatePicker",
+      id: "lcDate",
+      name: "lcDate",
+      label: "LC Date",
+      variant: "outlined",
+      hide: false,
+      minDate: new Date(new Date().setFullYear(new Date().getFullYear() - 1)),
+      maxDate: new Date(),
+      value: "",
+      span: 6,
+      onBlur: () => {
+        window.projectGlobals.smeTrackGaEvent("SpecificMarineInsuranceLeadFunnel", "SME_SpecificMarine_LC_Date", "<%= schemaVal.gcd_code %>");
+      },
+      onChange: (event, step, next) => hypothecationAndLCValidation(step),
+    },
+  };
+
+  return fieldObj;
+};
+
+function addValidation(step) {
+  const isAnyFieldFilled = step.fields.carrierName.value.trim() || step.fields.typeOfDocument.value.trim() || step.fields.docNumber.value.trim() || step.fields.docDate.value.trim() || step.fields.transShipmentDetails.value.trim() || step.fields.consigneeConsignorName.value.trim();
+  const isAllEmpty = !step.fields.carrierName.value.trim() && !step.fields.typeOfDocument.value.trim() && !step.fields.docNumber.value.trim() && !step.fields.docDate.value.trim() && !step.fields.transShipmentDetails.value.trim() && !step.fields.consigneeConsignorName.value.trim();
+
+  if (isAnyFieldFilled) {
+    step.fields.transShipmentDetails.validators = ["isEmpty"];
+    step.fields.consigneeConsignorName.validators = ["isEmpty"];
+    step.fields.carrierName.validators = ["isEmpty"];
+    step.fields.typeOfDocument.validators = ["isEmpty"];
+    step.fields.docNumber.validators = ["isEmpty", "!isAlphanumeric"];
+    step.fields.docDate.validators = ["isEmpty"];
+    step.fields.transShipmentDetails.errormessages = ["Please enter a valid trans-shipment details"];
+    step.fields.consigneeConsignorName.errormessages = ["Please enter a valid consignee/consignor name"];
+    step.fields.carrierName.errormessages = ["Please enter a valid Carrier Name"];
+    step.fields.typeOfDocument.errormessages = ["Please select type of the document"];
+    step.fields.docNumber.errormessages = ["Please enter a valid document number"];
+    step.fields.docDate.errormessages = ["Please select a valid document date"];
+  }
+
+  if (isAllEmpty) {
+    step.fields.transShipmentDetails.validators = [""];
+    step.fields.consigneeConsignorName.validators = [""];
+    step.fields.carrierName.validators = [""];
+    step.fields.typeOfDocument.validators = [""];
+    step.fields.docNumber.validators = [""];
+    step.fields.docDate.validators = [""];
+    step.fields.transShipmentDetails.errormessages = [""];
+    step.fields.consigneeConsignorName.errormessages = [""];
+    step.fields.carrierName.errormessages = [""];
+    step.fields.typeOfDocument.errormessages = [""];
+    step.fields.docNumber.errormessages = [""];
+    step.fields.docDate.errormessages = [""];
+  }
+}
+
+function hypothecationAndLCValidation(step) {
+  const isAnyFieldFilled = step.fields.mentionBank.value.trim() || step.fields.bankAddress.value.trim() || step.fields.lcNumber.value.trim() || step.fields.lcDate.value;
+  const isAllEmpty = !step.fields.mentionBank.value.trim() && !step.fields.bankAddress.value.trim() && !step.fields.lcNumber.value.trim() && !step.fields.lcDate.value;
+
+  if (isAnyFieldFilled) {
+    step.fields.mentionBank.validators = ["isEmpty"];
+    step.fields.bankAddress.validators = ["isEmpty"];
+    step.fields.lcNumber.validators = ["isEmpty"];
+    step.fields.lcDate.validators = ["isEmpty"];
+    step.fields.mentionBank.errormessages = ["Please select a Bank/Financial Institution"];
+    step.fields.bankAddress.errormessages = ["Please enter the bank address"];
+    step.fields.lcNumber.errormessages = ["Please enter a valid LC Number"];
+    step.fields.lcDate.errormessages = ["Please select LC date"];
+  }
+
+  if (isAllEmpty) {
+    step.fields.mentionBank.validators = [];
+    step.fields.bankAddress.validators = [];
+    step.fields.lcNumber.validators = [];
+    step.fields.lcDate.validators = [];
+    step.fields.mentionBank.errormessages = [""];
+    step.fields.bankAddress.errormessages = [""];
+    step.fields.lcNumber.errormessages = [""];
+    step.fields.lcDate.errormessages = [""];
+    step.fields.mentionBank.error = false;
+    step.fields.bankAddress.error = false;
+    step.fields.lcNumber.error = false;
+    step.fields.lcDate.error = false;
+    step.fields.lcNumber.helperText = "";
+    step.fields.lcDate.helperText = "";
+    step.fields.mentionBank.helperText = "";
+    step.fields.bankAddress.helperText = "";
+  }
+}
+
+function hypothecationValidation(step) {
+  const isAnyFieldFilled = step.fields.mentionBank.value.trim() || step.fields.bankAddress.value.trim();
+  const isAllEmpty = !step.fields.mentionBank.value.trim() && !step.fields.bankAddress.value.trim();
+
+  if (isAnyFieldFilled) {
+    step.fields.mentionBank.validators = ["isEmpty"];
+    step.fields.bankAddress.validators = ["isEmpty"];
+    step.fields.mentionBank.errormessages = ["Please select a Bank/Financial Institution"];
+    step.fields.bankAddress.errormessages = ["Please enter the bank address"];
+  }
+
+  if (isAllEmpty) {
+    step.fields.mentionBank.validators = [];
+    step.fields.bankAddress.validators = [];
+    step.fields.mentionBank.errormessages = [""];
+    step.fields.bankAddress.errormessages = [""];
+    step.fields.mentionBank.error = false;
+    step.fields.bankAddress.error = false;
+    step.fields.mentionBank.helperText = "";
+    step.fields.bankAddress.helperText = "";
+  }
+}
+
+window.specificMarineTransitDetails = {
+  formBuilder: {
+    steps: [
+      {
+        submitButtonLabel: "Next",
+        onLoad: function (step, next) {
+          try {
+            const { getSessionStorageItem, setDefaultFormValues, setFormOptions, getSmeMaster } = window.projectGlobals;
+            const { parsedMasterData, rawMasterData } = getSmeMaster();
+            const leadDetails = getSessionStorageItem("specificMarineLead");
+            if (leadDetails) {
+              const {
+                productDetails: {
+                  businessDetails: { invoiceDoc = "" },
+                  cargoDetails: {
+                    invoiceDate = "",
+                    invoiceNumber = "",
+                    basisOfValuationId = "",
+                    transitFrom = {},
+                    transitTo = {},
+                    noOfContainers = "0",
+                    transShipmentDetails = "",
+                    consigneeConsignorName = "",
+                    carrierName = "",
+                    typeOfDocument = "",
+                    docNumber = "",
+                    docDate = "",
+                    lrNumber = "",
+                    lrDate = "",
+                    basisOfValuationOther = "",
+                    cargoType = "NODC",
+                    isNewCargoBrand = "Yes",
+                  } = {},
+                  hypothecationDetails: { hypothecationBank = "", bankAddress = "", lcNumber = "", lcDate = "" } = {},
+                } = {},
+                selectedQuotes: { insurerId = "" } = {},
+              } = leadDetails;
+
+              if (insurerId == 12) {
+                step.fields = { ...getDigitFields() };
+              } else if (insurerId == 2) {
+                step.fields = { ...getRelianceFields() };
+              } else if (insurerId == 4 || insurerId == 10) {
+                step.fields = { ...getIciciAndBajajFields() };
+              }
+
+              let modeOfTransport = leadDetails.productDetails.cargoDetails.modeofTransport;
+              let transitType = leadDetails.productDetails.cargoDetails.transitType;
+
+              if (transitType == "Inland") {
+                step.fields.basisOfValuation.disabled = true;
+                step.fields.countriesSelect.disabled = true;
+                step.fields.countriesSelectEnd.disabled = true;
+              } else {
+                step.fields.basisOfValuation.value = "";
+                step.fields.basisOfValuation.disabled = false;
+                step.fields.countriesSelect.disabled = false;
+                step.fields.countriesSelectEnd.disabled = false;
+              }
+
+              if (modeOfTransport === "Road" && (insurerId == 12 || insurerId == 10 || insurerId == 4)) {
+                step.fields.cargoHeading.hide = false;
+                step.fields.lrDate.hide = false;
+                step.fields.lrNumber.hide = false;
+                step.fields.lrDate.validators = ["isEmpty"];
+                step.fields.lrNumber.validators = ["isEmpty"];
+                step.fields.lrDate.errormessages = ["Please select LR date"];
+                step.fields.lrNumber.errormessages = ["Please enter a valid LR Number"];
+              } else if (modeOfTransport !== "Road" && (insurerId == 12 || insurerId == 10 || insurerId == 4)) {
+                step.fields.lrDate.hide = true;
+                step.fields.lrNumber.hide = true;
+                step.fields.lrDate.validators = [];
+                step.fields.lrNumber.validators = [];
+              }
+
+              if (modeOfTransport !== "Road" && (insurerId == 10 || insurerId == 4)) {
+                step.fields.cargoHeading.hide = true;
+              } else {
+                step.fields.cargoHeading.hide = false;
+              }
+
+              const basisOfValuation = rawMasterData.valuation?.find((item) => item.id == basisOfValuationId)?.valuationType || "Invoice Value + 10%";
+              const countriesSelect = rawMasterData.countries?.find((item) => item.id == transitFrom?.countryId)?.country || "India";
+              const countriesSelectEnd = rawMasterData.countries?.find((item) => item.id == transitTo?.countryId)?.country || "India";
+              const mentionBank = rawMasterData.bankList?.find((item) => item.id == hypothecationBank)?.bankName || "";
+
+              const defautlValues = {
+                invoiceDate,
+                invoiceNumber,
+                invoiceDoc: leadDetails.documents?.length > 0 ? { doc_id: leadDetails.documents[0].documentId } : "",
+                basisOfValuation,
+                address: transitFrom?.addressLine1,
+                countriesSelect,
+                addressEnd: transitTo?.addressLine1,
+                countriesSelectEnd,
+                noOfContainers,
+                transShipmentDetails,
+                consigneeConsignorName,
+                carrierName,
+                typeOfDocument,
+                docNumber,
+                docDate,
+                lrNumber,
+                lrDate,
+                basisOfValuationOther,
+                mentionBank,
+                bankAddress,
+                lcNumber,
+                lcDate,
+                cargoType,
+                isNewCargoBrand,
+              };
+              setFormOptions(step.fields, parsedMasterData);
+              setDefaultFormValues(step.fields, defautlValues);
+
+              if (insurerId == 2) {
+                hypothecationAndLCValidation(step);
+                addValidation(step);
+              } else {
+                hypothecationValidation(step);
+              }
+            }
+            next(step);
+          } catch (error) {
+            console.error("An error occurred", error);
+            next(step);
+          }
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidAddress: function (str) {
+        var regExp = new RegExp(/^.{0,100}$/);
+        return regExp.test(str);
+      },
+      isValidInvoice: function (str) {
+        var regExp = new RegExp(/^.{0,75}$/);
+        return regExp.test(str);
+      },
+    },
+  },
+};

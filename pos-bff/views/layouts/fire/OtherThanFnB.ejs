@@ -1,0 +1,395 @@
+let getSessionStorageItemOther = (key) => {
+  if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+      let data = sessionStorage.getItem(key);
+    if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+        let obj = JSON.parse(sessionStorage.getItem(key));
+        return obj;
+    }
+  }
+  return {};
+}
+let gcd_code = '<%= schemaVal.gcd_code %>';
+
+let otherProductUrlSlug = getSessionStorageItemOther('otherProductUrlSlug')
+const productExcelMapping = {
+  'workmen_compensation': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/fire/WC_RFQ.xlsx',
+  'cpm': '',
+  'group_medical': '',
+  'specific_marine': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/fire/SPECIFIC+MARINE+RFQ.xlsx',
+  'open_marine': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/fire/Open+Marine+RFQ.xlsx',
+  'shopkeeper': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/sme/Shopkeeper_+RFQ.xlsx',
+  'marine_hull':'',
+  'gtli': '',
+  'group_personal': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/fire/GPA+RFQ+ID.xlsx',
+  'contractors': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/fire/CAR+and+EAR+format.xlsx',
+  'erection': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/fire/CAR+and+EAR+format.xlsx',
+  'office_package': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/sme/Office_Package_+RFQ+.xlsx ',
+  'home_package': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/sme/Home_RFQ.xlsx',
+  'jewellers': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/sme/Jwellery_RFQ.xlsx',
+  'fidelity': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/sme/Fidelity_RFQ.xlsx',
+  'machinery': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/sme/MBD_RFQ.xlsx',
+  'professional_indemnity': '',
+  'public_liability': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/fire/Public+Liability+RFQ.xlsx',
+  'dno': 'https://gibpl-new.s3.ap-south-1.amazonaws.com/production/brokerage/docs/fire/D%26O+RFQ.xlsx',
+  'eno': '',
+  'cyber': '',
+  'cgl': '',
+  'carrier': ''
+}
+const downloadExcelUrl = productExcelMapping[otherProductUrlSlug]
+window.formBuilderSchemaOther = {
+    formBuilder: {
+      steps: [
+        {
+          heading: "Basic Details",
+          submitButtonLabel: "Submit",
+          fields: {
+            "purpose": {
+                "type": "CardRadio",
+                "id": "purpose",
+                "name": "purpose",
+                "label": "Get Plans from Multiple Insurers",
+                "span": 12,
+                "validators": [],
+                "errormessages": [],
+                "options": [
+                    {
+                        "value": "other",
+                        "label": "{Others than F&B}",
+                        "icon": "/common-widgets/icons/more-outline-rounded.svg"
+                    }
+                ]
+            },
+            leadDetail: {
+                type: "HeadingComp",
+                span: 12,
+                label: "Lead Details",
+                name: "leadDetail"
+            },
+            businessName: {
+              type: "TextField",
+              id: "businessName",
+              name: "businessName",
+              label: "Business Name (as per Govt. Records)",
+              value: "",
+              autoComplete: "name",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty","!isValidBusinessName"],
+              errormessages: [
+                 "Please enter the business name",
+                "Please enter valid business name"
+              ],
+              onChange: (event, step, next) => {
+                step.fields['businessName'].value= event.target.value
+              },
+            },
+            customerName: {
+                type: "TextField",
+                id: "customerName",
+                name: "customerName",
+                label: "Name",
+                value: "",
+                autoComplete: "name",
+                variant: "filled",
+                span: 6,
+                validators: ["isEmpty","!isValidName"],
+                errormessages: [
+                   "Please enter the customer name",
+                  "Please enter valid customer name"
+                ],
+                onChange: (event, step, next) => {
+                },
+            },
+            mobile: {
+                type: "TextField",
+                id: "mobile",
+                name: "mobile",
+                label: "Contact Number",
+                variant: "filled",
+                value:"",
+                span: 6,
+                fieldType: "mobile",
+                validators: ["isEmpty","!isValidMobile"],
+                errormessages: [
+                "This field is required",
+                "Please enter a valid contact number"
+              ],
+            },
+            email: {
+                type: "TextField",
+                id: "email",
+                name: "email",
+                label: "Email ID",
+                multiline : false,
+                variant: "filled",
+                span: 6,
+                validators: ["isEmpty","!isValidEmail"],
+                errormessages: [
+                  "This field is required",
+                  "Please enter the valid email"
+                ]
+            },
+            pincode: {
+                type: "Pincode",
+                id: "pincode",
+                name: "pincode",
+                label: "Pincode",
+                variant: "filled",
+                stateRequired : false ,
+                autoComplete: "name",
+                span: 4,
+                validators: ["isEmpty"],
+                errormessages: [
+                  "This field is required"
+                ],
+                onChange: (event, step, next) => {
+                    let storeCityName = step.fields.pincode.value && step.fields.pincode.value.city_name ? step.fields.pincode.value.city_name : "";
+                    let storeStateName = step.fields.pincode.value && step.fields.pincode.value.state_name ? step.fields.pincode.value.state_name: "";
+                    step.fields["state"]["value"] = storeStateName;
+                    step.fields["state"]["error"] = false;
+                    step.fields["state"]["helperText"] = "";
+                    step.fields["city"]["value"] = storeCityName;
+                    step.fields["city"]["error"] = false;
+                    step.fields["city"]["helperText"] = "";
+                    next(step);
+                  },
+            },
+            city: {
+                type: "TextField",
+                id: "city",
+                name: "city",
+                label: "City",
+                value : "",
+                readOnly : "true",
+                autoComplete: "given-name",
+                variant: "filled",
+                span: 4,
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+              },
+            state:{
+                type: "TextField",
+                id: "state",
+                name: "state",
+                label: "State",
+                value :"" ,
+                readOnly : "true",
+                variant: "filled",
+                span: 4,
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+            },
+            addressLine: {
+                type: "TextField",
+                id: "addressLine",
+                name: "addressLine",
+                label: "Address Line",
+                value: "",
+                autoComplete: "name",
+                variant: "filled",
+                span: 12,
+                validators: ["isEmpty"],
+                errormessages: [
+                    "Please enter the address",
+                ],
+                onChange: (event, step, next) => {
+                  let o = {event: 'FireInsuranceLeadFunnel', lead_action: `SME_${otherProductUrlSlug}_Address`, is_mobile: window.__isMobile, gcd_code: gcd_code};
+                  window.projectGlobals.setDataLayer(null, null, true, false, o);
+                },
+            },
+            extraComments: {
+                type: "TextField",
+                id: "extraComments",
+                name: "extraComments",
+                label: "Extra Comments (0/150  characters)",
+                value: "",
+                autoComplete: "name",
+                variant: "filled",
+                span: 12,
+                validators: [],
+                errormessages: [
+                ],
+                onChange: (event, step, next) => {
+                  let o = {event: 'FireInsuranceLeadFunnel', lead_action: `SME_${otherProductUrlSlug}_ExtraComments`, is_mobile: window.__isMobile, gcd_code: gcd_code};
+                  window.projectGlobals.setDataLayer(null, null, true, false, o);
+                },
+            },
+            hintbubble:{
+                hide: false,
+                "type": "Hint",
+                "id": "hintbubble",
+                "name": "hintbubble",
+                "label": "Uploading the proposal form will save yours and Operations time to fill up proposal details to get quicker quotes"  
+            },
+            download: {
+                "type": "CardRadio",
+                "id": "download",
+                "name": "download",
+                "label": "Download form and fill up Proposal details (Optional)",
+                "span": 12,
+                "validators": [],
+                "errormessages": [],
+                "options": [
+                    {
+                        "value": "business",
+                        "label": "Download Excel RFQ",
+                        "icon": "/common-widgets/icons/ic_download.svg"
+                    }
+                ],
+                onChange: () => {
+                  const downloadUrl = downloadExcelUrl; 
+                  const link = document.createElement("a");
+                  link.href = downloadUrl;
+                  link.download = "img1.jpg"; 
+                  link.click();
+                  let o = {event: 'FireInsuranceLeadFunnel', lead_action: `SME_${otherProductUrlSlug}_downloadRFQ`, is_mobile: window.__isMobile, gcd_code: gcd_code};
+                  window.projectGlobals.setDataLayer(null, null, true, false, o);
+                  next(step);
+                },
+            },
+            headingtemp: {
+                type: "HeadingComp",
+                span: 12,
+                label: "Upload Complete Proposal Form (Optional)",
+                name: "headingtemp"
+            },
+            "dogPhotoLeft": {
+                "type": "Upload",
+                "id": "dogPhotoLeft",
+                "name": "dogPhotoLeft",
+                "label": "+ Upload (excel, pdf only)",
+                accept:{"application/pdf":[], "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": []},
+                "variant": "outlined",
+                "span": 12,
+                "accept":{"application/pdf":[], "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": []},
+                "validators": [],
+                "errormessages": [],
+                "onChange": (file, step, next) => {
+                    let otherProdType = getSessionStorageItemOther('otherProductType')
+                    step.submitButtonDisabled = true;	
+                    next(step);
+                    let formData = new FormData();
+                    formData.append("file", file);
+                    axios.post(`<%= apiBffUrl %>api/v1/${otherProdType}/upload-document`, formData, {
+                        headers: {
+                          "Content-Type": "multipart/form-data",
+                        },
+                      }).then((response) => {
+                        if(response && response.data && response.data.data && response.data.data.metaData && response.data.data.metaData.code == 200){
+                          step.fields.dogPhotoLeft.value.doc_id = response.data.data.data.doc_id;
+                          step.submitButtonDisabled = false;
+                          let o = {event: 'FireInsuranceLeadFunnel', lead_action: `SME_${otherProductUrlSlug}_uploadRFQsuccess`, is_mobile: window.__isMobile, gcd_code: gcd_code};
+                          window.projectGlobals.setDataLayer(null, null, true, false, o);	
+                          next(step);
+                        }
+                        console.log(response)
+                      }).catch((error) => {
+                        console.log(error);
+                    });
+                    next(step);
+                }
+              }
+
+            },
+          onLoad: function (step, next) {
+            step.fields.purpose.value = 'other'
+
+            let getLocalStorageItem = (key) => {
+                if (typeof window.localStorage !== 'undefined') {
+                    let data = localStorage.getItem(key);
+                    if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                        let obj = JSON.parse(localStorage.getItem(key));
+                        return obj;
+                    }
+                }
+                return {};
+              }
+              let getSessionStorageItem = (key) => {
+                if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+                    let data = sessionStorage.getItem(key);
+                  if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                      let obj = JSON.parse(sessionStorage.getItem(key));
+                      return obj;
+                  }
+                }
+                return {};
+              }
+
+              const labelMapping = {
+                "Specific Marine": "Specific Marine",
+                "Workmen Compensation": "Workmen's Compensation",
+                "Group Medical": "Group Medical Insurance",
+                "Cpm": "CPM",
+                "Open Marine": "Open Marine Transit",
+                "Shopkeeper": "Shopkeeper Policy",
+                "Home Package": "Home Insurance",
+                "Group Personal": "Group Personal Accident",
+                "Gtli": "Group Term Life Insurance",
+                "Marine Hull": "Marine Hull",
+                "Contractors": "Contractors' All Risk",
+                "Erection": "Erection All Risk",
+                "Office Package": "Office Package",
+                "Jewellers": "Jeweller's Block Package",
+                "Fidelity": "Fidelity",
+                "Machinery": "Machinery Breakdown Damage",
+                "Professional Indemnity": "Professional Indemnity",
+                "Public Liability": "Public Liability",
+                "Dno": "Directors & Officers",
+                "Eno": "Errors & Omissions",
+                "Cgl": "Commercial General Liability",
+                "Carrier": "Carrier Legal Liability",
+                "Cyber": "Cyber Insurance"
+              }
+
+              let othersLabel = getSessionStorageItem('otherProductName')
+
+              let othersProdLabel = ""
+              if (labelMapping[othersLabel]) {
+                othersProdLabel = labelMapping[othersLabel];
+              }
+
+              let heading = `Get ${othersProdLabel} Plans from Insurers`
+              step.fields['purpose'].label = heading
+              step.fields.purpose.options[0].label = othersProdLabel
+              let otherProductUrlSlug = getSessionStorageItem('otherProductUrlSlug')
+              const shouldShowDownloadButton = productExcelMapping[otherProductUrlSlug] !== '';
+              if(!shouldShowDownloadButton) {
+                step.fields.download = {}
+                step.fields.headingone = {}
+                step.fields.dogPhotoLeft = {}
+                step.fields.headingtemp = {}
+              }
+              next(step);
+          }
+        },
+      ],
+      activeStep: 0,
+      customValidators: {
+        isValidName: function (str) {
+            var regexp = new RegExp(
+              /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+            );
+            return regexp.test(str);
+        },
+        isValidEmail: function (str) {
+          var regexp = new RegExp(
+            /^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
+          );
+          return regexp.test(str);
+        },
+        isValidBusinessName: function (str) {
+          var regExp = new RegExp(
+            /^.{1,70}$/
+          );
+          return regExp.test(str);
+        },
+        isValidMobile: function (str) {
+          var regexp = new RegExp(
+            /^(?![9]{10})(?:[6|7|8|9][0-9]{9})$/
+          );
+          return regexp.test(str);
+        }
+      },
+     }
+    }

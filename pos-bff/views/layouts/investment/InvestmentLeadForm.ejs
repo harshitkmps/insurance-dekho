@@ -1,0 +1,345 @@
+let DealerCityAndList = function(event, step, next) {
+  <% if(schemaVal.showDealerDropDown) { %>
+    if(!step.fields.dealerCitySingleSelect){
+      step.fields['dealerCitySingleSelect'] = {
+        type: "SingleSelectReactselect",
+        options: [],
+        id: "dealerCitySingleSelect",
+        name: "dealerCitySingleSelect",
+        label: "Select Dealer City",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        onChange: (event, step, next) => {
+              let item = step.fields.dealerCitySingleSelect.value[0];
+              let uuid = '<%= schemaVal.uuid %>';
+              step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+              step.fields["dealerSingleSelect"]["value"] = [];
+              let dataParams = {};
+                <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getAllDealers: true
+                }
+                <% } else { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getHierarchyUsers: true,
+                  reporting_sfa_uuids: uuid,
+                  product: 'life'
+                }
+              <% } %>
+              axios.get('/pos-bff/api/v1/dealers', {
+                params: dataParams
+              }).then((res) => {
+                var dealerSelect = [];
+                if (res.status == 200) {
+                  if (res.data && res.data && res.data.data && res.data.data.data) {
+                    res.data.data.data.map((item) => {
+                      dealerSelect.push({ value: item.dealer_id, label: item.name });
+                    });
+                  }
+                }
+                step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                next(step);  
+              }).catch((err) => {
+                next(step);
+              });
+        }
+      }
+    }
+    let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+    if(dealerCityList) {
+      var dealerCitySelect = [];
+      dealerCityList.map((item) => {
+        dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+      });
+    } else {
+      dealerCitySelect.push([]);
+    }
+    step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+
+    if(!step.fields.dealerSingleSelect){
+      step.fields['dealerSingleSelect'] = {
+        type: "AsyncReactSelect",
+        options: [],
+        id: "dealerSingleSelect",
+        name: "dealerSingleSelect",
+        label: "Select Dealer",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        loadOptions: (input, step, resolve) => {
+        let item = step.fields.dealerCitySingleSelect.value[0];
+        let uuid = '<%= schemaVal.uuid %>';
+        <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            getAllDealers: true,
+            name: input
+          }
+          <% } else { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            reporting_sfa_uuids: uuid,
+            getHierarchyUsers: true,
+            name: input,
+            product: 'life'
+          }
+        <% } %>
+        axios
+          .get(
+            "/pos-bff/api/v1/dealers",
+            {
+              params: dataParams
+            }
+          )
+          .then((res) => {
+            var dealerSelect = [];
+            if (res.status == 200) {
+              if (
+                res.data &&
+                res.data &&
+                res.data.data &&
+                res.data.data.data
+              ) {
+                res.data.data.data.map((item) => {
+                  dealerSelect.push({
+                    value: item.dealer_id,
+                    label: item.name,
+                  });
+                });
+              }
+            } else {
+              resolve([]);
+            }
+            resolve(dealerSelect)
+          });
+      },
+      }
+    }
+    <% } %>
+}
+let formBuilderSchemaInvestmentLeadFormHome = {
+    formBuilder: {
+      steps: [
+      {
+        submitButtonLabel: "View Plans",
+        submitButtonSticky: false,
+        submitButtonLoader: false,
+        fields: {
+          basicDetail: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Basic Details",
+            name: "basicDetail"
+          },
+          gender: {
+            type: "Radio",
+            options: [
+              { value: "male", label: "Male" },
+              { value: "female", label: "Female" },
+            ],
+            row : true,
+            id: "gender",
+            name: "gender",
+            label: "Gender",
+            labelPlacement:"start",
+            variant: "filled",
+            titlePlacement:"start",
+            background:"gray",
+            span: 4,
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["Gender is required field"],
+          },
+          nextLine: {
+            span: 12
+          },
+          name: {
+            type: "TextField",
+            id: "name",
+            name: "name",
+            label: "Name",
+            value: "",
+            autoComplete: "name",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty","isSpecialChar", "isContainNumber", "!isAtLeadThreeChar","!isValidName"],
+            errormessages: [
+              "Please enter the name.",
+              "Special Characters are not allowed in Full Name.",
+              "Numbers are not allowed in Full Name.",
+              "Please enter at least three characters",
+              "Please enter Full Name."
+            ],
+            onChange: (event, step, next) => {
+            }
+          },
+          nextToNextLine: {
+            span: 12
+          },
+          dob: {
+            type: "DatePicker",
+            id: "dob",
+            name: "dob",
+            label: "Date Of Birth",
+            variant: "filled",
+            maxDate:'',
+            minDate:'',
+            span: 3,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          mobile: {
+            type: "TextField",
+            id: "mobile",
+            name: "mobile",
+            label: "Contact Number",
+            variant: "filled",
+            value:"",
+            span: 3,
+            fieldType: "mobile",
+            validators: ["isEmpty"],
+            errormessages: ["Please enter contact number"],
+          },
+          <% if (schemaVal.isAssistanceEligible) { %>
+            isAssistanceRequested: {
+              type: "CheckBox",
+              id: "isAssistanceRequested",
+              name: "isAssistanceRequested",
+              label: "",
+              value: "",
+              variant: "outlined",
+              span: 6,
+              options: [
+                {
+                  value: "true",
+                  label: "Need Assistance from Cross Sell Team?",
+                },
+              ],
+            },
+            <% } %>
+        },
+        onSubmit: function(data, resolve, reject){
+          console.log("Lead form 1 onSubmit============", data);
+          let dataPayload = {}
+          dataPayload['date_of_birth'] = data.dob;
+          dataPayload['customer_gender'] = data.gender == 'male' ? 'M' : 'F';
+          dataPayload['customer_name'] = data.name;
+          dataPayload['mobile_number'] = data.mobile;
+          dataPayload['whatsAppOptIn'] = data.whatsappcheckbox[0]=='check' ? true : false;
+          dataPayload['source'] = '<%= schemaVal.source %>';
+          dataPayload['sub_source'] = '<%= schemaVal.subSource %>';
+          dataPayload['medium'] = '<%= schemaVal.medium %>';
+          dataPayload['creatorIamId'] = '<%= schemaVal.uuid %>';
+          dataPayload['product_type'] = '<%= schemaVal.productType %>';
+          dataPayload['creatorType'] = '<%= schemaVal.creatorType %>';
+          dataPayload['dealer_id'] = data.dealerSingleSelect ? data.dealerSingleSelect[0].value : "";
+          dataPayload['dealer_name'] = data.dealerSingleSelect ? data.dealerSingleSelect[0].label : "";
+          dataPayload['dealer_city'] = data.dealerCitySingleSelect ? data.dealerCitySingleSelect[0].value : "";
+          dataPayload['isAssistanceEligible'] = <%= schemaVal.isAssistanceEligible === true ? true : false %>;
+          dataPayload['isAssistanceRequested'] = Array.isArray(data.isAssistanceRequested) && data.isAssistanceRequested[0] === 'true';         
+          const dealerId = '<%= schemaVal.dealerId %>';
+          if(!!dealerId && dealerId != 0) {
+            dataPayload['dealer_id'] = dealerId;
+          }
+          axios({
+              method: "post",
+              url: `/pos-bff-hybrid/api/v1/non-motor-lead`,
+              data: dataPayload,
+              headers: { "Content-Type": "application/json" },
+            })
+            .then(function(response){
+              //handle success
+            if(response.data && response.data.status==200 && response.data.data) {
+                window.location.href = `<%= posUiUrl %>posui/investment/quotes?request=${response.data.data.lead_id || response.data.data.data.lead_id}`;
+            } else {
+                reject({message : "Some error has occurred"});
+            }
+          })
+          
+        },
+        onLoad: function (step, next){
+          let maxDate = new Date();
+          let minDate = new Date();
+          minDate.setYear(minDate.getFullYear() - 66);
+          minDate.setDate(minDate.getDate() + 1);
+          maxDate.setYear(maxDate.getFullYear() - 18);
+          step.fields.dob.minDate = minDate.toISOString().slice(0,10);
+          step.fields.dob.maxDate = maxDate.toISOString().slice(0,10);
+
+          if(!step.fields.gender.value){
+            step.fields.gender.value = "male";
+          }
+          DealerCityAndList(event,step, next);
+          if(!step.fields.whatsappcheckbox){
+            step.fields['whatsappcheckbox'] = {
+              type: "WhatsappCheckBox",
+              id: "whatsappcheckbox",
+              name: "whatsappcheckbox",
+              label: "",
+              span: 12,
+              validators: [],
+              errormessages: [],
+              options: [{ value: "check" }],
+              value : [
+                'check'
+              ]
+            }
+          }
+          next(step);
+        }
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidName: function (str) {
+        var regexp = new RegExp(
+          /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+        );
+        return regexp.test(str);
+      },
+      isSpecialChar: function (str) {
+        var regexp = new RegExp(
+          "[!@#$%&*()_+=|<>?{}\\[\\]~-]"
+        );
+        return regexp.test(str);
+      },
+      isContainNumber: function (str) {
+        var regexp = new RegExp(
+          "[0-9]"
+        );
+        return regexp.test(str);
+      },
+      isAtLeadThreeChar: function (str) {
+        var regexp = new RegExp(
+          /(.*[a-z]){3,}/i
+        );
+        return regexp.test(str);
+      },
+    },
+  },
+  }
+
+  

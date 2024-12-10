@@ -1,0 +1,19 @@
+.ModelPopUi{top: 0; z-index: 9999999;left: 0; right: 0; bottom: 0;position: fixed;
+    .modelPopBg{top: 0; left: 0; right: 0; bottom: 0; z-index: -1;  position: fixed;
+        touch-action: none; background-color: rgba(51, 56, 70, 0.7); display: block; }
+}
+
+.fB_categorySearch{
+    .More__control{background: #F5F5F6; border-radius: 8px;color: rgba(51, 56, 70, 0.7); font-size: 13px;
+        height: 52px; border: none;padding-left: 48px;
+        &::after{ position: absolute; background: url(../../../../img/v2_search.svg); width: 24px;
+        height: 24px; content: ''; top: 16px; left: 20px;}
+    }
+    .More__indicators{ display: none;}
+}
+
+.fb_asyncDropper{
+    .css-1s2u09g-control{background: #F5F5F6; border-radius: 8px;color: rgba(51, 56, 70, 0.7); font-size: 13px;
+        height: 52px; border: none;padding-left: 12px;}
+        .css-1okebmr-indicatorSeparator { display: none;}
+}

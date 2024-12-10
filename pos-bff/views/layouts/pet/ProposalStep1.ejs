@@ -1,0 +1,189 @@
+window.formBuilderSchemaProposal1 = {
+    formBuilder: {
+      //heading: "Travel Insurance",
+      steps: [
+        {
+          name: "Owner Details",
+          submitButtonLabel: "Continue",
+          fields: {
+            displayOwnerName : {
+                type: "Display",
+                id: "displayOwnerName",
+                name: "displayOwnerName",
+                label: "Anurag Shukla",
+                num:"Mobile : 9876543210",
+                image:"/common-widgets/icons/Group 3.svg",
+            },
+            petHeading:{
+              type:"HeadingComp",
+              id:"petHeading",
+              name:"petHeading",
+              label:"Basic Details",
+              span:12,
+            },
+            email: {
+              type: "TextField",
+              id: "email",
+              name: "email",
+              label: "Email",
+              multiline : false,
+              variant: "filled",
+              span: 12,
+              fieldType: "email",
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            gender: {
+              type: "Radio",
+              options: [
+                { value: "male", label: "Male" },
+                { value: "female", label: "Female" },
+              ],
+              row : true,
+              id: "gender",
+              name: "gender",
+              label: "Gender",
+              labelPlacement:"start",
+              variant: "filled",
+              titlePlacement:"start",
+              background:"gray",
+              span: 6,
+              value: "",
+              validators: ["isEmpty"],
+              errormessages: ["Gender is required field"],
+            },
+            dob: {
+              type: "DatePicker",
+              id: "dob",
+              name: "dob",
+              label: "Owner’s date of birth",
+              variant: "filled",
+              maxDate:'',
+              minDate:'',
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            petHeading1:{
+              type:"HeadingComp",
+              id:"petHeading1",
+              name:"petHeading1",
+              label:"Address",
+              span:12,
+            },
+            pincode:{
+              type: "Pincode",
+              id: "pincode",
+              name: "pincode",
+              label: "Pincode",
+              multiline : false,
+              variant: "filled",
+              stateRequired : false ,
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+              onChange: (event, step, next) => {
+                let storeCityName = step.fields.pincode.value && step.fields.pincode.value.city_name ? step.fields.pincode.value.city_name : "";	
+                let storeStateName = step.fields.pincode.value && step.fields.pincode.value.state_name ? step.fields.pincode.value.state_name: "";	
+                step.fields["state"]["value"] = storeStateName;	
+                step.fields["state"]["error"] = false;	
+                step.fields["state"]["helperText"] = "";	
+                step.fields["city"]["value"] = storeCityName;	
+                step.fields["city"]["error"] = false;	
+                step.fields["city"]["helperText"] = "";	
+                next(step);
+              },
+            },
+            state:{
+              type: "TextField",
+              id: "state",
+              name: "state",
+              label: "State",
+              value :"" ,
+              readOnly : "true",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            city: {
+              type: "TextField",
+              id: "city",
+              name: "city",
+              label: "City",
+              value : "",
+              readOnly : "true",
+              autoComplete: "given-name",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            address: {
+              type: "TextField",
+              id: "address",
+              name: "address",
+              label: "House No, Street, Building, Area",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            kycButton:{
+              type:"Button",
+              id:"kycButton",
+              name: "kycButton",
+              label:"Start KYC",
+              helperText:"",
+              error:false,
+              hide:false,
+              disabled:false
+            }
+          },
+          onSubmit: function (data, resolve, reject) {
+            resolve({ message: "" });
+          },
+          onLoad: function (step, next){
+            let maxDate = new Date();
+            let minDate = new Date();
+            minDate.setYear(minDate.getFullYear() - 70);
+            minDate.setDate(minDate.getDate() + 1);
+            maxDate.setYear(maxDate.getFullYear() - 18);
+            step.fields.dob.minDate = minDate.toISOString().slice(0,10);
+            step.fields.dob.maxDate = maxDate.toISOString().slice(0,10);
+
+            let getLocalStorageItem = (key) => {
+                if (typeof window.localStorage !== 'undefined') {
+                    let data = localStorage.getItem(key);
+                    if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                        let obj = JSON.parse(localStorage.getItem(key));
+                        return obj;
+                    }
+                }
+                return {};
+            }
+            let petuserinfo = getLocalStorageItem('petuserinfo');
+            step.fields.displayOwnerName.label = _.get(petuserinfo,'proposerDetails.firstName') +' ' + _.get(petuserinfo,'proposerDetails.lastName','');
+            		
+            step.fields.displayOwnerName.num = `Mobile : ${_.get(petuserinfo,'maskedMobile','999xxxx99')}`;	
+            	
+            if(_.get(petuserinfo,'proposerDetails.email'))	
+              step.fields.email.value = _.get(petuserinfo,'proposerDetails.email');	
+            if(_.get(petuserinfo,'proposerDetails.dob'))	
+              step.fields.dob.value = _.get(petuserinfo,'proposerDetails.dob');	
+            if(_.get(petuserinfo,'proposerDetails.gender'))	
+              step.fields.gender.value = _.get(petuserinfo,'proposerDetails.gender');	
+            if(_.get(petuserinfo,'communicationDetails.pincode')){	
+              step.fields.pincode.value = {};	
+              step.fields.pincode.value.selectedValue = `${_.get(petuserinfo,'communicationDetails.pincode')}`;	
+            }	
+            if(_.get(petuserinfo,'communicationDetails.addressLine1')){	
+              step.fields.address.value = _.get(petuserinfo,'communicationDetails.addressLine1')
+            }
+            next(step);
+          }
+        }
+      ],
+      activeStep: 0
+    },
+  }

@@ -1,0 +1,8 @@
+.yesno{
+    label{font-family: 'Poppins';font-weight: 600;color: #333846; font-size: 17px; margin-bottom: 12px;}
+    
+}
+
+@media screen and (max-width:1023px) {
+.yesno label{ font-size: 15px;}
+}

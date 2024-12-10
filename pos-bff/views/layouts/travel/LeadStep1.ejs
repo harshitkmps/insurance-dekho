@@ -1,0 +1,128 @@
+window.formBuilderSchemaTravel1 = {
+  formBuilder: {
+    heading:"Which countries are you travelling to?",
+    steps: [
+      {
+        submitButtonLabel: "Next",
+        submitButtonSticky: true,
+        fields: {
+          countriesMultiSelect : {
+            type: "MultiselectReactselect",
+            options: [],
+            id: "countriesMultiSelect",
+            name: "countriesMultiSelect",
+            label: "Select Country",
+            variant: "outlined",
+            span: 12,
+            value: [],
+            max: 10,
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Country is required field"],
+            onChange: (event, step, next) => {
+                let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'select_country',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                projectGlobals.setDataLayer(null, null, true, false, o);
+
+                step.fields.countriesGrid.value = [];
+                let options = step.fields.countriesGrid.options;
+                step.fields.countriesMultiSelect.value.forEach((item)=>{
+                  let element = options.find(obj => obj.value == item.value)
+                  if(element)
+                    step.fields.countriesGrid.value.push(element.value)
+                })
+
+                if (step.fields.countriesMultiSelect.value.length == step.fields.countriesMultiSelect.max) {
+                  step.fields.countriesMultiSelect.disabled = true;
+                  step.fields.countriesGrid.disabled = true;
+                  step.fields.countriesMultiSelect.helperText = "Max Limit Reached";
+                } else {
+                  step.fields.countriesMultiSelect.disabled = false;
+                  step.fields.countriesGrid.disabled = false;
+                  step.fields.countriesMultiSelect.helperText = "";
+                }
+                next(step);
+            }
+          },
+          countriesGrid:{
+            type: "ImageMultiSelect",
+            id: "countriesGrid",
+            name: "countriesGrid",
+            label: "Popular Destinations",
+            span: 12,
+            validators: [],
+            value:[],
+            errormessages: [],
+            options:[],
+            onChange: (event, step, next) => {
+                let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'select_country',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                projectGlobals.setDataLayer(null, null, true, false, o);
+
+                let reactSelectValues = step.fields.countriesMultiSelect.value;
+                let options = step.fields.countriesMultiSelect.options;
+                step.fields.countriesGrid.value.forEach((item)=>{
+                  let element = options.find(obj => obj.value == item)
+                  if(!reactSelectValues.find(obj => obj.value == element.value))
+                    step.fields.countriesMultiSelect.value.push(element)
+                })
+
+                let gridOptions = step.fields.countriesGrid.options;
+                let gridValues = step.fields.countriesGrid.value;
+                let temp = _.cloneDeep(reactSelectValues);
+                reactSelectValues.forEach((item)=>{
+                  if(gridOptions.findIndex(obj => obj.value == item.value)>=0 && gridValues.findIndex(obj=>obj == item.value) == -1){
+                    //Value is selected in react mutiselect that it's present in grid option but not in grid values and 
+                    temp.splice(temp.findIndex(obj => obj.value == item.value),1);
+                  }
+                })
+                step.fields.countriesMultiSelect.value=temp;
+                if (step.fields.countriesMultiSelect.value.length == step.fields.countriesMultiSelect.max) {
+                  step.fields.countriesMultiSelect.disabled = true;
+                  step.fields.countriesGrid.disabled = true;
+                  step.fields.countriesMultiSelect.helperText = "Max Limit Reached";
+                } else {
+                  step.fields.countriesMultiSelect.disabled = false;
+                  step.fields.countriesGrid.disabled = false;
+                  step.fields.countriesMultiSelect.helperText = "";
+                }
+                next(step);
+            }
+          }
+        },
+        onLoad: function (step, next) {
+          let getSessionStorageItem = (key) => {
+              if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+                  let data = sessionStorage.getItem(key);
+                if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                    let obj = JSON.parse(sessionStorage.getItem(key));
+                    return obj;
+                }
+              }
+              return {};
+          }
+          let countryList = getSessionStorageItem('countryList')
+          let countries = [];
+          let popularCountries = [];
+          countryList.map((item) => {
+            countries.push({ value: item.id, label: item.country });
+            if(item.isPopular)
+              popularCountries.push({value:item.id,label:item.country,icon:item.countryLogo});
+          });
+          step.fields["countriesMultiSelect"]["options"] = countries;
+          step.fields["countriesGrid"]["options"] = popularCountries;
+          next(step);
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      checkMaxCountriesSelected: function(str){
+        //console.log(str)
+        let arr = str.split(',');
+        if(arr.length>=1 && arr.length<=10)
+          return false;
+        else
+          return true;
+      }
+    },
+  },
+}

@@ -1,0 +1,15 @@
+.radioProposal{ display: inline-block !important; height: 52px;border-radius: 8px;
+    label{display: inline-block;left: 12px; top: 14px; font-family: 'Poppins';font-size: 15px;font-weight: 500; color: #333846;
+        &:first-child{ margin-left: 0px;
+            span.css-vqmohf-MuiButtonBase-root-MuiRadio-root{ padding-left: 0px;}
+        }
+    }
+    .radiogrp{ display: inline-block;width: 160px; float: right;margin-right: 20px; margin-top: 6px;
+        span.MuiTypography-root { font-size: 13px; font-family: 'Poppins';}
+    }
+    .css-v7esy.Mui-error{ margin-top: 8px;}
+}
+
+@media screen and (min-width:1023px) {
+.radioProposal label{ font-size: 13px; font-weight: normal;}
+}

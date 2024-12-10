@@ -1,0 +1,888 @@
+let maxTravellersAllowed = 10;
+
+let commonOnChangeFunFormBuilderSchemaOne = function(event, step, next) {
+    step.fields.travellersMultiSelect.validators = [""];
+    step.fields.travellersMultiSelect.errormessages = [""];
+    step.fields.travellersMultiSelect.hide = true;
+    step.fields.selfAge.hide =true
+    step.fields.selfAge.validators = [""]
+    step.fields.selfAge.errormessages = [""]
+    step.fields.spouseAge.hide =true
+    step.fields.spouseAge.validators = [""]
+    step.fields.spouseAge.errormessages = [""]
+    step.fields.sonCheckBox.hide =true
+    step.fields.sonCheckBox.value =0;
+    step.fields.daughterCheckBox.hide =true
+    step.fields.daughterCheckBox.value =0;
+    for(let i=0;i<=maxTravellersAllowed-1;i++) {
+      if(step.fields[`daughter${i+1}Age`]) {
+        let daughterAgeFieldName = `daughter${i+1}Age`;
+        step.fields[daughterAgeFieldName].hide = true;
+        step.fields[daughterAgeFieldName].validators = [""];
+        step.fields[daughterAgeFieldName].errormessages = [""];  
+      }
+      if(step.fields[`son${i+1}Age`]) {
+        let sonAgeFieldName = `son${i+1}Age`;
+        step.fields[sonAgeFieldName].hide = true;
+        step.fields[sonAgeFieldName].validators = [""];
+        step.fields[sonAgeFieldName].errormessages = [""];
+      }
+    }
+    step.fields.motherAge.hide =true
+    step.fields.motherAge.validators = [""]
+    step.fields.motherAge.errormessages = [""]
+    step.fields.fatherAge.hide =true
+    step.fields.fatherAge.validators = [""]
+    step.fields.fatherAge.errormessages = [""]
+}
+
+let commonChildFunctionalityOnChange = function(event,step,next) {
+  let maxCheckVal = 0;
+  if(step.fields.selfAge.hide == false) {
+  maxCheckVal+=1;
+  }
+  if(step.fields.spouseAge.hide == false) {
+  maxCheckVal+=1;
+  }
+  if(step.fields.fatherAge.hide == false) {
+  maxCheckVal+=1;
+  }
+  if(step.fields.motherAge.hide == false) {
+  maxCheckVal+=1;
+  }
+  if(step.fields.sonCheckBox.hide == false) {
+  maxCheckVal+=step.fields.sonCheckBox.value;
+  }
+  if(step.fields.daughterCheckBox.hide == false) {
+  maxCheckVal+=step.fields.daughterCheckBox.value;
+  }
+  step.totalMembersAllowed = maxTravellersAllowed - maxCheckVal;
+  if((step.fields.sonCheckBox.value + step.fields.daughterCheckBox.value >= maxTravellersAllowed - 1) || step.totalMembersAllowed == 0){
+    step.fields.sonCheckBox.disabled = true;
+    step.fields.daughterCheckBox.disabled = true;
+    }
+    else{
+      step.fields.sonCheckBox.disabled = false;
+      step.fields.daughterCheckBox.disabled = false;
+    }
+  if (step.totalMembersAllowed == 0) {
+    step.fields.travellersMultiSelect.disabled = true;
+  } else {
+    step.fields.travellersMultiSelect.disabled = false;
+  }
+}
+
+let rerenderSonDaughterFieldsSchema = function(event, step, next) {
+  let childAgeList = [];
+  childAgeList.push({ value: "<1", label: "<1 Year" });
+  for (let i = 1; i <=24; i++) {
+      childAgeList.push({
+          value: i,
+          label: i + " Years",
+      });
+  }
+  
+  if(step.fields.sonCheckBox.hide == false && step.fields.sonCheckBox.value>0){
+      for(let i=0;i<step.fields.sonCheckBox.value;i++){
+        let sonAgeFieldName = `son${i+1}Age`;
+        step.fields[sonAgeFieldName].hide = false;
+        step.fields[sonAgeFieldName].validators = ["isEmpty"];
+        step.fields[sonAgeFieldName].errormessages = ["Please select the DOB of traveller"];
+      }
+    } else {
+        for(let i=0;i<=maxTravellersAllowed - 1;i++) {
+        if(step.fields[`son${i+1}Age`]) {
+          let sonAgeFieldName = `son${i+1}Age`;
+          step.fields[sonAgeFieldName].hide = true;
+          step.fields[sonAgeFieldName].validators = [""];
+          step.fields[sonAgeFieldName].errormessages = [""];  
+        }
+      }
+    }
+  
+    if(step.fields.daughterCheckBox.hide == false && step.fields.daughterCheckBox.value>0){
+        for(let i=0;i<step.fields.daughterCheckBox.value;i++){
+          let daughterAgeFieldName = `daughter${i+1}Age`;
+          step.fields[daughterAgeFieldName].hide = false;
+          step.fields[daughterAgeFieldName].validators = ["isEmpty"];
+          step.fields[daughterAgeFieldName].errormessages = ["Please select the DOB of traveller"];
+        }
+    } else {
+      for(let i=0;i<=maxTravellersAllowed - 1;i++) {
+        if(step.fields[`daughter${i+1}Age`]) {
+          let daughterAgeFieldName = `daughter${i+1}Age`;
+          step.fields[daughterAgeFieldName].hide = true;
+          step.fields[daughterAgeFieldName].validators = [""];
+          step.fields[daughterAgeFieldName].errormessages = [""];  
+        }
+      }
+    }
+}
+let DealerCityAndList = function(event, step, next) {
+  <% if(schemaVal.showDealerDropDown) { %>
+    if(!step.fields.dealerCitySingleSelect){
+      step.fields['dealerCitySingleSelect'] = {
+        type: "SingleSelectReactselect",
+        options: [],
+        id: "dealerCitySingleSelect",
+        name: "dealerCitySingleSelect",
+        label: "Select Dealer City",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        onChange: (event, step, next) => {
+              let item = step.fields.dealerCitySingleSelect.value[0];
+              let uuid = '<%= schemaVal.uuid %>';
+              step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+              step.fields["dealerSingleSelect"]["value"] = [];
+              let dataParams = {};
+                <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getAllDealers: true
+                }
+                <% } else { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getHierarchyUsers: true,
+                  reporting_sfa_uuids: uuid,
+                  product: 'travel'
+                }
+              <% } %>
+              axios.get('/pos-bff/api/v1/dealers', {
+                params: dataParams
+              }).then((res) => {
+                var dealerSelect = [];
+                if (res.status == 200) {
+                  if (res.data && res.data && res.data.data && res.data.data.data) {
+                    res.data.data.data.map((item) => {
+                      dealerSelect.push({ value: item.iam_uuid, label: item.name });
+                    });
+                  }
+                }
+                step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                next(step);  
+              }).catch((err) => {
+                next(step);
+              });
+        }
+      }
+    }
+    let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+    if(dealerCityList) {
+      var dealerCitySelect = [];
+      dealerCityList.map((item) => {
+        dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+      });
+    } else {
+      dealerCitySelect.push([]);
+    }
+    step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+
+    if(!step.fields.dealerSingleSelect){
+      step.fields['dealerSingleSelect'] = {
+        type: "AsyncReactSelect",
+        options: [],
+        id: "dealerSingleSelect",
+        name: "dealerSingleSelect",
+        label: "Select Dealer",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        loadOptions: (input, step, resolve) => {
+        let item = step.fields.dealerCitySingleSelect.value[0];
+        let uuid = '<%= schemaVal.uuid %>';
+        <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            getAllDealers: true,
+            name: input
+          }
+          <% } else { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            reporting_sfa_uuids: uuid,
+            getHierarchyUsers: true,
+            name: input,
+            product: 'travel'
+          }
+        <% } %>
+        axios
+          .get(
+            "/pos-bff/api/v1/dealers",
+            {
+              params: dataParams
+            }
+          )
+          .then((res) => {
+            var dealerSelect = [];
+            if (res.status == 200) {
+              if (
+                res.data &&
+                res.data &&
+                res.data.data &&
+                res.data.data.data
+              ) {
+                res.data.data.data.map((item) => {
+                  dealerSelect.push({
+                    value: item.iam_uuid,
+                    label: item.name,
+                  });
+                });
+              }
+            } else {
+              resolve([]);
+            }
+            resolve(dealerSelect)
+          });
+      },
+      }
+    }
+    <% } %>
+}
+let getAgeFromDate = function(dateString,relativeDate) {
+    var today = relativeDate;
+    var birthDate = new Date(dateString);
+    var age = today.getFullYear() - birthDate.getFullYear();
+    var m = today.getMonth() - birthDate.getMonth();
+    if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+        age--;
+    }
+    return age;
+}
+let formBuilderSchema1 = {
+  formBuilder: {
+    steps: [
+      {
+        totalMembersAllowed:6,
+        submitButtonLabel: "Next",
+        fields: {
+          basicDetail: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Basic Details",
+            name: "basicDetail"
+          },  
+          ownerName: {
+              type: "TextField",
+              id: "ownerName",
+              name: "ownerName",
+              label: "Name",
+              value: "",
+              autoComplete: "name",
+              variant: "filled",
+              span: 3,
+              validators: ["isEmpty","!isValidName"],
+              errormessages: [
+                 "Please enter the  name",
+                "Please enter valid name"
+              ],
+              onChange: (event, step, next) => {
+              },
+          },
+          mobile: {
+              type: "TextField",
+              id: "mobile",
+              name: "mobile",
+              label: "Contact Number",
+              variant: "filled",
+              value:"",
+              span: 3,
+              fieldType: "mobile",
+              validators: ["isEmpty"],
+              errormessages: ["Please enter contact number"],
+          },
+          tripType: {
+              type: "CardRadio",
+              options: [
+                {
+                  value: "single",
+                  label: "Business or Leisure Trip",
+                },
+                {
+                  value: "student",
+                  label: "Student Education Trip",
+                },
+              ],
+              id: "tripType",
+              name: "tripType",
+              label: "Trip Type",
+              variant: "outlined",
+              span: 12,
+              value: "single",
+              validators: ["isEmpty"],
+              errormessages: ["Please select the purpose of your travel"],
+              onChange: (event, step, next) => {
+                if(step.fields.tripType.value == 'student') {
+                    commonOnChangeFunFormBuilderSchemaOne(event,step, next);
+                    step.fields.studentAge.hide = false;
+                    delete(step.fields.studentAge.value);
+                    step.fields.studentAge.hide =false;
+                    step.fields.studentAge.validators = ["isEmpty"]
+                    step.fields.studentAge.errormessages = ["Please select the DOB of the traveler"]
+                } else {
+                  step.fields.travellersMultiSelect.value = [];
+                  step.totalMembersAllowed = maxTravellersAllowed;
+                   step.fields.travellersMultiSelect.disabled = false;
+                  step.fields.travellersMultiSelect.hide = false;
+                  step.fields.studentAge.hide = true;
+                  step.fields.studentAge.value = [];
+                   step.fields.travellersMultiSelect.validators = ["isEmpty"];
+                  step.fields.travellersMultiSelect.errormessages = ["Travellers is required field"];
+                }
+              },
+            },
+          countriesMultiSelect : {
+            type: "MultiselectReactselect",
+            options: [],
+            id: "countriesMultiSelect",
+            name: "countriesMultiSelect",
+            label: "Select Country",
+            variant: "outlined",
+            span: 12,
+            value: [],
+            max: String(10),
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Country is required field"],
+            onChange: (event, step, next) => {
+                if (step.fields.countriesMultiSelect.value.length == step.fields.countriesMultiSelect.max) {
+                  step.fields.countriesMultiSelect.disabled = true;
+                  step.fields.countriesMultiSelect.helperText = "Max Limit Reached";
+                } else {
+                  step.fields.countriesMultiSelect.disabled = false;
+                  step.fields.countriesMultiSelect.helperText = "";
+                }
+                next(step);
+            }
+          },
+          startDate: {
+            type: "DatePicker",
+            id: "startDate",
+            name: "startDate",
+            label: "Start Date",
+            variant: "outlined",
+            maxDate:new Date(),
+            minDate:new Date(),
+            span: 4,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the start date."],
+            onChange: (event, step, next) => {
+              let selectedData = step.fields.startDate.value;
+              let minEndDate = selectedData;
+              letStartPlusOneEndMinDate = new Date(minEndDate);
+              letStartPlusOneEndMinDate.setDate(letStartPlusOneEndMinDate.getDate() + 1)
+              step.fields.endDate.minDate = new Date(letStartPlusOneEndMinDate);
+              let maxEndDate = new Date(minEndDate);
+              if(step.fields.tripType.value == 'student') {
+                maxEndDate.setDate(maxEndDate.getDate() + 359)
+              }
+              maxEndDate.setDate(maxEndDate.getDate() + 364)
+              step.fields.endDate.maxDate = new Date(maxEndDate);
+              if(step.fields.startDate.value) {
+                let plusOneEndMinTripDate = new Date(step.fields.startDate.value);
+                 plusOneEndMinTripDate.setDate(plusOneEndMinTripDate.getDate() + 1)
+                step.fields.endDate.value = new Date(plusOneEndMinTripDate);
+              }
+              next(step);
+            }
+          },
+          endDate: {
+            type: "DatePicker",
+            id: "endDate",
+            name: "endDate",
+            label: "End Date",
+            variant: "outlined",
+            maxDate:new Date(),
+            minDate:new Date(),
+            span: 4,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the end date."],
+             onChange: (event, step, next) => {
+              let selectedData = step.fields.endDate.value;
+              let minStartDate = new Date();
+              let maxStartDate = new Date();
+              maxStartDate.setDate(maxStartDate.getDate() + 365)
+              if(step.fields.startDate.value === undefined) {
+                let minusOnestartMinTripDate = new Date(selectedData);
+                minusOnestartMinTripDate.setDate(minusOnestartMinTripDate.getDate() - 1)
+                 step.fields.startDate.value = new Date(minusOnestartMinTripDate);
+              }
+              let minEndDate = selectedData.startDate;
+              let maxEndDate = new Date();
+              maxEndDate.setDate(maxEndDate.getDate() + 359)
+              step.fields.endDate.maxDate = new Date(maxEndDate);
+              next(step);
+            }
+          },
+          travellersMultiSelect : {
+            type: "MultiselectReactselect",
+            options: [],
+            hide: false,
+            id: "travellersMultiSelect",
+            name: "travellersMultiSelect",
+            label: "Select Travellers",
+            variant: "outlined",
+            span: 4,
+            value: [],
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Travellers is required field"],
+            onChange: (event, step, next) => {
+               let options = step.fields.travellersMultiSelect.options;
+               step.fields.selfAge.validators = [""]
+               step.fields.selfAge.errormessages = [""]
+               step.fields.selfAge.hide =true
+               step.fields.spouseAge.validators = [""]
+               step.fields.spouseAge.errormessages = [""]
+               step.fields.spouseAge.hide =true
+               step.fields.sonCheckBox.hide =true
+               step.fields.sonCheckBox.value =0;
+               step.fields.daughterCheckBox.hide =true
+               step.fields.daughterCheckBox.value =0;
+               step.fields.motherAge.validators = [""]
+               step.fields.motherAge.errormessages = [""]
+               step.fields.motherAge.hide =true
+               step.fields.fatherAge.validators = [""]
+               step.fields.fatherAge.errormessages = [""]
+               step.fields.fatherAge.hide =true
+               step.fields.studentAge.validators = [""]
+               step.fields.studentAge.errormessages = [""]
+               step.fields.studentAge.hide =true
+               step.fields.travellersMultiSelect.value.forEach((item)=>{
+                  if(item.value == 1) { 
+                   step.fields.selfAge.hide =false;
+                   step.fields.selfAge.validators = ["isEmpty"]
+                   step.fields.selfAge.errormessages = ["Please select the DOB of the traveler"]
+                   }
+                  if(item.value == 2) { 
+                    step.fields.spouseAge.hide =false;
+                    step.fields.spouseAge.validators = ["isEmpty"]
+                    step.fields.spouseAge.errormessages = ["Please select the DOB of the traveler"]
+                  }
+                  if(item.value == 3) {
+                    step.fields.sonCheckBox.hide =false
+                    step.fields.sonCheckBox.value =1;
+                  }
+                  if(item.value == 4) {
+                    step.fields.daughterCheckBox.hide =false;
+                    step.fields.daughterCheckBox.value =1;
+                  }
+                   
+                  if(item.value == 5) {
+                   step.fields.motherAge.hide =false;
+                   step.fields.motherAge.validators = ["isEmpty"]
+                   step.fields.motherAge.errormessages = ["Please select the DOB of the traveler"]
+                  }
+                  if(item.value == 6) {
+                    step.fields.fatherAge.hide =false;
+                    step.fields.fatherAge.validators = ["isEmpty"]
+                    step.fields.fatherAge.errormessages = ["Please select the DOB of the traveler"]
+                  }
+                 // let element = options.find(obj => obj.value == item.value)
+                })
+                  rerenderSonDaughterFieldsSchema(event,step,next);
+                  commonChildFunctionalityOnChange(event,step,next); 
+                next(step);
+            }
+          },
+        },
+        onSubmit: function (data, resolve, reject, step, next) {
+          let errorInStep = false;
+            Object.keys(step.fields).forEach((item)=>{
+              if(item !== 'sonCheckBox' && item !== 'daughterCheckBox') {
+                if(item.includes('son') || item.includes('daughter')){
+                    let selfAge = (step.fields.selfAge && getAgeFromDate(step.fields.selfAge.value, step.fields.startDate.date)) || 99;
+                    let spouseAge = (step.fields.spouseAge && getAgeFromDate(step.fields.spouseAge.value, step.fields.startDate.date)) || 99;
+                    if(Math.min(selfAge,spouseAge) - getAgeFromDate(step.fields[item].value,step.fields.startDate.date) < 15){
+                        step.fields[item].error = true;
+                        step.fields[item].helperText = "Parent and child age gap should be 15 years or above.";
+                        errorInStep=true;
+                        next(step);
+                    }
+                    else{
+                        step.fields[item].error = false;
+                        step.fields[item].helperText = "";
+                        next(step);
+                    }
+                }
+              }
+              if(item.includes('father') || item.includes('mother')){
+                  let selfAge = (step.fields.selfAge && getAgeFromDate(step.fields.selfAge.value,step.fields.startDate.date)) || 0;
+                  if(getAgeFromDate(step.fields[item].value,step.fields.startDate.date) - selfAge < 15){
+                      step.fields[item].error = true;
+                      step.fields[item].helperText = "Parent and child age gap should be 15 years or above.";
+                      errorInStep=true;
+                      next(step);
+                  }
+                  else{
+                      step.fields[item].error = false;
+                      step.fields[item].helperText = "";
+                      next(step);
+                  }
+              }
+            });
+            if(errorInStep) {
+              return;
+            }
+            data['source'] = '<%= schemaVal.source %>';
+            data['subSource'] = '<%= schemaVal.subSource %>';
+            data['medium'] = '<%= schemaVal.medium %>';
+            data['creatorIamId'] = '<%= schemaVal.uuid %>';
+            data['productType'] = '<%= schemaVal.productType %>';
+            data['creatorType'] = '<%= schemaVal.creatorType %>';
+            data['guestUuid'] = '<%= schemaVal.guestUuid %>';
+            axios({
+              method: "post",
+              url: "/pos-bff-hybrid/api/v1/lead/travel-add-pos-lead",
+              withCredentials: true,
+              data: data,
+              headers: { "Content-Type": "application/json" },
+            })
+            .then(function (response) {
+              if(response.data && response.data.status==200 && response.data.data && response.data.data.data) {
+                window.location.href = `<%= posUiUrl %>posui/travel-insurance/quotes?request=${response.data.data.data.leadId}`;
+              } else{
+                reject({message : "Some error has occurred"});
+              }
+            })
+            .catch(function (response) {
+               resolve({message : ""});
+               //reject({message : "Some error has occurred"});
+            });
+          console.log("Lead form 1 onSubmit", data);
+          
+        },
+        onLoad: function (step, next) {
+          console.log(step.fields, "step.fields============");
+          if(step.fields.tripType.value == 'student') {
+            let minDate = new Date();
+            step.fields.startDate.minDate = minDate;
+            let maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() + 365)
+            step.fields.startDate.maxDate = maxDate;
+
+            let minEndDate = new Date();
+            step.fields.endDate.minDate = minEndDate;
+            let maxEndDate = new Date();
+            maxEndDate.setDate(maxEndDate.getDate() + 359)
+            step.fields.endDate.maxDate = maxEndDate;
+          } else {
+            let minDate = new Date();
+            step.fields.startDate.minDate = minDate;
+            let maxDate = new Date();
+            maxDate.setDate(maxDate.getDate() + 365)
+            step.fields.startDate.maxDate = maxDate;
+
+            let minEndDate = new Date();
+            step.fields.endDate.minDate = minEndDate;
+            let maxEndDate = new Date();
+            maxEndDate.setDate(maxEndDate.getDate() + 365)
+            step.fields.endDate.maxDate = maxEndDate;
+          }
+          let selfMaxDate = new Date();
+          let selfMinDate = new Date();
+          selfMinDate.setYear(selfMinDate.getFullYear() - 99);
+          selfMinDate.setDate(selfMinDate.getDate());
+          selfMaxDate.setYear(selfMaxDate.getFullYear() - 18);
+
+          let childMinDate = new Date();
+          let childMaxDate = new Date();
+          childMinDate.setYear(childMinDate.getFullYear() - 24);
+          childMinDate.setDate(childMinDate.getDate() + 1);
+          let api = "<%= schemaVal.brokerageUrl %>?masterType=countries&subProductTypeId=7&limit=500";
+          axios.get(api).then((res) => {
+            let countries = [];
+            let popularCountries = [];
+            if (res.status == 200) {
+              if (res.data && res.data.data && res.data.data.countries) {
+                res.data.data.countries.map((item) => {
+                  countries.push({ value: item.id, label: item.country });
+                });
+              }
+            }
+            step.fields["countriesMultiSelect"]["options"] = countries;
+            let travellersList = [];
+            let travellerObj = {1:'self', 2:'spouse', 3:'son', 4:'daughter', 5:'mother', 6:'father'};
+            $.each( travellerObj, function( key, val ) {
+                travellersList.push({value: key,label: val});
+            })
+            step.fields["travellersMultiSelect"]["options"] = travellersList;
+            let ageList = [];
+            for (let i = 18; i <= 99; i++) {
+                ageList.push({
+                    value: i,
+                    label: i + " Years",
+                });
+            }
+            let childAgeList = [];
+            childAgeList.push({ value: "<1", label: "<1 Year" });
+            for (let i = 1; i <=24; i++) {
+                childAgeList.push({
+                    value: i,
+                    label: i + " Years",
+                });
+            }
+            if(!step.fields.selfAge){
+              step.fields['selfAge'] = {
+                  hide: true,
+                  type:"DatePicker",
+                  id:"selfAge",
+                  name:"selfAge",
+                  span: 4,
+                  label:"Self DOB",
+                  labelAuto:"Self DOB",
+                  options: ageList,
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  minDate:selfMinDate,
+                  maxDate:selfMaxDate,
+                  span: 4,
+                  validators: [""],
+                  errormessages: [""],
+              }
+            }
+            if(!step.fields.spouseAge){
+                step.fields['spouseAge'] = {
+                    hide: true,
+                    type:"DatePicker",
+                    id:"spouseAge",
+                    name:"spouseAge",
+                    span: 4,
+                    label:"Spouse DOB",
+                    labelAuto:"Spouse DOB",
+                    options: ageList,
+                    span: 4,
+                    autoComplete: "given-name",
+                    variant: "filled",
+                    minDate:selfMinDate,
+                    maxDate:selfMaxDate,
+                    validators: [""],
+                    errormessages: [""],
+                }
+            }
+            if(!step.fields.sonCheckBox){
+              step.fields['sonCheckBox'] = {
+              hide: true,
+              type: "CheckBoxCounter",
+              id: "sonCheckBox",
+              name: "sonCheckBox",
+              label: "Son",
+              span: 4,
+              clickedPlus:false,
+              clickedMinus:true,
+              value:String(0),
+              maxValue: String(maxTravellersAllowed - 1),
+              disabled: false,
+              onChange: (event, step, next) => {
+                  for(let i=step.fields.sonCheckBox.value;i<step.fields.sonCheckBox.maxValue;i++){
+                    if(step.fields[`son${i+1}Age`]) {
+                      step.fields[`son${i+1}Age`].hide = true;
+                      step.fields[`son${i+1}Age`].validators = [""];
+                      step.fields[`son${i+1}Age`].errormessages = [""];  
+                    }
+                  }
+                  if(step.fields.sonCheckBox.value>0){
+                      for(let i=0;i<step.fields.sonCheckBox.value;i++){
+                        let sonAgeFieldName = [`son${i+1}Age`];
+                        step.fields[sonAgeFieldName].hide = false;
+                        step.fields[sonAgeFieldName].validators = ["isEmpty"];
+                        step.fields[sonAgeFieldName].errormessages = ["Please select the DOB of traveller"];
+                      }
+                   }
+                  commonChildFunctionalityOnChange(event,step,next); 
+                }
+              }
+            }
+            for(let i=0;i<maxTravellersAllowed - 1;i++){
+              if(!step.fields[`son${i+1}Age`]){
+                step.fields[`son${i+1}Age`] = {
+                    hide:true,
+                    type:"DatePicker",
+                    id:`son${i+1}Age`,
+                    name:`son${i+1}Age`,
+                    label:`Son${i+1} DOB`,
+                    labelAuto:`Son DOB`,
+                    span: 4,
+                    options: childAgeList,
+                    autoComplete: "given-name",
+                    variant: "filled",
+                    minDate:childMinDate,
+                    maxDate:childMaxDate,
+                    validators: [""],
+                    errormessages: [""],
+                }
+              }
+            }
+            if(!step.fields.daughterCheckBox){
+              step.fields['daughterCheckBox'] = {
+              hide: true,
+              type: "CheckBoxCounter",
+              id: "daughterCheckBox",
+              name: "daughterCheckBox",
+              span: 4,
+              label: "Daughter",
+              clickedPlus:false,
+              clickedMinus:true,
+              value:String(0),
+              span: 4,
+              maxValue:String(maxTravellersAllowed - 1),
+              disabled: false,
+              onChange: (event, step, next) => {
+                  for(let i=step.fields.daughterCheckBox.value;i<step.fields.daughterCheckBox.maxValue;i++){
+                    if(step.fields[`daughter${i+1}Age`]) {
+                      step.fields[`daughter${i+1}Age`].hide = true;
+                      step.fields[`daughter${i+1}Age`].validators = [""];
+                      step.fields[`daughter${i+1}Age`].errormessages = [""];  
+                    }
+                  }
+                  if(step.fields.daughterCheckBox.value>0){
+                      for(let i=0;i<step.fields.daughterCheckBox.value;i++){
+                        let daughterAgeFieldName = `daughter${i+1}Age`;
+                        step.fields[daughterAgeFieldName].hide = false;
+                        step.fields[daughterAgeFieldName].validators = ["isEmpty"];
+                        step.fields[daughterAgeFieldName].errormessages = ["Please select the DOB of traveller"];
+                      }
+                  }
+                 commonChildFunctionalityOnChange(event,step,next);  
+              }
+              }
+            }
+            for(let i=0;i<maxTravellersAllowed -1;i++){
+              if(!step.fields[`daughter${i+1}Age`]){
+                step.fields[`daughter${i+1}Age`] = {
+                    hide:true,
+                    type:"DatePicker",
+                    id:`daughter${i+1}Age`,
+                    name:`daughter${i+1}Age`,
+                    label:`daughter${i+1} DOB`,
+                    labelAuto:`daughter DOB`,
+                    span: 4,
+                    options: childAgeList,
+                    autoComplete: "given-name",
+                    variant: "filled",
+                    minDate:childMinDate,
+                    maxDate:childMaxDate,
+                    validators: [""],
+                    errormessages: [""],
+                }
+              }
+            }
+            if(!step.fields.fatherAge){
+                step.fields['fatherAge'] = {
+                    hide: true,
+                    type:"DatePicker",
+                    id:"fatherAge",
+                    name:"fatherAge",
+                    label:"Father DOB",
+                    labelAuto:"Father DOB",
+                    span: 4,
+                    options: ageList,
+                    span: 4,
+                    autoComplete: "given-name",
+                    variant: "filled",
+                    minDate:selfMinDate,
+                    maxDate:selfMaxDate,
+                    validators: [""],
+                    errormessages: [""],
+                }
+            }
+            if(!step.fields.motherAge){
+                step.fields['motherAge'] = {
+                    hide: true,
+                    type:"DatePicker",
+                    id:"motherAge",
+                    name:"motherAge",
+                    label:"Mother DOB",
+                    span: 4,
+                    labelAuto:"Mother DOB",
+                    options: ageList,
+                    span: 4,
+                    autoComplete: "given-name",
+                    variant: "filled",
+                    minDate:selfMinDate,
+                    maxDate:selfMaxDate,
+                    validators: [""],
+                    errormessages: [""],
+                }
+            }
+              let studentAgeList = [];
+                for (let i = 16; i <= 40; i++) {
+                    studentAgeList.push({
+                        value: new String(i),
+                        label: i + " Years",
+                    });
+              }
+            if(!step.fields.studentAge){
+              step.fields['studentAge'] = {
+                  hide: true,
+                  type:"DatePicker",
+                  id:"studentAge",
+                  name:"studentAge",
+                  label:"Student DOB",
+                  span: 4,
+                  labelAuto:"Student DOB",
+                  options: studentAgeList,
+                  span: 4,
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  minDate:selfMinDate,
+                  maxDate:selfMaxDate,
+                  validators: ["isEmpty"],
+                  errormessages: ["Please select the DOB of the traveler"],
+              }
+            }
+            if(!step.fields.pedSwitch){
+              step.fields['pedSwitch'] = {
+                  type: "YesNoComp",
+                  id: "pedSwitch",
+                  name: "pedSwitch",
+                  label: "Does any traveler have a pre-existing medical disease?",
+                  span: 12,
+                  labelPlacement: "end",
+                  value:"no",
+                  validators: ["isEmpty"],
+                  options: [
+                      { label: "Yes", value: "yes" },
+                      { label: "No", value: "no" },
+                  ],
+                  errormessages: ["This field is required"]
+              }
+            }
+            DealerCityAndList(event,step, next);
+            next(step);
+          });
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidName: function (str) {
+          var regexp = new RegExp(
+            /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+          );
+          return regexp.test(str);
+      },
+    },
+  },
+}

@@ -1,0 +1,598 @@
+function setDateMinMax() {
+  const currentDate = new Date();
+  const dobMinDate = new Date().setFullYear(currentDate.getFullYear() - 66);
+  const dobMaxDate = new Date().setFullYear(currentDate.getFullYear() - 18);
+  return { dobMaxDate, dobMinDate };
+}
+async function handleRiskPincode(pincode) {
+  if (typeof pincode === "object") {
+    return pincode || {};
+  } else {
+    const res = await window.projectGlobals.fetchPincode(pincode);
+    return res || {};
+  }
+}
+
+function hypothecationValidation(step) {
+  const isAnyFieldFilled = step.fields.mentionBank.value.trim() || step.fields.bankAddress.value.trim();
+  const isAllEmpty = !step.fields.mentionBank.value.trim() && !step.fields.bankAddress.value.trim();
+
+  if (isAnyFieldFilled) {
+    step.fields.mentionBank.validators = ["isEmpty"];
+    step.fields.bankAddress.validators = ["isEmpty"];
+    step.fields.mentionBank.errormessages = ["Please select a Bank/Financial Institution"];
+    step.fields.bankAddress.errormessages = ["Please enter the bank address"];
+  }
+
+  if (isAllEmpty) {
+    step.fields.mentionBank.validators = [""];
+    step.fields.bankAddress.validators = [""];
+    step.fields.mentionBank.errormessages = [""];
+    step.fields.bankAddress.errormessages = [""];
+    step.fields.mentionBank.error = false;
+    step.fields.bankAddress.error = false;
+    step.fields.mentionBank.helperText = "";
+    step.fields.bankAddress.helperText = "";
+  }
+}
+
+function checkSameAddress(leadDetails = {}, riskPincodeObj = {}) {
+  const { communicationDetails = {}, productDetails: { businessDetails = {} } = {} } = leadDetails;
+  const communicationObj = { ...communicationDetails?.pincode, addressLine1: communicationDetails?.addressLine1, addressLine2: communicationDetails?.addressLine2 };
+  const riskObj = { ...riskPincodeObj, addressLine1: businessDetails?.addressLine1, addressLine2: businessDetails?.addressLine2 };
+  if (!communicationObj?.pincode || !riskObj?.pincode) return false;
+  for (const [key, value] of Object.entries(communicationObj)) {
+    if (value != riskObj[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function handleAdditionalDetails(step, leadDetails) {
+  const occupancyTypeId = leadDetails?.productDetails?.businessDetails?.occupancyTypeId || null;
+  let typeOfQyery, label;
+
+  if (occupancyTypeId == 136) {
+    typeOfQyery = "goodsType";
+    label = "Type Of Goods";
+  } else if (occupancyTypeId == 28) {
+    typeOfQyery = "shopsType";
+    label = "Type Of Shop";
+  }
+
+  function checkTypeOfQyery(field, value) {
+    if (typeOfQyery === "goodsType" && value === "Others") {
+      field.otherGoodsDescription.hide = false;
+    } else {
+      field.otherGoodsDescription.hide = true;
+    }
+  }
+
+  const addfields = {
+    additionalInfo: {
+      type: "HeadingComp",
+      span: 12,
+      label: "Additional Occupancy Details",
+      name: "additionalInfo",
+    },
+    [typeOfQyery]: {
+      type: "SelectWithLabel",
+      options: [],
+      id: typeOfQyery,
+      name: typeOfQyery,
+      label: label,
+      labelAuto: label,
+      variant: "filled",
+      span: 6,
+      value: "",
+      validators: ["isEmpty"],
+      errormessages: [`Please Select ${label}`],
+      onChange: (event, step, next) => checkTypeOfQyery(step.fields, step.fields[typeOfQyery].value),
+    },
+    otherGoodsDescription: {
+      hide: true,
+      type: "TextField",
+      id: "otherGoodsDescription",
+      name: "otherGoodsDescription",
+      label: "Other Goods Description",
+      variant: "filled",
+      span: 6,
+      value: "",
+      validators: ["isEmpty"],
+      errormessages: ["Please enter the description"],
+    },
+    spacingEnd: {
+      span: 12,
+    },
+  };
+
+  if (leadDetails?.insurerId == 2 && (occupancyTypeId == 28 || occupancyTypeId == 136 || occupancyTypeId == 350)) {
+    step.fields = { ...step.fields, ...addfields };
+    checkTypeOfQyery(step.fields, leadDetails?.productDetails?.riskDetails?.goodsType);
+    return step.fields;
+  } else {
+    const resetFields = step.fields;
+    const keysToDelete = Object.keys({ ...addfields, shopsType: {}, goodsType: {} });
+    if (keysToDelete.some((key) => resetFields[key] !== undefined)) {
+      delete resetFields;
+    }
+    step.fields = resetFields;
+    return step.fields;
+  }
+}
+
+window.FireProposalForm = {
+  formBuilder: {
+    steps: [
+      {
+        heading: "Propposal Details",
+        submitButtonLabel: "Summary & Payment",
+        fields: {
+          proposalDetails: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Proposal Form",
+            name: "proposalDetails",
+          },
+          salutation: {
+            type: "SelectWithLabel",
+            id: "salutation",
+            name: "salutation",
+            label: "Salutation",
+            labelAuto: "Salutation",
+            options: [
+              { label: "Mr", value: "Mr" },
+              { label: "Mrs", value: "Mrs" },
+              { label: "Ms", value: "Ms" },
+            ],
+            span: 6,
+            variant: "filled",
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["Please select the salutation"],
+          },
+          customerName: {
+            type: "TextField",
+            id: "customerName",
+            name: "customerName",
+            label: "Customer Name",
+            autoComplete: "name",
+            variant: "filled",
+            span: 6,
+            value: "",
+            validators: ["isEmpty", "!isValidName"],
+            errormessages: ["Please enter the customer name", "Please enter valid customer name"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_CustName", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          mobile: {
+            type: "TextField",
+            id: "mobile",
+            name: "mobile",
+            label: "Phone Number (Payment OTP sent here)",
+            variant: "filled",
+            value: "",
+            span: 6,
+            fieldType: "mobile",
+            validators: ["isEmpty"],
+            errormessages: ["Please enter contact number"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_Mobile", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          email: {
+            type: "TextField",
+            id: "email",
+            name: "email",
+            label: "Email",
+            multiline: false,
+            variant: "filled",
+            span: 6,
+            fieldType: "email",
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the email."],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_Email", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          dob: {
+            type: "DatePicker",
+            id: "dob",
+            name: "dob",
+            label: "Date Of Birth",
+            variant: "filled",
+            minDate: "",
+            maxDate: "",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the date of birth."],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_DOB", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          doi: {
+            hide: true,
+            type: "DatePicker",
+            id: "doi",
+            name: "doi",
+            label: "Date of Incorporation",
+            variant: "filled",
+            minDate: "",
+            maxDate: "",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the date of incorporation."],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_DOI", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          gstNo: {
+            type: "TextField",
+            id: "gstNo",
+            name: "gstNo",
+            label: "Enter GST for printing on policy doc - optional",
+            variant: "filled",
+            value: "",
+            span: 6,
+            inputProps: { minLength: 15, maxLength: 15 },
+            validators: ["isValidGST"],
+            errormessages: ["Please enter a valid GST number"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_GST", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          spacing1: {
+            span: 12,
+          },
+          riskAddressLabel: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Risk Location Address",
+            name: "riskAddressLabel",
+          },
+          riskAddressLine1: {
+            type: "TextField",
+            id: "riskAddressLine1",
+            name: "riskAddressLine1",
+            label: "Address Line 1",
+            value: "",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty", "isValidAddress"],
+            errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_RiskAddress", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          riskAddressLine2: {
+            type: "TextField",
+            id: "riskAddressLine2",
+            name: "riskAddressLine2",
+            label: "Address Line 2",
+            value: "",
+            autoComplete: "name",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty", "isValidAddress"],
+            errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+          },
+          riskPincode: {
+            type: "Pincode",
+            id: "riskPincode",
+            name: "riskPincode",
+            label: "Pincode",
+            variant: "filled",
+            stateRequired: false,
+            span: 6,
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the pincode"],
+            onChange: (event, step, next) => {
+              const { city_name = "", state_name = "" } = step.fields["riskPincode"].value;
+              step.fields["riskState"].value = state_name;
+              step.fields["riskState"].error = false;
+              step.fields["riskState"].helperText = "";
+              step.fields["riskCity"].value = city_name;
+              step.fields["riskCity"].error = false;
+              step.fields["riskCity"].helperText = "";
+              next(step);
+            },
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_riskPincode", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          riskCity: {
+            type: "TextField",
+            id: "riskCity",
+            name: "riskCity",
+            label: "City",
+            value: "",
+            readOnly: "true",
+            autoComplete: "given-name",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          riskState: {
+            type: "TextField",
+            id: "state",
+            name: "riskState",
+            label: "riskState",
+            value: "",
+            readOnly: "true",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          spacing2: {
+            span: 12,
+          },
+          isSame: {
+            type: "CheckBox",
+            id: "isSame",
+            name: "isSame",
+            label: "",
+            value: "",
+            variant: "outlined",
+            span: 12,
+            options: [
+              {
+                value: "yes",
+                label: "Is communication address same as risk address ?",
+              },
+            ],
+            span: 12,
+            onChange: (event, step, next) => {
+              if (step.fields["isSame"].value == "yes") {
+                step.fields["comPincode"].value = step.fields["riskPincode"].value;
+                step.fields["comAddressLine1"].value = step.fields["riskAddressLine1"].value;
+                step.fields["comAddressLine2"].value = step.fields["riskAddressLine2"].value;
+                step.fields["comState"].value = step.fields["riskState"].value;
+                step.fields["comCity"].value = step.fields["riskCity"].value;
+                step.fields["comPincode"].error = false;
+                step.fields["comAddressLine1"].error = false;
+                step.fields["comAddressLine2"].error = false;
+                step.fields["comState"].error = false;
+                step.fields["comCity"].error = false;
+                step.fields["comPincode"].helperText = "";
+                step.fields["comAddressLine1"].helperText = "";
+                step.fields["comAddressLine2"].helperText = "";
+                step.fields["comState"].helperText = "";
+                step.fields["comCity"].helperText = "";
+              } else {
+                step.fields["comPincode"].value = {};
+                step.fields["comAddressLine1"].value = "";
+                step.fields["comAddressLine2"].value = "";
+                step.fields["comState"].value = "";
+                step.fields["comCity"].value = "";
+                step.fields["comPincode"].helperText = "";
+                step.fields["comAddressLine1"].helperText = "";
+                step.fields["comAddressLine2"].helperText = "";
+                step.fields["comState"].helperText = "";
+                step.fields["comCity"].helperText = "";
+                step.fields["comPincode"].error = false;
+                step.fields["comAddressLine1"].error = false;
+                step.fields["comAddressLine2"].error = false;
+                step.fields["comState"].error = false;
+                step.fields["comCity"].error = false;
+                next(step);
+              }
+            },
+          },
+          communicationAddress: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Communication Address",
+            name: "communicationAddress",
+          },
+          comAddressLine1: {
+            type: "TextField",
+            id: "comAddressLine1",
+            name: "comAddressLine1",
+            label: "Address Line 1",
+            value: "",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty", "isValidAddress"],
+            errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+            onChange: (event, step, next) => {
+              step.fields["isSame"].value = [];
+            },
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_ComAddress", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          comAddressLine2: {
+            type: "TextField",
+            id: "comAddressLine2",
+            name: "comAddressLine2",
+            label: "Address Line 2",
+            value: "",
+            autoComplete: "name",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty", "isValidAddress"],
+            errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+            onChange: (event, step, next) => {
+              step.fields["isSame"].value = [];
+            },
+          },
+          comPincode: {
+            type: "Pincode",
+            id: "comPincode",
+            name: "comPincode",
+            label: "Pincode: Enter same as GST Document (If GST Entered)",
+            variant: "filled",
+            stateRequired: false,
+            span: 6,
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the pincode"],
+            onChange: (event, step, next) => {
+              const { city_name = "", state_name = "" } = step.fields["comPincode"].value;
+              step.fields["comState"].value = state_name;
+              step.fields["comState"].error = false;
+              step.fields["comState"].helperText = "";
+              step.fields["comCity"].value = city_name;
+              step.fields["comCity"].error = false;
+              step.fields["comCity"].helperText = "";
+              step.fields["isSame"].value = [];
+              next(step);
+            },
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("FireInsuranceLeadFunnel", "SME_FIRE_ComPincode", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          comCity: {
+            type: "TextField",
+            id: "comCity",
+            name: "comCity",
+            label: "City",
+            value: "",
+            readOnly: "true",
+            autoComplete: "given-name",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onChange: (event, step, next) => {
+              step.fields["isSame"].value = [];
+            },
+          },
+          comState: {
+            type: "TextField",
+            id: "comState",
+            name: "comState",
+            label: "State",
+            value: "",
+            readOnly: "true",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onChange: (event, step, next) => {
+              step.fields["isSame"].value = [];
+            },
+          },
+          spacing3: {
+            span: 12,
+          },
+          hypothecationLabel: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Hypothecation Details (Optional)",
+            name: "hypothecationLabel",
+            id: "hypothecationLabel",
+          },
+          mentionBank: {
+            type: "SelectWithLabel",
+            options: [],
+            id: "mentionBank",
+            name: "mentionBank",
+            label: "Mention Bank/Financial Institutions",
+            labelAuto: "Mention Bank/Financial Institutions",
+            variant: "outlined",
+            span: 6,
+            value: [],
+            max: 1,
+            onChange: (event, step, next) => hypothecationValidation(step),
+          },
+          bankAddress: {
+            type: "TextField",
+            id: "bankAddress",
+            name: "bankAddress",
+            label: "Mention Financial Institutions Address",
+            value: "",
+            variant: "filled",
+            span: 6,
+            onChange: (event, step, next) => hypothecationValidation(step),
+          },
+          endSpacing: {
+            span: 12,
+          },
+        },
+        onLoad: async function (step, next) {
+          const { dobMaxDate, dobMinDate } = setDateMinMax();
+          step.fields["dob"].minDate = dobMinDate;
+          step.fields["dob"].maxDate = dobMaxDate;
+          step.fields["doi"].minDate = dobMinDate;
+          step.fields["doi"].maxDate = dobMaxDate;
+          const { getSessionStorageItem, setDefaultFormValues, setFormOptions, getSmeMaster } = window.projectGlobals;
+          const { parsedMasterData, rawMasterData } = getSmeMaster();
+
+          const leadDetails = getSessionStorageItem("fireLead");
+          if (leadDetails) {
+            if (leadDetails?.insuredType === parseInt(2)) {
+              step.fields["salutation"].hide = true;
+              step.fields["customerName"].hide = true;
+              step.fields["dob"].hide = true;
+              step.fields["doi"].hide = false;
+            } else {
+              step.fields["salutation"].hide = false;
+              step.fields["customerName"].hide = false;
+              step.fields["dob"].hide = false;
+              step.fields["doi"].hide = true;
+            }
+            const {
+              communicationDetails: { addressLine1: comAddressLine1 = "", addressLine2: comAddressLine2 = "", pincode: comPincode = "" } = {},
+              proposerDetails: { dob = "", doi = "", email = "", firstName = "", lastName = "", mobile = "", salutation = "Mr" } = {},
+              productDetails: {
+                businessDetails: { addressLine1: riskAddressLine1 = "", addressLine2: riskAddressLine2 = "", pincode: riskPincode = "", gstNo = "" } = {},
+                hypothecationDetails: { hypothecationBank = "", bankAddress = "" } = {},
+                riskDetails: { shopType = "", goodsType = "", otherGoodsDescription = "" } = {},
+              } = {},
+            } = leadDetails;
+            const riskPincodeObj = await handleRiskPincode(riskPincode);
+            const mentionBank = rawMasterData.bankList?.find((item) => item.id == hypothecationBank)?.bankName || "";
+            const defautlValues = {
+              salutation,
+              customerName: [firstName, lastName].filter(Boolean).join(" "),
+              mobile,
+              email,
+              dob,
+              doi,
+              gstNo,
+              riskAddressLine1,
+              riskAddressLine2,
+              riskPincode: riskPincodeObj,
+              riskCity: riskPincodeObj.city_name || "",
+              riskState: riskPincodeObj.state_name || "",
+              isSame: checkSameAddress(leadDetails, riskPincodeObj) ? ["yes"] : "",
+              comAddressLine1,
+              comAddressLine2,
+              comPincode,
+              comCity: comPincode.city_name || "",
+              comState: comPincode.state_name || "",
+              mentionBank,
+              bankAddress,
+              shopsType: shopType,
+              goodsType,
+              otherGoodsDescription,
+            };
+            handleAdditionalDetails(step, leadDetails);
+            setFormOptions(step.fields, parsedMasterData);
+            setDefaultFormValues(step.fields, defautlValues);
+            hypothecationValidation(step);
+            next(step);
+          }
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidGST: function (str) {
+        if (!str.length) return false;
+        var regExp = new RegExp(/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}Z[0-9a-zA-Z]{1}$/);
+        return !regExp.test(str);
+      },
+      isValidAddress: function (str) {
+        var regExp = new RegExp(/^.{1,100}$/);
+        return !regExp.test(str);
+      },
+    },
+  },
+};

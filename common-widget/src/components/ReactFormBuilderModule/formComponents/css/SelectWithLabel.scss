@@ -1,0 +1,16 @@
+.fb_selectWlabel{
+.dropper{
+    .MuiInputBase-colorPrimary{background: #F5F5F6;border-radius: 8px;
+        fieldset{ border: none;}
+        input{font-size: 15px;font-weight: 600;color: #333846;}
+    }
+    .MuiFilledInput-underline{
+        &::before{ display: none;}
+    }
+}
+.fb_row{ border-bottom: 1px solid rgba(51, 56, 70, 0.1);padding-bottom: 16px;}
+
+.leftLabel{padding-top: 14px;
+    label{ font-size: 15px; font-weight: 600; color: #333846;}
+}
+}

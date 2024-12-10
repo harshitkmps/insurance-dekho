@@ -1,0 +1,213 @@
+function setDateMinMax() {
+  const currentDate = new Date();
+  const dobMinDate = new Date().setFullYear(currentDate.getFullYear() - 66);
+  const dobMaxDate = new Date().setFullYear(currentDate.getFullYear() - 18);
+
+  const startDate = new Date(currentDate);
+  startDate.setDate(new Date(currentDate).getDate() + 1);
+
+  const endDate = new Date(startDate);
+  endDate.setFullYear(endDate.getFullYear() + 1);
+  endDate.setDate(endDate.getDate() - 1);
+
+  const formatedStartDate = startDate.toISOString().slice(0, 10);
+  const formatedEndDate = endDate.toISOString().slice(0, 10);
+  return { dobMaxDate, dobMinDate, formatedStartDate, formatedEndDate }
+}
+
+window.PIProposalForm = {
+  formBuilder: {
+    steps: [
+      {
+        heading: "Propposal Details",
+        submitButtonLabel: "Summary & Payment",
+        fields: {
+          proposalDetails: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Proposal Details",
+            name: "proposalDetails",
+          },
+          dob: {
+            type: "DatePicker",
+            id: "dob",
+            name: "dob",
+            label: "Date Of Birth",
+            variant: "filled",
+            minDate: "",
+            maxDate: "",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the date of birth."],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_DOB', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          email: {
+            type: "TextField",
+            id: "email",
+            name: "email",
+            label: "Email",
+            multiline: false,
+            variant: "filled",
+            span: 6,
+            fieldType: "email",
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the email."],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Email', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          spacing1: {
+            span: 12,
+          },
+          communicationAddress: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Communication Address",
+            name: "communicationAddress",
+          },
+          addressLine1: {
+            type: "TextField",
+            id: "Address",
+            name: "addressLine1",
+            label: "Address Line 1",
+            value: "",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty", "isValidAddress"],
+            errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Address', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          addressLine2: {
+            type: "TextField",
+            id: "addressLine2",
+            name: "addressLine2",
+            label: "Address Line 2",
+            value: "",
+            autoComplete: "name",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty", "isValidAddress"],
+            errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+          },
+          pincode: {
+            type: "Pincode",
+            id: "pincode",
+            name: "pincode",
+            label: "Pincode",
+            variant: "filled",
+            stateRequired: false,
+            span: 6,
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["Please enter the pincode"],
+            onChange: (event, step, next) => {
+              const { city_name = "", state_name = "" } = step.fields.pincode.value;
+              step.fields["state"]["value"] = state_name;
+              step.fields["state"]["error"] = false;
+              step.fields["state"]["helperText"] = "";
+              step.fields["city"]["value"] = city_name;
+              step.fields["city"]["error"] = false;
+              step.fields["city"]["helperText"] = "";
+              next(step);
+            },
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('PIInsuranceLeadFunnel', 'SME_PI_Pincode', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          city: {
+            type: "TextField",
+            id: "city",
+            name: "city",
+            label: "City",
+            value: "",
+            readOnly: "true",
+            autoComplete: "given-name",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          state: {
+            type: "TextField",
+            id: "state",
+            name: "state",
+            label: "State",
+            value: "",
+            readOnly: "true",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          spacing2: {
+            span: 12,
+          },
+          policyPeriod: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Policy Date",
+            name: "policyPeriod",
+          },
+          startDate: {
+            type: "DatePicker",
+            id: "startDate",
+            name: "startDate",
+            label: "Start Date",
+            variant: "outlined",
+            disabled: true,
+            minDate: new Date(),
+            maxDate: new Date(),
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the start date."],
+          },
+          endDate: {
+            type: "DatePicker",
+            id: "endDate",
+            name: "endDate",
+            label: "End Date",
+            variant: "outlined",
+            disabled: true,
+            maxDate: new Date(),
+            minDate: new Date(),
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the end date."],
+          },
+          endSpacing: {
+            span: 12,
+          },
+        },
+        onLoad: function (step, next) {
+          const { dobMaxDate, dobMinDate, formatedStartDate, formatedEndDate } = setDateMinMax();
+          step.fields["dob"].minDate = dobMinDate;
+          step.fields["dob"].maxDate = dobMaxDate;
+
+          const { getSessionStorageItem, setDefaultFormValues } = window.projectGlobals;
+          const leadDetails = getSessionStorageItem("professionalIndemnityLead");
+          if (leadDetails) {
+            const {
+              productDetails: { startDate = formatedStartDate, endDate = formatedEndDate } = {},
+              communicationDetails: { addressLine1 = "", addressLine2 = "", pincode = '' } = {},
+              proposerDetails: { dob = "", email = "" } = {}
+            } = leadDetails;
+            const defautlValues = { dob, email, addressLine1, addressLine2, pincode, city: pincode.city_name || '', state: pincode.state_name || '', startDate, endDate };
+            setDefaultFormValues(step.fields, defautlValues);
+            next(step);
+          }
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidAddress: function (str) {
+        var regExp = new RegExp(/^.{1,100}$/);
+        return !regExp.test(str);
+      },
+    },
+  },
+};

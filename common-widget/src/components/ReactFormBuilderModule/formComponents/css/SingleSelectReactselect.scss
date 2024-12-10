@@ -1,0 +1,8 @@
+.fB_categorySearch{
+    .More__control{background: #F5F5F6; border-radius: 8px;color: rgba(51, 56, 70, 0.7); font-size: 13px;
+        height: 52px; border: none;padding-left: 48px;
+        &::after{ position: absolute; background: url(../../../../img/v2_search.svg); width: 24px;
+        height: 24px; content: ''; top: 16px; left: 20px;}
+    }
+    .More__indicators{ display: none;}
+}

@@ -1,0 +1,78 @@
+window.formBuilderSchemaTravel2 = {
+  formBuilder: {
+    heading:"When are you travelling?",
+    steps: [
+      {
+        submitButtonLabel: "Next",
+        submitButtonSticky: true,
+        clickCount:0,
+        fields: {
+          tripDate: {
+            type: "DateRange",
+            id: "tripDate",
+            name: "tripDate",
+            label: "Trip Date",
+            variant: "outlined",
+            maxDate: new Date(),
+            minDate: new Date(),
+            span: 4,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the trip date."],
+            onChange: (event, step, next) => {
+              if(step.clickCount%2 == 0){
+                //startDate selected
+                let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'trip_start_date',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                projectGlobals.setDataLayer(null, null, true, false, o);
+              }
+              else{
+                //endDate selected
+                let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'trip_end_date',lead_label: 'user_selected', is_mobile: window.__isMobile};
+                projectGlobals.setDataLayer(null, null, true, false, o);
+              }
+              step.clickCount++;
+              let traveluserinfo = window.projectGlobals.getSessionStorageItem('traveluserinfo');
+              if(traveluserinfo.productDetails && traveluserinfo.productDetails.tripType == 'student'){
+                let selectedData = _.cloneDeep(step.fields.tripDate.value);
+                let minStartDate = new Date();
+                let maxStartDate = new Date();
+                maxStartDate.setDate(maxStartDate.getDate() + 179)
+                if(selectedData.startDate > maxStartDate){
+                  selectedData.startDate = maxStartDate;
+                  step.fields.tripDate.value.startDate = maxStartDate;
+                }
+                let minEndDate = _.cloneDeep(selectedData.startDate);	
+                let maxEndDate = _.cloneDeep(selectedData.startDate);	
+                maxEndDate.setDate(maxEndDate.getDate() + 359)
+                step.fields.tripDate.maxDate = new Date(maxEndDate);
+              }
+              else{
+                let selectedData = _.cloneDeep(step.fields.tripDate.value);
+                let minStartDate = new Date();
+                let maxStartDate = new Date();
+                maxStartDate.setDate(maxStartDate.getDate() + 179)
+                if(selectedData.startDate > maxStartDate){
+                  selectedData.startDate = maxStartDate;
+                  step.fields.tripDate.value.startDate = maxStartDate;
+                }
+                 let minEndDate = _.cloneDeep(selectedData.startDate);	
+                let maxEndDate = _.cloneDeep(selectedData.startDate);
+                maxEndDate.setDate(maxEndDate.getDate() + 179)
+                step.fields.tripDate.maxDate = new Date(maxEndDate);
+              }
+              next(step);
+            }
+          }
+        },
+        onLoad: function (step, next) {
+          let minDate = new Date();
+          step.fields.tripDate.minDate = minDate;
+          let maxDate = new Date();
+          maxDate.setDate(maxDate.getDate() + 179)
+          step.fields.tripDate.maxDate = maxDate;
+          next(step);
+        },
+      },
+    ],
+    activeStep: 0
+  },
+}

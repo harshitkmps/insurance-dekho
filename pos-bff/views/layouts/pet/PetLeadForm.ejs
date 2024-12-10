@@ -1,0 +1,366 @@
+let DealerCityAndList = function(event, step, next) {
+  <% if(schemaVal.showDealerDropDown) { %>
+    if(!step.fields.dealerCitySingleSelect){
+      step.fields['dealerCitySingleSelect'] = {
+        type: "SingleSelectReactselect",
+        options: [],
+        id: "dealerCitySingleSelect",
+        name: "dealerCitySingleSelect",
+        label: "Select Dealer City",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        onChange: (event, step, next) => {
+              let item = step.fields.dealerCitySingleSelect.value[0];
+              let uuid = '<%= schemaVal.uuid %>';
+              step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+              step.fields["dealerSingleSelect"]["value"] = [];
+              let dataParams = {};
+                <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getAllDealers: true
+                }
+                <% } else { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getHierarchyUsers: true,
+                  reporting_sfa_uuids: uuid,
+                  product: 'pet'
+                }
+              <% } %>
+              axios.get('/pos-bff/api/v1/dealers', {
+                params: dataParams
+              }).then((res) => {
+                var dealerSelect = [];
+                if (res.status == 200) {
+                  if (res.data && res.data && res.data.data && res.data.data.data) {
+                    res.data.data.data.map((item) => {
+                      dealerSelect.push({ value: item.iam_uuid, label: item.name });
+                    });
+                  }
+                }
+                step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                next(step);  
+              }).catch((err) => {
+                next(step);
+              });
+        }
+      }
+    }
+    let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+    if(dealerCityList) {
+      var dealerCitySelect = [];
+      dealerCityList.map((item) => {
+        dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+      });
+    } else {
+      dealerCitySelect.push([]);
+    }
+    step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+
+    if(!step.fields.dealerSingleSelect){
+      step.fields['dealerSingleSelect'] = {
+        type: "AsyncReactSelect",
+        options: [],
+        id: "dealerSingleSelect",
+        name: "dealerSingleSelect",
+        label: "Select Dealer",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        loadOptions: (input, step, resolve) => {
+        let item = step.fields.dealerCitySingleSelect.value[0];
+        let uuid = '<%= schemaVal.uuid %>';
+        <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            getAllDealers: true,
+            name: input
+          }
+          <% } else { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            reporting_sfa_uuids: uuid,
+            getHierarchyUsers: true,
+            name: input,
+            product: 'pet'
+          }
+        <% } %>
+        axios
+          .get(
+            "/pos-bff/api/v1/dealers",
+            {
+              params: dataParams
+            }
+          )
+          .then((res) => {
+            var dealerSelect = [];
+            if (res.status == 200) {
+              if (
+                res.data &&
+                res.data &&
+                res.data.data &&
+                res.data.data.data
+              ) {
+                res.data.data.data.map((item) => {
+                  dealerSelect.push({
+                    value: item.iam_uuid,
+                    label: item.name,
+                  });
+                });
+              }
+            } else {
+              resolve([]);
+            }
+            resolve(dealerSelect)
+          });
+      },
+      }
+    }
+    <% } %>
+}
+let formBuilderSchema2 = {
+  formBuilder: {
+    steps: [
+      {
+        heading: "Basic Details",
+        submitButtonLabel: "Next",
+        fields: {
+          basicDetail: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Basic Details",
+            name: "basicDetail"
+          },
+          ownerName: {
+              type: "TextField",
+              id: "ownerName",
+              name: "ownerName",
+              label: "Owner Name",
+              value: "",
+              autoComplete: "name",
+              variant: "filled",
+              span: 4,
+              validators: ["isEmpty","!isValidName"],
+              errormessages: [
+                 "Please enter the owner name",
+                "Please enter valid owner name"
+              ],
+              onChange: (event, step, next) => {
+              },
+          },
+          mobile: {
+              type: "TextField",
+              id: "mobile",
+              name: "mobile",
+              label: "Contact Number",
+              variant: "filled",
+              value:"",
+              span: 4,
+              fieldType: "mobile",
+              validators: ["isEmpty"],
+              errormessages: ["Please enter contact number"],
+          },
+          breedsSingleSelect : {
+            type: "SingleSelectReactselect",
+            options: [],
+            id: "breedsSingleSelect",
+            name: "breedsSingleSelect",
+            label: "Dog breed",
+            variant: "outlined",
+            span: 4,
+            value: [],
+            max: 1,
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the breed of the Dog"],
+            onChange: (event, step, next) => {
+              let options = step.fields.breedsSingleSelect.options;
+                step.fields.breedsSingleSelect.value.forEach((item)=>{
+                  let element = options.find(obj => obj.value == item.value)
+                })
+                next(step);
+            }
+          },
+          dogAge: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Pet Age",
+            name: "dogAge"
+          },
+        },
+        onSubmit: function (data, resolve, reject) {
+          console.log("Lead form 1 onSubmit============", data);
+          data['source'] = '<%= schemaVal.source %>';
+          data['subSource'] = '<%= schemaVal.subSource %>';
+          data['medium'] = '<%= schemaVal.medium %>';
+          data['creatorIamId'] = '<%= schemaVal.uuid %>';
+          data['productType'] = '<%= schemaVal.productType %>';
+          data['creatorType'] = '<%= schemaVal.creatorType %>';
+          data['guestUuid'] = '<%= schemaVal.guestUuid %>';
+          axios({
+            method: "post",
+            url: "/pos-bff-hybrid/api/v1/lead/pet-add-pos-lead",
+            data: data,
+            withCredentials: true,
+            headers: { "Content-Type": "application/json" },
+          })
+            .then(function (response) {
+              //handle success
+              if(response.data && response.data.status==200 && response.data.data && response.data.data.data) {
+                if(data.pedSwitch == 'no') {
+                  reject({message : "Sorry, no plans are currently available for Pets having PED"});
+                } else {
+                  window.location.href = `<%= posUiUrl %>posui/pet-insurance/quotes?request=${response.data.data.data.leadId}`;
+                }
+              } else {
+                if(data.pedSwitch == 'no') {
+                  reject({message : "Sorry, no plans are currently available for Pets having PED"});
+                } else {
+                  reject({message : "Some error has occurred"});
+                }
+              }
+            })
+            .catch(function (response) {
+              reject({message : "Some error has occurred"});
+            });
+          resolve({ message: "" });
+        },
+
+        onLoad: function (step, next) {
+          let api = "<%= schemaVal.brokerageUrl %>?masterType=breeds,insurers,docsUploadMaster&subProductTypeId=8&limit=500";
+          axios.get(api).then((res) => {
+            var breedsSelect = [];
+            console.log(52,res.data)
+            if (res.status == 200) {
+              if (res.data && res.data && res.data.data.breeds) {
+                res.data.data.breeds.map((item) => {
+                  breedsSelect.push({ value: item.id, label: item.name });
+                });
+              }
+            }
+            step.fields["breedsSingleSelect"]["options"] = breedsSelect;
+            next(step);
+          });
+          let yearList = [];
+            for (let i = 0; i <= 9; i++) {
+                yearList.push({
+                    value: new String(i),
+                    label: i,
+                });
+            }
+            let monthList = [];
+            for (let i = 0; i < 12; i++) {
+                 monthList.push({
+                    value: new String(i),
+                    label: i,
+                });
+            }
+            if(!step.fields.petYear){
+              step.fields['petYear'] = {
+                type:"SelectWithLabel",
+                id:"petYear",
+                name:"petYear",
+                label:"Years",
+                labelAuto:"Years",
+                options: yearList,
+                span: 4,
+                autoComplete: "given-name",
+                variant: "filled",
+                validators: ["isEmpty"],
+                errormessages: ["Please select the age of the Pet"],
+                onChange: (event, step, next) => {
+                if (step.fields.petYear.value == 0) {
+                  let ageList = [];
+                  for (let i = 6; i < 12; i++) {
+                    ageList.push({
+                      value: new String(i),
+                      label: i,
+                    });
+                  }
+                  step.fields.petMonth.options = ageList;
+                } else {
+                  let ageList = [];
+                  for (let i = 0; i < 12; i++) {
+                    ageList.push({
+                      value: new String(i),
+                      label: i,
+                    });
+                  }
+                  step.fields.petMonth.options = ageList;
+                }
+                next(step);
+              }
+              }
+            }
+
+            if(!step.fields.petMonth){
+              step.fields['petMonth'] = {
+                type:"SelectWithLabel",
+                id:"petMonth",
+                name:"petMonth",
+                label:"Months",
+                labelAuto:"Months",
+                options: monthList,
+                span: 4,
+                autoComplete: "given-name",
+                variant: "filled",
+                validators: ["isEmpty"],
+                errormessages: ["Please select the month"],
+              }
+            }
+
+            if(!step.fields.pedSwitch){
+              step.fields['pedSwitch'] = {
+                  type: "YesNoComp",
+                  id: "pedSwitch",
+                  name: "pedSwitch",
+                  label: "Dog is sound, healthy, and free from pre-existing diseases?",
+                  span: 12,
+                  labelPlacement: "end",
+                  value:"yes",
+                  validators: ["isEmpty"],
+                  options: [
+                      { label: "Yes", value: "yes" },
+                      { label: "No", value: "no" },
+                  ],
+                  errormessages: ["This field is required"]
+              }
+            }
+            DealerCityAndList(event,step, next);
+            next(step);
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidName: function (str) {
+          var regexp = new RegExp(
+            /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+          );
+          return regexp.test(str);
+      },
+    },
+  },
+}

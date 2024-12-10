@@ -1,0 +1,189 @@
+[{
+  "_id": {
+    "$oid": "61d81ec1b5a4fca7ebe84d48"
+  },
+  "products": [
+    "POS",
+    "IDEDGE"
+  ],
+  "roles": [
+    "RM",
+    "ZM"
+  ],
+  "created_at": {
+    "$date": "2022-01-07T11:06:41.242Z"
+  },
+  "updated_at": {
+    "$date": "2022-01-07T11:06:41.242Z"
+  },
+  "content_type": "youtube",
+  "content_title": "Health Insurance on POS",
+  "content_thumbnail": "https://img.youtube.com/vi/sYuzikmYLMo/0.jpg",
+  "content_link": "https://www.youtube.com/watch?v=sYuzikmYLMo",
+  "category": "Health Insurance",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "61d81ed4b5a4fca7ebe84d4a"
+  },
+  "products": [
+    "POS",
+    "IDEDGE"
+  ],
+  "roles": [
+    "RM",
+    "ZM"
+  ],
+  "created_at": {
+    "$date": "2022-01-07T11:07:00.620Z"
+  },
+  "updated_at": {
+    "$date": "2022-01-07T11:07:00.620Z"
+  },
+  "content_type": "youtube",
+  "content_title": "Life Insurance on POS 1",
+  "content_thumbnail": "https://img.youtube.com/vi/kiw-Y11ANWg/0.jpg",
+  "content_link": "https://www.youtube.com/watch?v=kiw-Y11ANWg",
+  "category": "Life Insurance",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "61d81ee1b5a4fca7ebe84d4c"
+  },
+  "products": [
+    "POS",
+    "IDEDGE"
+  ],
+  "roles": [
+    "RM"
+  ],
+  "created_at": {
+    "$date": "2022-01-07T11:07:13.636Z"
+  },
+  "updated_at": {
+    "$date": "2022-01-07T11:07:13.636Z"
+  },
+  "content_type": "youtube",
+  "content_title": "Life Insurance on POS 2",
+  "content_thumbnail": "https://img.youtube.com/vi/I3YGFeyxr98/0.jpg",
+  "content_link": "https://www.youtube.com/watch?v=I3YGFeyxr98",
+  "category": "Life Insurance",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "61d81eeab5a4fca7ebe84d4e"
+  },
+  "products": [
+    "POS",
+    "IDEDGE"
+  ],
+  "roles": [
+    "ZM"
+  ],
+  "created_at": {
+    "$date": "2022-01-07T11:07:22.007Z"
+  },
+  "updated_at": {
+    "$date": "2022-01-07T11:07:22.007Z"
+  },
+  "content_type": "youtube",
+  "content_title": "Life Insurance on POS 3",
+  "content_thumbnail": "https://img.youtube.com/vi/XDK1J795kV4/0.jpg",
+  "content_link": "https://www.youtube.com/watch?v=XDK1J795kV4",
+  "category": "Life Insurance",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "61d81ef2b5a4fca7ebe84d50"
+  },
+  "products": [
+    "POS"
+  ],
+  "roles": [
+    "RM",
+    "ZM"
+  ],
+  "created_at": {
+    "$date": "2022-01-07T11:07:30.225Z"
+  },
+  "updated_at": {
+    "$date": "2022-01-07T11:07:30.225Z"
+  },
+  "content_type": "youtube",
+  "content_title": "Life Insurance on POS 4",
+  "content_thumbnail": "https://img.youtube.com/vi/TCJiUa1-ePw/0.jpg",
+  "content_link": "https://www.youtube.com/watch?v=TCJiUa1-ePw",
+  "category": "Life Insurance",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "61d81ef9b5a4fca7ebe84d52"
+  },
+  "products": [
+    "IDEDGE"
+  ],
+  "roles": [
+    "RM",
+    "ZM"
+  ],
+  "created_at": {
+    "$date": "2022-01-07T11:07:37.218Z"
+  },
+  "updated_at": {
+    "$date": "2022-01-07T11:07:37.218Z"
+  },
+  "content_type": "youtube",
+  "content_title": "Life Insurance on POS 5",
+  "content_thumbnail": "https://img.youtube.com/vi/AopRPmNmeDs/0.jpg",
+  "content_link": "https://www.youtube.com/watch?v=AopRPmNmeDs",
+  "category": "Life Insurance",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "61da6fd7d6286225cbadf068"
+  },
+  "products": [
+    "POS",
+    "IDEDGE"
+  ],
+  "roles": [
+    "RM",
+    "ZM"
+  ],
+  "created_at": {
+    "$date": "2022-01-07T11:06:41.242Z"
+  },
+  "updated_at": {
+    "$date": "2022-01-07T11:06:41.242Z"
+  },
+  "content_type": "youtube",
+  "content_title": "Health Insurance on POS 1",
+  "content_thumbnail": "https://img.youtube.com/vi/VmTu7BJnhIc/0.jpg",
+  "content_link": "https://www.youtube.com/watch?v=VmTu7BJnhIc",
+  "category": "Health Insurance",
+  "__v": 0
+},{
+  "_id": {
+    "$oid": "61da7006d6286225cbadf06a"
+  },
+  "products": [
+    "POS",
+    "IDEDGE"
+  ],
+  "roles": [
+    "RM",
+    "ZM"
+  ],
+  "created_at": {
+    "$date": "2022-01-07T11:06:41.242Z"
+  },
+  "updated_at": {
+    "$date": "2022-01-07T11:06:41.242Z"
+  },
+  "content_type": "youtube",
+  "content_title": "Health Insurance on POS 2",
+  "content_thumbnail": "https://img.youtube.com/vi/0DrIUEOOH00/0.jpg",
+  "content_link": "https://www.youtube.com/watch?v=0DrIUEOOH00",
+  "category": "Health Insurance",
+  "__v": 0
+}]

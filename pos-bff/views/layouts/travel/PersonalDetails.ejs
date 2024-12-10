@@ -1,0 +1,233 @@
+let DealerCityAndList = function(event, step, next) {
+  <% if(schemaVal.showDealerDropDown) { %>
+    if(!step.fields.dealerCitySingleSelect){
+      step.fields['dealerCitySingleSelect'] = {
+        type: "SingleSelectReactselect",
+        options: [],
+        id: "dealerCitySingleSelect",
+        name: "dealerCitySingleSelect",
+        label: "Select Dealer City",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        onChange: (event, step, next) => {
+              let item = step.fields.dealerCitySingleSelect.value[0];
+              let uuid = '<%= schemaVal.uuid %>';
+              step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+              step.fields["dealerSingleSelect"]["value"] = [];
+              let dataParams = {};
+                <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getAllDealers: true
+                }
+                <% } else { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getHierarchyUsers: true,
+                  reporting_sfa_uuids: uuid
+                }
+              <% } %>
+              axios.get('/pos-bff/api/v1/dealers', {
+                params: dataParams
+              }).then((res) => {
+                var dealerSelect = [];
+                if (res.status == 200) {
+                  if (res.data && res.data && res.data.data && res.data.data.data) {
+                    res.data.data.data.map((item) => {
+                      dealerSelect.push({ value: item.iam_uuid, label: item.name });
+                    });
+                  }
+                }
+                step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                next(step);  
+              }).catch((err) => {
+                next(step);
+              });
+        }
+      }
+    }
+    let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+    if(dealerCityList) {
+      var dealerCitySelect = [];
+      dealerCityList.map((item) => {
+        dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+      });
+    } else {
+      dealerCitySelect.push([]);
+    }
+    step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+
+    if(!step.fields.dealerSingleSelect){
+      step.fields['dealerSingleSelect'] = {
+        type: "AsyncReactSelect",
+        options: [],
+        id: "dealerSingleSelect",
+        name: "dealerSingleSelect",
+        label: "Select Dealer",
+        variant: "outlined",
+        span: 4,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        loadOptions: (input, step, resolve) => {
+        let item = step.fields.dealerCitySingleSelect.value[0];
+        let uuid = '<%= schemaVal.uuid %>';
+        <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            getAllDealers: true,
+            name: input
+          }
+          <% } else { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            reporting_sfa_uuids: uuid,
+            getHierarchyUsers: true,
+            name: input
+          }
+        <% } %>
+        axios
+          .get(
+            "/pos-bff/api/v1/dealers",
+            {
+              params: dataParams
+            }
+          )
+          .then((res) => {
+            var dealerSelect = [];
+            if (res.status == 200) {
+              if (
+                res.data &&
+                res.data &&
+                res.data.data &&
+                res.data.data.data
+              ) {
+                res.data.data.data.map((item) => {
+                  dealerSelect.push({
+                    value: item.iam_uuid,
+                    label: item.name,
+                  });
+                });
+              }
+            } else {
+              resolve([]);
+            }
+            resolve(dealerSelect)
+          });
+      },
+      }
+    }
+    <% } %>
+}
+window.formBuilderSchemaTravel = {
+    formBuilder: {
+      //heading: "Travel Insurance",
+      steps: [
+        {
+          terms: `By clicking, I agree to <a href="/disclaimer" className="link" target="_blank">*T&C</a> and <a href="/privacy-policy" className="link" target="_blank">privacy policy</a>.`,
+          submitButtonLabel: "Secure Your Trip",
+          fields: {
+            tripType: {
+              type: "CardRadio",
+              options: [
+                {
+                  value: "single",
+                  label: "Business or Leisure Trip",
+                  icon: "pwa/img/ic-business-trip.svg",
+                },
+                {
+                  value: "student",
+                  label: "Student Education Trip",
+                  icon: "pwa/img/ic-student-trip.svg",
+                },
+              ],
+              id: "tripType",
+              name: "tripType",
+              label: "Trip Type",
+              variant: "outlined",
+              span: 12,
+              value: "single",
+              validators: ["isEmpty"],
+              errormessages: ["Please select the purpose of your travel"],
+            },
+            name: {
+              type: "TextField",
+              id: "name",
+              name: "name",
+              label: "Name",
+              value: "",
+              autoComplete: "name",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty","!isValidName"],
+              errormessages: [
+                "Please enter the name",
+                "Please enter valid name"
+              ],
+              onChange: (event, step, next) => {
+              },
+            },
+            mobile: {
+              type: "TextField",
+              id: "mobile",
+              name: "mobile",
+              label: "Mobile",
+              variant: "filled",
+              value:"",
+              span: 6,
+              fieldType: "mobile",
+              validators: ["isEmpty"],
+              errormessages: ["Please enter contact number"],
+            },
+          },
+          onLoad: function (step, next) {
+              DealerCityAndList(event,step, next);
+            if(!step.fields.whatsappcheckbox){
+              step.fields['whatsappcheckbox'] = {
+                type: "WhatsappCheckBox",
+                id: "whatsappcheckbox",
+                name: "whatsappcheckbox",
+                label: "",
+                span: 12,
+                validators: [],
+                errormessages: [],
+                options: [{ value: "check" }],
+                value : [
+                  'check'
+                ]
+              }
+            }
+            next(step);
+          },
+        },
+      ],
+      activeStep: 0,
+      customValidators: {
+        isValidName: function (str) {
+          var regexp = new RegExp(
+            /^[a-zA-Z ]{2,30}$/
+          );
+          return regexp.test(str);
+        },
+      }
+    },
+  }

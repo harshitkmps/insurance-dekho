@@ -1,0 +1,15 @@
+.fb_cardradio{ cursor: pointer; padding: 8px 8px; border-radius: 8px;    position: relative;
+    .iconCircle{ align-items: center;padding: 0; width: 100%; display: inline-block; justify-content: center;
+        &:hover{ background-color: transparent !important;}
+        img{ width: 30px;}
+    }
+    .radioTxt{ font-size: 14px; width: 100%; text-align: center; font-weight: 600; }
+}
+
+@media screen and (min-width:1023px) {
+    .fb_cardradio{ width: 100%;padding: 12px 8px 12px 55px;}
+    .fb_cardradio .iconCircle{width: auto ; position: absolute;left: 12px;top: 8px; }
+    .fb_cardradio .radioTxt{ width: auto; font-size: 13px;}
+    
+}
+

@@ -1,0 +1,549 @@
+let DealerCityAndList = function(event, step, next) {
+  <% if(schemaVal.showDealerDropDown) { %>
+    if(!step.fields.dealerCitySingleSelect){
+      step.fields['dealerCitySingleSelect'] = {
+        type: "SingleSelectReactselect",
+        options: [],
+        id: "dealerCitySingleSelect",
+        name: "dealerCitySingleSelect",
+        label: "Select Dealer City",
+        variant: "outlined",
+        span: 6,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        onChange: (event, step, next) => {
+              let item = step.fields.dealerCitySingleSelect.value[0];
+              let uuid = '<%= schemaVal.uuid %>';
+              step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+              step.fields["dealerSingleSelect"]["value"] = [];
+              let dataParams = {};
+                <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getAllDealers: true
+                }
+                <% } else { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getHierarchyUsers: true,
+                  reporting_sfa_uuids: uuid,
+                  product: 'sme',
+                }
+              <% } %>
+              axios.get('/pos-bff/api/v1/dealers', {
+                params: dataParams
+              }).then((res) => {
+                var dealerSelect = [];
+                if (res.status == 200) {
+                  if (res.data && res.data && res.data.data && res.data.data.data) {
+                    res.data.data.data.map((item) => {
+                      dealerSelect.push({ value: item.iam_uuid, label: item.name });
+                    });
+                    step.fields["dealerSingleSelect"].validators = ["isEmpty"]
+                  } else {
+                    step.fields["dealerSingleSelect"].validators = []
+                  }
+                }
+                step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                next(step);  
+              }).catch((err) => {
+                next(step);
+              });
+        }
+      }
+    }
+    let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+    if(dealerCityList) {
+      var dealerCitySelect = [];
+      dealerCityList.map((item) => {
+        dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+      });
+    } else {
+      dealerCitySelect.push([]);
+    }
+    step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+
+    if(!step.fields.dealerSingleSelect){
+      step.fields['dealerSingleSelect'] = {
+        type: "AsyncReactSelect",
+        options: [],
+        id: "dealerSingleSelect",
+        name: "dealerSingleSelect",
+        label: "Select Dealer",
+        variant: "outlined",
+        span: 6,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer name"],
+        loadOptions: (input, step, resolve) => {
+        let item = step.fields.dealerCitySingleSelect.value[0];
+        let uuid = '<%= schemaVal.uuid %>';
+        <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            getAllDealers: true,
+            name: input
+          }
+          <% } else { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            reporting_sfa_uuids: uuid,
+            getHierarchyUsers: true,
+            name: input,
+            product: 'sme',
+          }
+        <% } %>
+        axios
+          .get(
+            "/pos-bff/api/v1/dealers",
+            {
+              params: dataParams
+            }
+          )
+          .then((res) => {
+            var dealerSelect = [];
+            if (res.status == 200) {
+              if (
+                res.data &&
+                res.data &&
+                res.data.data &&
+                res.data.data.data
+              ) {
+                res.data.data.data.map((item) => {
+                  dealerSelect.push({
+                    value: item.iam_uuid,
+                    label: item.name,
+                  });
+                });
+              }
+            } else {
+              resolve([]);
+            }
+            resolve(dealerSelect)
+          });
+      },
+      }
+    }
+    <% } %>
+}
+
+window.SMBasicDetailsForm = {
+  formBuilder: {
+    steps: [
+      {
+        submitButtonLabel: "Next",
+        fields: {
+          businessDetail: {
+            type: "HeadingComp",
+            span: 14,
+            label: "Business Details",
+            name: "businessDetail"
+          },
+          businessName: {
+            type: "TextField",
+            id: "businessName",
+            name: "businessName",
+            label: "Business Name (as per Govt. Records)",
+            autoComplete: "name",
+            variant: "filled",
+            span: 14,
+            value: "",
+            validators: ["isEmpty", "!isValidBusinessName"],
+            errormessages: [
+              "Please enter the business name",
+              "Please enter valid business name"
+            ],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_BizName', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          transitType: {
+            type: "SelectWithLabel",
+            options: [
+              { value: "Domestic (Inland)", label: "Domestic (Inland)", "labelPlacement": "start" },
+              { value: "Export", label: "Export", "labelPlacement": "start" },
+              { value: "Import", label: "Import", "labelPlacement": "start" },
+            ],
+            id: "transitType",
+            name: "transitType",
+            label: "transitType",
+            labelAuto: "Where will your goods be shipped?",
+            value: "",
+            variant: "filled",
+            labelPlacement: "start",
+            titlePlacement: "start",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This is a required field"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_GoodsShipping', '<%= schemaVal.gcd_code %>');
+            },
+            onChange: (event, step, next) => {
+              if (step.fields.transitType.value === "Domestic (Inland)") {
+                step.fields.invoiceValue.label = "Value of Goods in INR (eg. 4,00,00,000)"
+                step.fields.currencyType.hide = true;
+                step.fields.conversionRate.hide = true;
+                step.fields.coverAmount.hide = true;
+                step.fields.coverAmount.value = Math.ceil(step.fields.invoiceValue.value)
+                step.fields.currencyType.value = "INR (India)"
+                step.fields.conversionRate.value = "1";
+                step.fields.invoiceValue.helperText = "Value of Goods + 10% will be auto applied for commodity coverage as best practice"
+              }
+              else {
+                step.fields.invoiceValue.label = "Value of Goods (eg. 4,00,00,000)"
+                step.fields.currencyType.hide = false;
+                step.fields.conversionRate.hide = false;
+                step.fields.coverAmount.hide = false;
+                step.fields.coverAmount.value = Math.ceil(step.fields.conversionRate.value * step.fields.invoiceValue.value)
+                step.fields.coverAmount.helperText = "Value of Goods + 10% will be auto applied for commodity coverage as best practice"
+                step.fields.invoiceValue.helperText = ""
+              }
+              next(step)
+            }
+          },
+          modeofTransport: {
+            hide: false,
+            type: "SelectWithLabel",
+            id: "modeofTransport",
+            name: "modeofTransport",
+            label: "Mode of Transport",
+            labelAuto: "Mode of Transport",
+            options: [],
+            span: 6,
+            autoComplete: "given-name",
+            variant: "outlined",
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["Please select the mode of transport"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_ModeTransport', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          startDate: {
+            type: "DatePicker",
+            id: "startDate",
+            name: "startDate",
+            label: "Transit Start Date",
+            variant: "filled",
+            maxDate: '',
+            minDate: '',
+            span: 6,
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_TransitStart', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          spacingthree: {
+            span: 12
+          },
+          cargoDetail: {
+            type: "HeadingComp",
+            span: 14,
+            label: "Cargo Details",
+            name: "cargoDetail"
+          },
+          commodityType: {
+            hide: false,
+            type: "SelectWithLabel",
+            id: "commodityType",
+            name: "commodityType",
+            label: "Commodity Type",
+            labelAuto: "Commodity Type",
+            options: [],
+            span: 6,
+            autoComplete: "given-name",
+            variant: "filled",
+            value: "",
+            max: 1,
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the commodity type"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_CommodityType', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          packingType: {
+            hide: false,
+            type: "SelectWithLabel",
+            id: "packingType",
+            name: "packingType",
+            label: "Type of packing",
+            labelAuto: "Type of packing",
+            options: [],
+            span: 6,
+            autoComplete: "given-name",
+            variant: "filled",
+            value: "",
+            max: 1,
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the packing type"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_GoodsDesc', '<%= schemaVal.gcd_code %>');
+            },
+            onChange: (event, step, next) => {
+              if (step.fields.packingType.value === "Other") {
+                step.fields.otherPacking.hide = false;
+              } else {
+                step.fields.otherPacking.hide = true;
+              }
+              next(step);
+            },
+          },
+          otherPacking: {
+            hide: true,
+            type: "TextField",
+            id: "otherPacking",
+            name: "otherPacking",
+            label: "Packing Description",
+            autoComplete: "name",
+            variant: "filled",
+            span: 6,
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: [
+              "Please describe the packing type",
+            ],
+          },
+          goodsDescription: {
+            type: "TextField",
+            id: "goodsDescription",
+            name: "goodsDescription",
+            label: "Description of goods (in your own words)",
+            autoComplete: "name",
+            variant: "filled",
+            span: 6,
+            value: "",
+            validators: ["isEmpty", "!isValidDescription"],
+            errormessages: [
+              "Please describe the packing type",
+              "Please enter valid description"
+            ],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_GoodsPackingDesc', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          invoiceValue: {
+            type: "AmountField",
+            id: "invoiceValue",
+            name: "invoiceValue",
+            label: "",
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty", "!isValidIncome"],
+            value: "",
+            validators: ["isEmpty", "!isMinValue"],
+            errormessages: [
+              "Please enter the value of goods",
+              "Please enter a valid value of minimum 500 and upto 2 decimal place",
+            ],
+            onChange: (event, step, next) => {
+              if (event.target.value <= 10000000000) {
+                step.fields.invoiceValue.value = event.target.value
+              } else {
+                step.fields.invoiceValue.value = event.target.value.slice(0, -1);
+              }
+              if (step.fields.transitType.value == "Domestic (Inland)") {
+                step.fields.coverAmount.value = Math.ceil(step.fields.invoiceValue.value)
+                next(step)
+              }
+              else {
+                step.fields.coverAmount.value = Math.ceil(step.fields.conversionRate.value * step.fields.invoiceValue.value)
+                next(step)
+              }
+            },
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_GoodsValue', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          currencyType: {
+            hide: false,
+            type: "SelectWithLabel",
+            id: "currencyType",
+            name: "currencyType",
+            label: "currencyType",
+            labelAuto: "Select currency",
+            options: [],
+            span: 6,
+            autoComplete: "given-name",
+            variant: "filled",
+            value: '',
+            max: 1,
+            disabled: false,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the currency"],
+            onChange: (event, step, next) => {
+              if (step.fields.currencyType.value === "INR (India)") {
+                step.fields.conversionRate.disabled = true;
+                step.fields.conversionRate.value = "1";
+                step.fields.coverAmount.value = Math.ceil(step.fields.conversionRate.value * step.fields.invoiceValue.value)
+                next(step)
+              }
+              else {
+                step.fields.conversionRate.value = "";
+                step.fields.conversionRate.disabled = false;
+                next(step)
+              }
+            },
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_Currency', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          conversionRate: {
+            hide: false,
+            type: "TextField",
+            id: "conversionRate",
+            name: "conversionRate",
+            label: "Conversion Rate to INR",
+            autoComplete: "name",
+            variant: "filled",
+            span: 6,
+            value: "",
+            disabled: false,
+            validators: ["isEmpty", "!isValidRate"],
+            errormessages: [
+              "Please enter the conversion rate",
+              "Enter upto 2 decimal places"
+            ],
+            onChange: (event, step, next) => {
+              step.fields.coverAmount.value = Math.ceil(step.fields.conversionRate.value * step.fields.invoiceValue.value)
+              next(step)
+            },
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent('SpecificMarineInsuranceLeadFunnel', 'SME_SpecificMarine_CR', '<%= schemaVal.gcd_code %>');
+            },
+          },
+          coverAmount: {
+            type: "AmountField",
+            id: "coverAmount",
+            name: "coverAmount",
+            label: "Cover Amount In INR",
+            value: "",
+            disabled: true,
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: [
+              "Please enter the value of goods"
+            ],
+          },
+        },
+        onLoad: function (step, next) {
+          try {
+            DealerCityAndList(event, step, next);
+            const { getSessionStorageItem, setDefaultFormValues, setFormOptions, getSmeMaster } = window.projectGlobals;
+            const { parsedMasterData, rawMasterData } = getSmeMaster();
+            const leadDetails = getSessionStorageItem("specificMarineLead");
+            if (leadDetails) {
+              let minDate = new Date();
+              let maxDate = new Date();
+              maxDate.setDate(maxDate.getDate() + 29)
+              step.fields.startDate.minDate = minDate;
+              step.fields.startDate.maxDate = maxDate;
+              let {
+                productDetails: { businessDetails: {
+                  businessName = ""
+                } = {},
+                  cargoDetails: {
+                    modeofTransport = "",
+                    transitType = "Domestic (Inland)",
+                    startDate = "",
+                    commodityId = "",
+                    currencyId = "",
+                    invoiceValue = "",
+                    goodsPackingId = "",
+                    goodsDescription = "",
+                    otherPacking = "",
+                    conversionRate = 1,
+                  } = {},
+                  sumInsured: coverAmount = "" } = {},
+              } = leadDetails;
+             
+              if (transitType === "Inland") {
+                transitType = "Domestic (Inland)";
+              }
+              const commodityType = rawMasterData.commodity?.find(item => item.id == commodityId)?.commodityName;
+              const currencyType = rawMasterData.currency?.find(item => item.id == currencyId)?.currencyType || "INR (India)";
+              const packingType = rawMasterData.packing?.find(item => item.id == goodsPackingId)?.packingType || "";
+
+              if (transitType === "Domestic (Inland)") {
+                step.fields.invoiceValue.label = "Value of Goods in INR (eg. 4,00,00,000)"
+                step.fields.currencyType.hide = true;
+                step.fields.conversionRate.hide = true;
+                step.fields.coverAmount.hide = true;
+                step.fields.coverAmount.value = Math.ceil(step.fields.invoiceValue.value)
+                step.fields.currencyType.value = "INR (India)"
+                step.fields.conversionRate.value = "1";
+                step.fields.invoiceValue.helperText = "Value of Goods + 10% will be auto applied for commodity coverage as best practice"
+              }
+              else {
+                step.fields.invoiceValue.label = "Value of Goods (eg. 4,00,00,000)"
+                step.fields.currencyType.hide = false;
+                step.fields.conversionRate.hide = false;
+                step.fields.coverAmount.hide = false;
+                step.fields.coverAmount.value = Math.ceil(step.fields.conversionRate.value * step.fields.invoiceValue.value)
+                step.fields.coverAmount.helperText = "Value of Goods + 10% will be auto applied for commodity coverage as best practice"
+                step.fields.invoiceValue.helperText = ""
+              }
+              setFormOptions(step.fields, parsedMasterData);
+              const defautlValues = { businessName, transitType, modeofTransport, startDate, commodityType, currencyType, packingType, goodsDescription, otherPacking, invoiceValue, conversionRate, coverAmount };
+              setDefaultFormValues(step.fields, defautlValues);
+            }
+            next(step);
+          }
+          catch (error) {
+            console.error("An error occurred", error);
+            next(step);
+          }
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidBusinessName: function (str) {
+        var regExp = new RegExp(
+          /^.{1,70}$/
+        );
+        return regExp.test(str);
+      },
+      isValidDescription: function (str) {
+        var regexp = new RegExp(
+          /.*/
+        );
+        return regexp.test(str);
+      },
+      isValidRate: function (str) {
+        var regexp = new RegExp(
+          /^(?:[1-9]\d*)$|^(?:[1-9]\d*)\.\d{1,2}$/
+        );
+        return regexp.test(str);
+      },
+      isMinValue: function (str) {
+        var regexp = new RegExp(
+          /^(?:500|(?:(?:[1-9]\d{2,})(\.\d{1,2})?))$/
+        );
+        return regexp.test(str);
+      },
+    },
+  },
+};

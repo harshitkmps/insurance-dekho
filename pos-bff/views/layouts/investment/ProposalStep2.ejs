@@ -1,0 +1,643 @@
+validateFields = (step,next) => {
+  let checkValidationKey = (key,type) => {
+    let validationRules = _.get(window.projectGlobals.getSessionStorageItem('investmentMasterData'),'insurers[0].validationRules',[]);
+    for(let i in validationRules){
+      if(validationRules[i].type == type && validationRules[i].validationKey.includes(key) && validationRules[i].isMandatory){
+        return true;
+      }
+    }
+    return false;
+  }
+  let insurerType = step.fields.insuredMembersOption.value;
+    
+  step.fields.name.hide = !checkValidationKey('fullName','self');
+  step.fields.dob.hide = !checkValidationKey('dateofBirth','self');
+  step.fields.gender.hide = !checkValidationKey('gender','self');
+  step.fields.martialStatus.hide = !checkValidationKey('maritalStatus','self');
+  step.fields.email.hide = !checkValidationKey('email','self');
+  step.fields.panCard.hide = !checkValidationKey('panCard','self');
+  step.fields.education.hide = !checkValidationKey('education','self');
+  step.fields.occupation.hide = !checkValidationKey('occupation','self');
+  step.fields.annualIncome.hide = !checkValidationKey('annualIncome','self');
+  step.fields.pincode.hide = !checkValidationKey('pincode','self');
+  step.fields.city.hide = !checkValidationKey('pincode','self');
+  step.fields.state.hide = !checkValidationKey('pincode','self');
+  step.fields.isCancerPatient.hide = !checkValidationKey('isCancerPatient','self');
+  step.fields.isNri.hide = !checkValidationKey('isNri','self');
+  step.fields.isTobacco.hide = !checkValidationKey('isTobacco','self');
+  step.fields.isSuitabilityAnalysis.hide = !checkValidationKey('isSuitabilityAnalysis','self');
+
+  step.fields.proposeeTitleDetails.hide = (insurerType == 'self');
+  step.fields.proposeeTitleDetails.label = `${insurerType.charAt(0).toUpperCase() + insurerType.slice(1)} Details`;
+  step.fields.proposeeFullName.hide = !checkValidationKey('proposeeFullName',insurerType);
+  step.fields.proposeeMobile.hide = !checkValidationKey('proposeeMobile',insurerType);
+  step.fields.proposeeDob.hide = !checkValidationKey('proposeeDob',insurerType);
+  step.fields.proposeeGender.hide = !checkValidationKey('proposeeGender',insurerType);
+  step.fields.proposeePincode.hide = !checkValidationKey('proposeePincode',insurerType);
+  step.fields.proposeeCity.hide = !checkValidationKey('proposeeCity',insurerType);
+  step.fields.proposeeState.hide = !checkValidationKey('proposeeState',insurerType);
+
+  let maxDate = new Date();
+  let minDate = new Date();
+
+  let minBaseDate = 66
+  let maxBaseDate = 18
+  console.log(step.fields.insuredMembersOption.value)
+  if(step.fields.insuredMembersOption.value =="child"){
+    minBaseDate = 66
+    maxBaseDate = 5
+  }
+  minDate.setYear(minDate.getFullYear() - minBaseDate);
+  minDate.setDate(minDate.getDate() + 1);
+  maxDate.setYear(maxDate.getFullYear() - maxBaseDate);
+
+  step.fields.proposeeDob.minDate = minDate.toISOString().slice(0,10);
+  step.fields.proposeeDob.maxDate = maxDate.toISOString().slice(0,10);
+
+  let proposee = window.projectGlobals.getSessionStorageItem(step.fields.insuredMembersOption.value);
+  if(Object.keys(proposee).length){
+    step.fields.proposeeFullName.value = _.get(proposee,'proposee_name');
+    step.fields.proposeeDob.value = _.get(proposee,'date_of_birth');
+    step.fields.proposeeMobile.value = _.get(proposee,'mobile_number');
+    step.fields.proposeeGender.value = _.get(proposee,'gender');
+  } else{
+    step.fields.proposeeFullName.value = "";
+    step.fields.proposeeDob.value = "";
+    step.fields.proposeeMobile.value = "";
+    step.fields.proposeeGender.value = "";
+  } 
+
+  next(step);
+}
+
+window.formBuilderSchemaInvestProposalStep2 = {
+    formBuilder: {
+      heading:"Your details",
+      steps: [
+        {
+          submitButtonLabel: "Review Details",
+          submitButtonSticky: false,
+          submitButtonLoader: false,
+          hideSubmitButtonIcon: false,
+          handleSubmitOnValidationFail: true,
+          fields: {
+            displayOwnerName : {
+                type: "Display",
+                id: "displayOwnerName",
+                name: "displayOwnerName",
+                label: "",
+                num:"",
+                image:"/common-widgets/icons/Group 3.svg",
+            },
+            insuredMembersOption:{
+              type: "YesNoComp",
+              id: "insuredMembersOption",
+              name: "insuredMembersOption",
+              label: "Investing for",
+              validators: ["isEmpty"],
+              errormessages: [
+                "This field is required",
+              ],
+              value:'self',
+              options: [
+                {
+                  value: "self",
+                  label: "Self",
+                }
+              ],
+              onChange: (event, step, next) =>{
+                validateFields(step,next);
+              }
+            },
+            memberTitleDetails:{
+              type:"HeadingComp",
+              id:"memberTitleDetails",
+              name:"memberTitleDetails",
+              label:"Self details",
+              span:12,
+            },
+            gender: {
+              type: "Radio",
+              options: [
+                { value: "M", label: "Male" },
+                { value: "F", label: "Female" },
+              ],
+              row : true,
+              id: "gender",
+              name: "gender",
+              label: "Gender",
+              labelPlacement:"start",
+              variant: "filled",
+              titlePlacement:"start",
+              background:"gray",
+              span: 6,
+              value: "",
+              validators: ["isEmpty"],
+              errormessages: ["Gender is required field"],
+            },
+            dob: {
+              type: "ManualDatePicker",
+              id: "dob",
+              name: "dob",
+              label: "Date of birth",
+              variant: "filled",
+              value: "",
+              maxDate:'',
+              minDate:'',
+              span: 6,
+              isManual: true,
+              validators: ["isEmpty", "!isValidDate", "!isValidDateRange"],
+              errormessages: [
+              "Please enter your date of birth.", 
+              "Please enter a valid date.",
+              "Age should be betweeen 18 to 65 years."
+              ],
+            },
+            name: {
+              type: "TextField",
+              id: "name",
+              name: "name",
+              label: "Full Name (As per your Aadhaar)",
+              value: "",
+              autoComplete: "name",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty","!isValidName"],
+              errormessages: [
+                "Please enter the name",
+                "Please enter valid name in English"
+              ],
+            },
+            martialStatus:{
+              type:"SelectWithLabel",
+              id:"martialStatus",
+              name:"martialStatus",
+              label:"Martial Status",
+              labelAuto:"Martial Status",
+              options: [],
+              autoComplete: "given-name",
+              variant: "filled",
+              validators: ["isEmpty"],
+              value:"",
+              span:6,
+              errormessages: ["This field is required"],
+            },
+            email: {
+              type: "TextField",
+              id: "email",
+              name: "email",
+              label: "Email",
+              multiline : false,
+              variant: "filled",
+              span: 6,
+              fieldType: "email",
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            panCard:{
+              type: "TextField",
+              id: "panCard",
+              name: "panCard",
+              label: "PAN Number",
+              multiline : false,
+              variant: "filled",
+              span: 6,
+              value:"",
+              validators:["isEmpty","!isValidPanCard"],
+              errormessages: ["This field is required","Pan Card format is not proper"],
+              onChange: (event, step, next) => {
+                let value = step.fields.panCard.value;
+                step.fields.panCard.value = value.toUpperCase();
+                next(step);
+              },
+            },
+            education:{
+              type:"SelectWithLabel",
+              id:"education",
+              name:"education",
+              label:"Education",
+              labelAuto:"Education",
+              options: [],
+              autoComplete: "given-name",
+              variant: "filled",
+              validators: ["isEmpty"],
+              value:"",
+              span:6,
+              errormessages: ["This field is required"],
+            },
+            occupation:{
+              type:"SelectWithLabel",
+              id:"occupation",
+              name:"occupation",
+              label:"Occupation",
+              labelAuto:"Occupation",
+              options: [],
+              autoComplete: "given-name",
+              variant: "filled",
+              validators: ["isEmpty"],
+              value:"",
+              span:6,
+              errormessages: ["This field is required"],
+            },
+            annualIncome: {
+              type: "AmountField",
+              id: "annualIncome",
+              name: "annualIncome",
+              label: "Annual Income",
+              value: "",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty","!isValidIncome"],
+              errormessages: [
+                "This field is required",
+                "Please enter valid income"
+              ],
+            },
+            pincode:{
+              type: "Pincode",
+              id: "pincode",
+              name: "pincode",
+              label: "Pincode",
+              multiline : false,
+              variant: "filled",
+              stateRequired : false ,
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+              onChange: (event, step, next) => {
+                let storeCityName = step.fields.pincode.value && step.fields.pincode.value.city_name ? step.fields.pincode.value.city_name : "";
+                let storeStateName = step.fields.pincode.value && step.fields.pincode.value.state_name ? step.fields.pincode.value.state_name: "";
+                step.fields["state"]["value"] = storeStateName;
+                step.fields["state"]["error"] = false;
+                step.fields["state"]["helperText"] = "";
+                step.fields["city"]["value"] = storeCityName;
+                step.fields["city"]["error"] = false;
+                step.fields["city"]["helperText"] = "";
+                next(step);
+              },
+            },
+            city: {
+              type: "TextField",
+              id: "city",
+              name: "city",
+              label: "City",
+              value : "",
+              readOnly : "true",
+              autoComplete: "given-name",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            state:{
+              type: "TextField",
+              id: "state",
+              name: "state",
+              label: "State",
+              value :"" ,
+              readOnly : "true",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            isCancerPatient:{
+              type: "YesNoComp",
+              id: "isCancerPatient",
+              name: "isCancerPatient",
+              label: "Have any of your parents, sisters or brothers suffered from any form of cancer?",
+              validators: ["isEmpty"],
+              value:"no",
+              errormessages: [
+                "This field is required",
+              ],
+              options: [{value:"yes",label:"Yes"},{value:"no",label:"No"}],
+            },
+            isNri:{
+              type: "YesNoComp",
+              id: "isNri",
+              name: "isNri",
+              label: "Are You an NRI?",
+              validators: ["isEmpty"],
+              value:"no",
+              errormessages: [
+                "This field is required",
+              ],
+              options: [{value:"yes",label:"Yes"},{value:"no",label:"No"}],
+            },
+            isTobacco:{
+              type: "YesNoComp",
+              id: "isTobacco",
+              name: "isTobacco",
+              label: "Do you chew Tobacco?",
+              validators: ["isEmpty"],
+              value:"no",
+              errormessages: [
+                "This field is required",
+              ],
+              options: [{value:"yes",label:"Yes"},{value:"no",label:"No"}],
+            },
+            proposeeTitleDetails:{
+              type:"HeadingComp",
+              id:"proposeeTitleDetails",
+              name:"proposeeTitleDetails",
+              label:"Spouse details",
+              span:12,
+            },
+            proposeeFullName: {
+              type: "TextField",
+              id: "proposeeFullName",
+              name: "proposeeFullName",
+              label: "Full Name",
+              value: "",
+              autoComplete: "name",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty","!isValidName"],
+              errormessages: [
+                "Please enter the name",
+                "Please enter valid name"
+              ],
+            },
+            proposeeDob: {
+              type: "DatePicker",
+              id: "proposeeDob",
+              name: "proposeeDob",
+              label: "Date of birth",
+              variant: "filled",
+              maxDate:'',
+              minDate:'',
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            proposeeMobile: {
+              type: "TextField",
+              id: "proposeeMobile",
+              name: "proposeeMobile",
+              label: "Mobile",
+              variant: "filled",
+              value:"",
+              span: 6,
+              fieldType: "mobile",
+              validators: ["isEmpty"],
+              errormessages: ["Please enter contact number"],
+            },
+            proposeeGender: {
+              type: "Radio",
+              options: [
+                { value: "M", label: "Male" },
+                { value: "F", label: "Female" },
+              ],
+              row : true,
+              id: "proposeeGender",
+              name: "proposeeGender",
+              label: "Gender",
+              labelPlacement:"start",
+              variant: "filled",
+              titlePlacement:"start",
+              background:"gray",
+              span: 6,
+              value: "",
+              validators: ["isEmpty"],
+              errormessages: ["Gender is required field"],
+            },
+            proposeePincode:{
+              type: "Pincode",
+              id: "proposeePincode",
+              name: "proposeePincode",
+              label: "Pincode",
+              multiline : false,
+              variant: "filled",
+              stateRequired : false ,
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+              onChange: (event, step, next) => {
+                let storeCityName = step.fields.proposeePincode.value && step.fields.proposeePincode.value.city_name ? step.fields.proposeePincode.value.city_name : "";
+                let storeStateName = step.fields.proposeePincode.value && step.fields.proposeePincode.value.state_name ? step.fields.proposeePincode.value.state_name: "";
+                step.fields["proposeeState"]["value"] = storeStateName;
+                step.fields["proposeeState"]["error"] = false;
+                step.fields["proposeeState"]["helperText"] = "";
+                step.fields["proposeeCity"]["value"] = storeCityName;
+                step.fields["proposeeCity"]["error"] = false;
+                step.fields["proposeeCity"]["helperText"] = "";
+                next(step);
+              },
+            },
+            proposeeCity: {
+              type: "TextField",
+              id: "proposeeCity",
+              name: "proposeeCity",
+              label: "City",
+              value : "",
+              readOnly : "true",
+              autoComplete: "given-name",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            proposeeState:{
+              type: "TextField",
+              id: "proposeeState",
+              name: "proposeeState",
+              label: "State",
+              value :"" ,
+              readOnly : "true",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            isSuitabilityAnalysis:{
+              type: "CheckBox",
+              id: "isSuitabilityAnalysis",
+              name: "isSuitabilityAnalysis",
+              label: "",
+              options: [{ value: "M", label: "I/We have understood the product details. I/We agree to purchase the product(s) based on the assessment of the plan, merits and its suitability." },],
+              span: 12,
+              validators: ["isEmpty"],
+              errormessages: [
+                "This field is required",
+              ],}
+          },
+          onLoad: function (step, next){
+            let maxDate = new Date();
+            let minDate = new Date();
+            minDate.setYear(minDate.getFullYear() - 66);
+            minDate.setDate(minDate.getDate() + 1);
+            maxDate.setYear(maxDate.getFullYear() - 18);
+            step.fields.dob.minDate = minDate.toISOString().slice(0,10);
+            step.fields.dob.maxDate = maxDate.toISOString().slice(0,10);
+
+            step.fields.proposeeDob.minDate = minDate.toISOString().slice(0,10);
+            step.fields.proposeeDob.maxDate = maxDate.toISOString().slice(0,10);
+
+            let leadinfo = window.projectGlobals.getSessionStorageItem('__inv_l_data__');
+            
+            let proposerDetails = window.projectGlobals.getSessionStorageItem('investmentProposerDetails');
+            if(Object.keys(proposerDetails).length == 0){
+              let leadDetails = window.projectGlobals.getSessionStorageItem('__inv_l_data__');
+              step.fields.name.value = _.get(leadDetails,'customer_name');
+              step.fields.dob.value = _.get(leadDetails,'date_of_birth','');
+              step.fields.gender.value = _.get(leadDetails,'customer_gender');
+            }
+
+            //For prefilling the info that user have entered
+            step.fields.name.value = _.get(proposerDetails,'proposal_details.customer_name');
+            step.fields.dob.value = _.get(proposerDetails,'proposal_details.date_of_birth','');
+            if(step.fields.dob.value.includes('-') && step.fields.dob.value.length > 10) {
+              step.fields.dob.value = step.fields.dob.value.slice(0, 10)
+            }
+            step.fields.gender.value = _.get(proposerDetails,'proposal_details.customer_gender');
+            step.fields.martialStatus.value = _.get(proposerDetails,'proposal_details.marital_status_display_name');
+            step.fields.email.value = _.get(proposerDetails,'proposal_details.email');
+            step.fields.panCard.value = _.get(proposerDetails,'proposal_details.pan_card',"");
+            step.fields.education.value = _.get(proposerDetails,'proposal_details.qualification_display_name');
+            step.fields.occupation.value = _.get(proposerDetails,'proposal_details.occupation_display_name');
+            step.fields.annualIncome.value = _.get(proposerDetails,'proposal_details.annual_income_code');
+            step.fields.pincode.value = _.get(proposerDetails,'proposal_details.pincode') ? {selectedValue: proposerDetails.proposal_details.pincode} : "";
+            step.fields.isCancerPatient.value = _.get(proposerDetails,'proposal_details.is_cancer_patient') == 1 ? 'yes':'no';
+            step.fields.isNri.value = _.get(proposerDetails,'proposal_details.is_nri') == 1 ? 'yes':'no';
+            step.fields.isTobacco.value = _.get(proposerDetails,'proposal_details.is_tobacco') == 1 ? 'yes':'no';
+
+            if(proposerDetails.insured_type != 'self'){
+              step.fields.proposeeFullName.value = _.get(proposerDetails,'proposal_details.proposee_details.proposee_name');
+              step.fields.proposeeDob.value = _.get(proposerDetails,'proposal_details.proposee_details.date_of_birth');
+              step.fields.proposeeMobile.value = _.get(proposerDetails,'proposal_details.proposee_details.mobile_number');
+              step.fields.proposeeGender.value = _.get(proposerDetails,'proposal_details.proposee_details.gender');
+              step.fields.proposeePincode.value = _.get(proposerDetails,'proposal_details.proposee_details.pincode') ? {selectedValue: proposerDetails.proposal_details.proposee_details.pincode} : "";
+            }
+
+            step.fields.displayOwnerName.label = leadinfo.customer_name;
+            step.fields.displayOwnerName.num = `Mobile : ${leadinfo.mobile_number}`;
+            let investmentMasterData = window.projectGlobals.getSessionStorageItem('investmentMasterData');
+            let validationRules = _.get(investmentMasterData,'insurers[0].validationRules',[]);
+            let insuredType = validationRules.find((item)=>item.validationKey == 'insuredType');
+            if(insuredType && insuredType.inputTypeOption){
+              let insurerTypeOption = [];
+              insuredType.inputTypeOption.forEach((item)=>{
+                insurerTypeOption.push({
+                  value:item,
+                  label:item.charAt(0).toUpperCase() + item.slice(1)
+                })
+              })
+              step.fields.insuredMembersOption.value = _.get(proposerDetails,'insured_type','self');
+              step.fields.insuredMembersOption.options = insurerTypeOption;
+            }
+
+            step.fields.martialStatus.options = _.get(window.projectGlobals.getSessionStorageItem('investmentMasterData'),'maritalStatus',[]).
+              map((item)=>{
+                return {value:item.masterMaritalStatus,label:item.masterMaritalStatus}
+            });
+            step.fields.education.options = _.get(window.projectGlobals.getSessionStorageItem('investmentMasterData'),'education',[]).
+              map((item)=>{
+                return {value:item.masterEducation,label:item.masterEducation}
+            });
+            step.fields.occupation.options = _.get(window.projectGlobals.getSessionStorageItem('investmentMasterData'),'occupations',[]).
+              map((item)=>{
+                return {value:item.masterOccupation,label:item.masterOccupation}
+            });
+
+            if(window.projectGlobals.isLifeAgentLogin()){
+              step.fields.proposeeMobile.fieldType =""
+              step.fields.proposeeMobile.validators.length = 1
+
+              step.fields.email.fieldType =""
+              step.fields.email.validators.length = 1
+              
+            }
+
+            if(Object.keys(proposerDetails).length){
+              step.fields.name.value = _.get(leadinfo,'customer_name');
+            }
+
+            validateFields(step,next);
+
+            next(step);
+          }
+        },
+      ],
+      activeStep: 0,
+      customValidators: {
+        isValidName: function (str) {
+          var regexp = new RegExp(/^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i);
+          let investmentMasterData = window.projectGlobals.getSessionStorageItem('investmentMasterData');
+          let validationRules = _.get(investmentMasterData,'insurers[0].validationRules',[]);
+          let fullNameValidation = validationRules.find(function(item, index){
+            return item.validationKey=="fullName"
+          })
+          if( _.get(fullNameValidation,"validationPattern" )){
+            regexp = new RegExp(_.get(fullNameValidation,"validationPattern"))
+          }
+          return regexp.test(str);
+        },
+        isValidIncome: function (str) {
+          var regexp = new RegExp(
+            /^[0-9]*$/i
+          );
+          return regexp.test(str);
+        },
+        isValidPanCard: function (str){
+          var regexp = new RegExp(/^([A-Z]){5}([0-9]){4}([A-Z]){1}?$/i);
+          return regexp.test(str);
+        },
+        isValidDate: function(str = '') {
+          if (str.length === 10 && str.includes("/")) {
+            let year = str.slice(6, 10)
+            if (year.startsWith('0')) {
+                return false;
+            }
+            year = +year
+            let [day, month] = str.split('/')
+            day = +day
+            if (day > new Date(year, +month, 0).getDate()) {
+                return false;
+            }
+            return true;
+          } else if (str.length === 10 && str.includes("-")) {
+            let year = str.slice(0, 4)
+            if (year.startsWith('0')) {
+                return false;
+            }
+            year = +year
+            let day = str.slice(8, 10)
+            let month = str.slice(5, 7)
+            day = +day
+            if (day > new Date(year, +month, 0).getDate()) {
+                return false;
+            }
+            return true;
+          }
+          return false;
+        },
+        isValidDateRange: function(str = '') {
+          let date = str;
+          let maxDate = new Date();
+          let minDate = new Date();
+          minDate.setYear(minDate.getFullYear() - 66);
+          minDate.setDate(minDate.getDate() + 1);
+          maxDate.setYear(maxDate.getFullYear() - 18); 
+          if (date.length === 10 && date.includes("/")) {
+            let c = date.split("/");                       
+            let from = minDate; // should be instanceof Date
+            let to = maxDate;
+            let check = new Date(c[2], parseInt(c[1]) - 1, c[0]);
+            if (check >= from && check <= to) {
+                return true;
+            }
+          } else if (date.length === 10 && date.includes("-")) {
+            let c = date.split("-");
+            let from = minDate;
+            let to = maxDate;
+            let check = new Date(c[0], parseInt(c[1]) - 1, c[2]);
+            if (check >= from && check <= to) {
+                return true;
+            }
+          }
+          return false;
+        },
+      },
+    },
+  }

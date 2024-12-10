@@ -1,0 +1,693 @@
+getLocalStorageItem = (key) => {
+  if (typeof window.localStorage !== 'undefined') {
+      let data = localStorage.getItem(key);
+      if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+          let obj = JSON.parse(localStorage.getItem(key));
+          return obj;
+      }
+  }
+  return {};
+}
+
+duration = [];
+for (let i = 1; i <= 6; i++) {
+    duration.push({
+        value: i,
+        label: i + " Years",
+    });
+}
+relations=localStorage.getItem("relations");
+relations = JSON.parse(relations);
+relationFields=[];
+for(var j=0;j<relations.length;j++)
+{
+ relationFields.push({label:relations[j].relation,value:relations[j].relation});
+}
+
+occupation=localStorage.getItem("occupations");
+occupation = JSON.parse(occupation);
+occupationFields=[];
+
+for(var j=0;j<occupation.length;j++)
+{
+  occupationFields.push({label:occupation[j].masterOccupation,value:occupation[j].masterOccupation});
+}
+
+var x = sessionStorage.getItem("traveluserinfo");
+x = JSON.parse(x);
+var tripType=x["productDetails"]["tripType"];
+var isPed=x["isPed"];
+var steps = [];
+visaTypes=localStorage.getItem("visaTypes");
+visaTypes = JSON.parse(visaTypes);
+visaFields=[];
+maxDate = new Date();
+    minDate = new Date();
+      minDate.setYear(minDate.getFullYear() - 99);
+      minDate.setDate(minDate.getDate() + 1);
+      maxDate.setYear(maxDate.getFullYear() - 18);
+
+getDateRangeFromAge = (age) => {
+  let traveluserinfo = getSessionStorageItem('traveluserinfo');
+  let tripStartDate = new Date(traveluserinfo.startDate);
+  let minRange = tripStartDate - ((age + 1) * 1000 * 60 * 60 * 24 * 365) - 1;
+  let maxRange = tripStartDate - (age * 1000 * 60 * 60 * 24 * 365);
+  minRange = new Date(minRange);
+  maxRange  = new Date(maxRange);
+  minRange.setHours(0,0,0);
+  minRange.setDate((tripStartDate).getDate()+1);
+  maxRange.setHours(23,59,59);
+  maxRange.setDate((tripStartDate).getDate());
+  return {
+    minDate:minRange,
+    maxDate:maxRange
+  }
+}
+
+for(var j=0;j<visaTypes.length;j++)
+{
+  visaFields.push({label:visaTypes[j].masterVisaType,value:visaTypes[j].masterVisaType});
+}
+
+getSessionStorageItem = (key) => {
+  if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+      let data = sessionStorage.getItem(key);
+    if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+        let obj = JSON.parse(sessionStorage.getItem(key));
+        return obj;
+    }
+  }
+  return {};
+}
+travelQuestionsList = getSessionStorageItem('travelQuestionsList');
+travelAddress=getSessionStorageItem('travelAddress');
+planDetail=getSessionStorageItem('travelSelectedQuotes')
+
+validationRules=getLocalStorageItem("TravelInsurerFields");
+hide=(key)=>{
+      return  validationRules.findIndex(element => element.validationKey=="insuredMember"+ key)==-1 || 
+        validationRules.findIndex(element => 
+        element.validationKey=="insuredMember"+ key && element.isMandatory==1)==-1
+};
+
+priorityOrder = [];
+ den = new Set();
+  childAges = [];
+hideFieldsForPropser=(key, value,travelAddress,Age)=> {
+let planDetailName=planDetail.insurerSlug;
+let planname=["religare","bajaj","national"]
+if(!planname.includes(planDetailName)){
+  if (!den.has(key)) {
+    den.add(key);
+    priorityOrder.length = 0; 
+  }
+  if (canAddToPriorityOrder(value)) {
+    priorityOrder.push(value);
+    return false;
+  }
+
+}
+return true;
+}
+canAddToPriorityOrder=(value)=>{
+
+const order = ['self', 'spouse', 'father', 'mother', 'son','daughter'];
+for (const item of order) {
+  if (value === item) {
+    if (!priorityOrder.includes(item) && priorityOrder.every(prerequisite => den.has(prerequisite))) {
+      return true;
+    }
+  }
+}
+return false;
+}
+
+commDetails=(index,value)=>{
+if(index==0){
+  let data=(x && x["proposerDetails"] && x["proposerDetails"][value] || "")
+  return data
+}
+else{
+  return ""
+}
+
+}
+
+
+showSpouseGender = true;
+
+for(var i =0; i<x["insuredMembers"].length;i++){
+  if(x["insuredMembers"][i]['relation'] == 'self')
+    showSpouseGender = false;
+  steps.push({
+    index:i,
+    heading : x["insuredMembers"][i]["relation"],
+    submitButtonLabel: i == x["insuredMembers"].length - 1 ? "Save & Continue" : "Next",
+    fields: {
+      name: {
+        type: "TextField",
+        id: "name",
+        name: "name",
+        label: "Full Name",
+        multiline : false,
+        value: x && x["insuredMembers"] && x["insuredMembers"][i] && x["insuredMembers"][i]["firstName"]
+        ? x["insuredMembers"][i]["firstName"] + " " + (x["insuredMembers"][i]["lastName"] || '')
+        : (x && x["insuredMembers"] && x["insuredMembers"][i] && x["insuredMembers"][i]["relation"] === "self")
+        ? (x && x["proposerDetails"] && x["proposerDetails"]["firstName"] + " " + (x && x["proposerDetails"] && x["proposerDetails"]["lastName"] || ''))
+        : "",
+        span: 6,
+        variant: "filled",
+        hide:hide("FirstName"),
+        fieldType: hide("FirstName")?"":"text",
+        validators: hide("LastName")?["isEmpty"]:["isEmpty","!isFullName"],
+        errormessages: hide("LastName")?["This field is required"]:["This field is required","Please enter full name"],
+      },
+      gender: {
+        type: "Radio",
+        options: [
+          { value: "male", label: "Male" },
+          { value: "female", label: "Female" },
+        ],
+        row : true,
+        id: "gender",
+        name: "gender",
+        label: "Gender",
+        labelPlacement:"start",
+        variant: "",
+        titlePlacement:"start",
+        background:"",
+        hide:!(x["insuredMembers"][i]['relation'] == 'self'),
+        span: 6,
+        value:  x["insuredMembers"][i]['gender']||"male",
+        validators: ["isEmpty"],
+        errormessages: ["Please select your gender."],
+      },
+      dob: {
+        type: "DatePicker",
+        id: "dob",
+        name: "dob",
+        label: "Date Of Birth",
+        variant: "filled",
+        maxDate:getDateRangeFromAge(x["insuredMembers"][i]['age']).maxDate,
+        minDate:getDateRangeFromAge(x["insuredMembers"][i]['age']).minDate,
+        span: 6,
+        value: x["insuredMembers"][i]["dob"],
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+      },
+      mobile: {
+        type: "TextField",
+        id: "mobile",
+        name: "mobile",
+        label: "Phone",
+        variant: "filled",
+        hide:hideFieldsForPropser("mobile",x["insuredMembers"][i]['relation'],travelAddress,x["insuredMembers"][i]['age']),
+        readOnly:false,
+        value:commDetails(i,"mobile"),
+        span: 6,
+        fieldType: "mobile",
+        validators: ["isEmpty"],
+        errormessages: ["Please enter contact number"],
+      },
+      email: {
+        type: "TextField",
+        id: "email",
+        name: "email",
+        label: "Email",
+        hide:hideFieldsForPropser("email",x["insuredMembers"][i]['relation'],travelAddress,x["insuredMembers"][i]['age']),
+        value: commDetails(i,"email"),
+        multiline : false,
+        variant: "filled",
+        span: 6,
+        fieldType: "email",
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+      },
+      passport: {
+        type: "TextField",
+        id: "passport",
+        name: "passport",
+        label: "Passport Number",
+        multiline : false,
+        variant: "filled",
+        span: 6,
+        hide:hide("PassportNo"),
+        value: x["insuredMembers"][i]["passportNo"],
+        fieldType: hide("PassportNo")?"":"passport",
+        validators:["isEmpty","!isValidPassport"] ,
+        errormessages: hide("PassportNo")?[]:["This field is required","Passport No. format is not proper"],
+        inputProps: {maxLength:8},
+        onChange: (event, step, next) => {
+          let value = step.fields.passport.value;
+          step.fields.passport.value = value.toUpperCase();
+          next(step);
+        },
+        onBlur: (event) =>{
+          let object = {event: 'TravelInsuranceLeadFunnel', lead_action: `passport_number`, lead_label:"userfilled",is_mobile: window.__isMobile}
+          window.projectGlobals.setDataLayer(null, null, true, false, object);
+        }
+      },
+      occupation:{
+        type:"SelectWithLabel",
+        id:"occupation",
+        name:"occupation",
+        label:"Occupation",
+        labelAuto:"Occupation",
+        options: occupationFields,
+        autoComplete: "given-name",
+        hide:true,
+        variant: "filled",
+        validators: hide("OccupationId") ? []:["isEmpty"],
+        errormessages: hide("OccupationId") ? []: ["This field is required"],
+      },
+      visaType:{
+        type:"SelectWithLabel",
+        id:"visaType",
+        name:"visaType",
+        label:"Visa Type",
+        labelAuto:"Visa Type",
+        options: visaFields,
+        autoComplete: "given-name",
+        hide:hide("VisaTypeId"),
+        value: x?.insuredMembers?.[i]?.visaTypeId && visaTypes.length > 0 ? (visaTypes.find(obj => obj.gibplMasterId == x?.insuredMembers?.[i]?.visaTypeId) || {}).masterVisaType || "" : "",
+        variant: "filled",
+        validators: hide("VisaTypeId") ? []:["isEmpty"],
+        errormessages: hide("VisaTypeId") ? []: ["This field is required"],
+      },
+     
+    },
+  });
+  travelQuestionsList && travelQuestionsList.forEach((item)=>{
+    if(!steps[i].fields[item.questionCode]){
+      if(i === 0 && item.questionCode == 'go_green_flag'){
+        steps[0].fields[item.questionCode] =  {
+          type: "YesNoComp",
+          id: item.questionCode,
+          name: item.questionCode,
+          label: item.questionText,
+          validators: ["isEmpty"],
+          value: item.value ? item.value : "no",
+          errormessages: [
+            "This field is required",
+          ],
+          onChange: (event, step, next) => {
+            if(step.fields[item.questionCode].value == 'yes'){
+              let obj = _.cloneDeep(step.fields);
+              let newObj = {};
+              Object.keys(obj).forEach((key)=>{
+                newObj[key] = obj[key];
+                if(key == item.questionCode && travelQuestionsList.find((element)=>element.questionCode == item.questionCode).showDescription){
+                  newObj[`${item.questionCode}_description`] = {
+                    type: "TextField",
+                    id: `${item.questionCode}_description`,
+                    name: `${item.questionCode}_description`,
+                    label: "Description",
+                    multiline : false,
+                    variant: "filled",
+                    span: 6,
+                    value: "",
+                    validators:["isEmpty"],
+                    errormessages: ["This field is required"],
+                  }
+                }
+              })
+              steps[0].fields=newObj;
+              step.fields = newObj;
+            }
+            else{
+              delete step.fields[`${item.questionCode}_description`];
+            }
+            next(step);
+          },
+          options: item.ansChoice,
+        }
+      }else if(item.type == 'radio' && item.questionCode != 'go_green_flag'){
+        steps[i].fields[item.questionCode] =  {
+          type: "YesNoComp",
+          id: item.questionCode,
+          name: item.questionCode,
+          label: item.questionText,
+          validators: ["isEmpty"],
+          value: item.value ? item.value : "no",
+          errormessages: [
+            "This field is required",
+          ],
+          onChange: (event, step, next) => {
+            if(step.fields[item.questionCode].value == 'yes'){
+              let obj = _.cloneDeep(step.fields);
+              let newObj = {};
+              Object.keys(obj).forEach((key)=>{
+                newObj[key] = obj[key];
+                if(key == item.questionCode && travelQuestionsList.find((element)=>element.questionCode == item.questionCode).showDescription){
+                  newObj[`${item.questionCode}_description`] = {
+                    type: "TextField",
+                    id: `${item.questionCode}_description`,
+                    name: `${item.questionCode}_description`,
+                    label: "Description",
+                    multiline : false,
+                    variant: "filled",
+                    span: 6,
+                    value: "",
+                    validators:["isEmpty"],
+                    errormessages: ["This field is required"],
+                  }
+                }
+              })
+              steps[0].fields=newObj;
+              step.fields = newObj;
+            }
+            else{
+              delete step.fields[`${item.questionCode}_description`];
+            }
+            next(step);
+          },
+          options: item.ansChoice,
+        }
+      }
+      else if(item.type == 'multi-select' && isPed==false){
+        steps[i].fields[item.questionCode] = {
+          type: "CheckBox",
+          id: item.questionCode,
+          name: item.questionCode,
+          label: item.questionText,
+          span: 12,
+          value:"none",
+          validators: ["isEmpty"],
+          errormessages: [
+            "This field is required",
+          ],
+          options: [{"label": "None","value": "none"}]
+        }
+      }
+      else if(item.type == 'multi-select-v2'){
+        steps[i].fields[item.questionCode] = {
+          type: "CheckBox",
+          id: item.questionCode,
+          name: item.questionCode,
+          label: item.questionText,
+          span: 12,
+          value:"yes",
+          validators: ["isEmpty"],
+          errormessages: [
+            "This field is required",
+          ],
+          options: [{"label": "Yes","value": "yes"}]
+      }
+      }
+      else if(item.type == 'multi-select'){
+        steps[i].fields[item.questionCode] = {
+          type: "CheckBox",
+          id: item.questionCode,
+          name: item.questionCode,
+          label: item.questionText,
+          span: 12,
+          validators: ["isEmpty"],
+          errormessages: [
+            "This field is required",
+          ],
+          onChange: (event, step, next) => {
+            if(step){
+              if(step.fields[item.questionCode].value.includes('others')){
+                step.fields[item.questionCode].options = [{"label": "Others","value": "others"}];
+
+                let obj = _.cloneDeep(step.fields);
+                let newObj = {};
+                Object.keys(obj).forEach((key)=>{
+                  newObj[key] = obj[key];
+                  if(key == item.questionCode && travelQuestionsList.find((element)=>element.questionCode == item.questionCode).showDescription){
+                    newObj[`${item.questionCode}_description`] = {
+                      type: "TextField",
+                      id: `${item.questionCode}_description`,
+                      name: `${item.questionCode}_description`,
+                      label: "Description",
+                      multiline : false,
+                      variant: "filled",
+                      span: 6,
+                      value: "",
+                      validators:["isEmpty"],
+                      errormessages: ["This field is required"],
+                    }
+                  }
+                })
+                steps[0].fields=newObj;
+                step.fields = newObj;
+              }
+              else if(step.fields[item.questionCode].value.includes('none')){
+                step.fields[item.questionCode].options = [{"label": "None","value": "none"}];
+                step.fields[item.questionCode].value = ["none"];
+                delete step.fields[`${item.questionCode}_description`];
+              }
+              else{
+                step.fields[item.questionCode].options = item.ansChoice || [];
+                delete step.fields[`${item.questionCode}_description`];
+              }
+              next(step);
+            }
+          },
+          options: item.ansChoice
+        }
+      }
+    }
+  })
+  if(_.get(x.insuredMembers[i],'questions')){
+    let questionSelected = _.get(x.insuredMembers[i],'questions');
+    questionSelected.forEach((item)=>{
+      if(steps[i].fields[item.questionCode] && steps[i].fields[item.questionCode].type == 'YesNoComp'){
+        steps[i].fields[item.questionCode].value = item.answer;
+        if(item.answer == 'yes'){
+          let obj = _.cloneDeep(steps[i].fields);
+          let newObj = {};
+          Object.keys(obj).forEach((key)=>{
+            newObj[key] = obj[key];
+            if(key == item.questionCode && travelQuestionsList.find((element)=>element.questionCode == item.questionCode).showDescription){
+              newObj[`${item.questionCode}_description`] = {
+                type: "TextField",
+                id: `${item.questionCode}_description`,
+                name: `${item.questionCode}_description`,
+                label: "Description",
+                multiline : false,
+                variant: "filled",
+                span: 6,
+                value: item.description,
+                validators:["isEmpty"],
+                errormessages: ["This field is required"],
+              }
+            }
+          })
+          steps[i].fields = newObj;
+        }
+      }
+      else if(steps[i].fields[item.questionCode] && steps[i].fields[item.questionCode].type == 'CheckBox'){
+        if(item.answer){
+          let answerArray = item.answer.split(',');
+          if(answerArray){
+            steps[i].fields[item.questionCode].value = [];
+            let optionAvai = steps[i].fields[item.questionCode].options;
+            answerArray.forEach((ele)=>{
+              if(optionAvai.find((opt) => opt.value == ele))
+                steps[i].fields[item.questionCode].value.push(ele);
+            })
+          }
+        }
+        if(item.answer.includes('others')){
+          steps[i].fields[item.questionCode].options = [{"label": "Others","value": "others"}];
+          let obj = _.cloneDeep(steps[i].fields);
+          let newObj = {};
+          Object.keys(obj).forEach((key)=>{
+            newObj[key] = obj[key];
+            if(key == item.questionCode && travelQuestionsList.find((element)=>element.questionCode == item.questionCode).showDescription){
+              newObj[`${item.questionCode}_description`] = {
+                type: "TextField",
+                id: `${item.questionCode}_description`,
+                name: `${item.questionCode}_description`,
+                label: "Description",
+                multiline : false,
+                variant: "filled",
+                span: 6,
+                value: item.description,
+                validators:["isEmpty"],
+                errormessages: ["This field is required"],
+              }
+            }
+          })
+          steps[i].fields = newObj;
+        }
+        if(item.answer.includes('none')){
+          steps[i].fields[item.questionCode].options = [{"label": "None","value": "none"}];
+          steps[i].fields[item.questionCode].value = ["none"];
+        }
+      }
+    })
+  }
+}
+if(tripType=="student")
+{
+  steps.push({
+    index:1,
+    heading : "University Details",
+    submitButtonLabel: "Save & Continue",
+    fields: {
+      name: {
+        type: "TextField",
+        id: "name",
+        name: "name",
+        label: "University Name",
+        multiline : false,
+        span: 12,
+        value: x["insuredMembers"][0]["university"] && x["insuredMembers"][0]["university"]["name"]?x["insuredMembers"][0]["university"]["name"]:"",
+        variant: "filled",
+        fieldType: "text",
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+      },
+      course: {
+        type: "TextField",
+        id: "course",
+        name: "course",
+        label: "Course Name",
+        multiline : false,
+        span: 12,
+        variant: "filled",
+        value: x["insuredMembers"][0]["university"] && x["insuredMembers"][0]["university"]["courseDetails"]?x["insuredMembers"][0]["university"]["courseDetails"]:"",
+        fieldType: "text",
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+      },
+      address: {
+        type: "TextField",
+        id: "address",
+        name: "address",
+        label: "University Address",
+        variant: "filled",
+        value: x["insuredMembers"][0]["university"] && x["insuredMembers"][0]["university"]["address"]?x["insuredMembers"][0]["university"]["address"]:"",
+        span: 6,
+        inputProps: {maxLength:60},
+        validators: ["isEmpty","!isValidAddress"],
+        errormessages: ["This field is required","Please enter valid address"],
+      },
+     
+      courseDuration: {
+        type:"SelectWithLabel",
+        id:"courseDuration",
+        name:"courseDuration",
+        label:"Course Duration",
+        labelAuto:"Course Duration",
+        variant: "filled",
+        value:x["insuredMembers"][0]["university"] && x["insuredMembers"][0]["university"]["duration"] ?x["insuredMembers"][0]["university"]["duration"]:"",
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+        options:duration
+      },
+     
+ 
+    },
+    onLoad: function (step, next){
+     
+      
+    }
+  },
+  {
+    index:2,
+    heading : "Sponsor Details",
+    submitButtonLabel: "Save & Continue",
+    fields: {
+      name: {
+        type: "TextField",
+        id: "name",
+        name: "name",
+        label: "Sponsor Name",
+        multiline : false,
+        span: 12,
+        variant: "filled",
+        fieldType: "text",
+        value: x["insuredMembers"][0]["sponsor"]&& x["insuredMembers"][0]["sponsor"]["name"]?x["insuredMembers"][0]["sponsor"]["name"]:"",
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+      },
+      relation:{
+        type:"SelectWithLabel",
+        id:"relation",
+        name:"relation",
+        label:"Relationship with Sponsor",
+        labelAuto:"Relationship with Sponsor",
+        options: relationFields,
+        autoComplete: "given-name",
+        variant: "filled",
+        value:x["insuredMembers"][0]["sponsor"] && x["insuredMembers"][0]["sponsor"]["relationId"] ?relations.find(rel => rel.gibplMasterId ==x["insuredMembers"][0]["sponsor"]["relationId"])["relation"]:"",
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+        onChange: (event, step, next) => {
+          let object = {event: 'TravelInsuranceLeadFunnel', lead_action: `sponsor_relation`,is_mobile: window.__isMobile}
+          window.projectGlobals.setDataLayer(null, null, true, false, object);
+        }
+    },
+    mobile: {
+      type: "TextField",
+      id: "mobile",
+      name: "mobile",
+      label: "Phone",
+      variant: "filled",
+      span: 6,
+      fieldType: "mobile",
+      value:x["insuredMembers"][0]["sponsor"]&& x["insuredMembers"][0]["sponsor"]["mobile"]?x["insuredMembers"][0]["sponsor"]["mobile"]:"",
+      validators: ["isEmpty"],
+      errormessages: ["Please enter contact number"],
+    },
+    dob: {
+      type: "DatePicker",
+      id: "dob",
+      name: "dob",
+      label: "Date Of Birth",
+      variant: "filled",
+      maxDate:maxDate,
+      minDate:minDate,
+      value: x["insuredMembers"][0]["sponsor"] && x["insuredMembers"][0]["sponsor"]["dob"]?x["insuredMembers"][0]["sponsor"]["dob"]:"",
+      span: 6,
+      validators: ["isEmpty"],
+      errormessages: ["This field is required"],
+    },
+     
+ 
+    },
+  })
+}
+steps[0].fields.kycButton ={
+  type:"Button",
+  id:"kycButton",
+  name: "kycButton",
+  label:"Start KYC",
+  helperText:"",
+  error:false,
+  hide:false,
+  disabled:false
+}
+window.formBuilderSchemaTravelProposal1 = {
+
+  formBuilder: {
+    heading : "Travellers Details",
+    stepsLayout: "Accordion",
+    steps:steps,
+    activeStep: 0,
+    customValidators: {
+      checkMaxbreedsSelected: function (str) {
+        let arr = str.split(",");
+        if (arr.length >= 1 && arr.length <= 10) return false;
+        else return true;
+      },
+      isFullName: function (str) {
+          var regexp = new RegExp(
+            /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+          );
+          return regexp.test(str);
+      },
+      isValidPassport: function (str){
+        var regexp = new RegExp(/^([A-Z a-z]){1}([0-9]){7}$/);
+        return regexp.test(str);
+      },
+      isValidAddress: function (str){
+        var regexp = new RegExp(/^[ A-Za-z0-9-./#&, ]*$/i);
+        return regexp.test(str);
+      }
+    },
+  },
+}

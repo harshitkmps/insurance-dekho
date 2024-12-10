@@ -1,0 +1,36 @@
+window.ConfirmPageSchemaInvestment = {
+    Cards: {
+        PaymentDetails: {
+            heading: "Review Details",
+            cardType: "PaymentDetails",
+            span: 12,
+            insurerName: "",
+            insurerLogo: "",
+            insurerPlan: "",
+            Details: [{}],
+            amount: "",
+            amountSubheading: ""
+        },
+        TravellerDetails: {
+            edit: (option) => console.log(58, "editTravellers", option),
+            heading: "Owner Details",
+            cardType: "TravellerDetails",
+            span: 12,
+            Proposer: [{}],
+            Members: [{}],
+        },
+        PremiumBreakup: {
+            heading: "Premium Breakup",
+            cardType: "PremiumBreakup",
+            span: 12,
+            Premium: [{}],
+            TotalPayable: "",
+        },
+        MakePayment: {
+            cardType: "MakePayment",
+            span: 12,
+            amount: "₹13,800",
+            amountSubheading: "(Inclusive GST)",
+        },
+    },
+}

@@ -1,0 +1,356 @@
+window.formBuilderSchemaTravel3 = {
+  formBuilder: {
+    heading:"Who is travelling?", 
+    steps: [
+      {
+        submitButtonLabel: "Next",
+        submitButtonSticky: true,
+        fields: {
+          totalMembersAllowed:6,
+          selfCheckBox : {
+            type: "CheckBoxIcon",
+            id: "selfCheckBox",
+            name: "selfCheckBox",
+            label: "You",
+            clicked:false,
+            value:0,
+            disabled:false,
+            image:"/pwa/img/travel_individual.svg",
+            onChange: (event, step, next) => {
+              console.log(step.fields.totalMembersAllowed)
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'members_select',lead_label: 'user_selected', is_mobile: window.__isMobile};
+              projectGlobals.setDataLayer(null, null, true, false, o);
+
+              step.fields.totalMembersAllowed =
+                  6 -
+                  step.fields.selfCheckBox.value -
+                  step.fields.spouseCheckBox.value -
+                  step.fields.sonCheckBox.value -
+                  step.fields.daughterCheckBox.value -
+                  step.fields.fatherCheckBox.value -
+                  step.fields.motherCheckBox.value;
+              if(step.fields.totalMembersAllowed == 0){
+                if(!step.fields.selfCheckBox.clicked)
+                  step.fields.selfCheckBox.disabled = true;
+                if(!step.fields.spouseCheckBox.clicked)
+                  step.fields.spouseCheckBox.disabled = true;
+                if(!step.fields.sonCheckBox.clicked)
+                  step.fields.sonCheckBox.disabled = true;
+                if(!step.fields.daughterCheckBox.clicked)
+                  step.fields.daughterCheckBox.disabled = true;
+                if(!step.fields.fatherCheckBox.clicked)
+                  step.fields.fatherCheckBox.disabled = true;
+                if(!step.fields.motherCheckBox.clicked)
+                  step.fields.motherCheckBox.disabled = true;
+              }
+              else{
+                  step.fields.selfCheckBox.disabled = false;
+                  step.fields.spouseCheckBox.disabled = false;
+                  step.fields.fatherCheckBox.disabled = false;
+                  step.fields.motherCheckBox.disabled = false;
+                  if(step.fields.sonCheckBox.value + step.fields.daughterCheckBox.value >= 5){
+                    step.fields.sonCheckBox.disabled = true;
+                    step.fields.daughterCheckBox.disabled = true;
+                  }
+                  else{
+                    step.fields.sonCheckBox.disabled = false;
+                    step.fields.daughterCheckBox.disabled = false;
+                  }
+              }
+
+              next(step);
+            }
+          },
+          spouseCheckBox : {
+            type: "CheckBoxIcon",
+            id: "spouseCheckBox",
+            name: "spouseCheckBox",
+            label: "Spouse",
+            clicked:false,
+            value:0,
+            disabled:false,
+            image:"/pwa/img/travel_individual.svg",
+            onChange: (event, step, next) => {
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'members_select',lead_label: 'user_selected', is_mobile: window.__isMobile};
+              projectGlobals.setDataLayer(null, null, true, false, o);
+
+              console.log(step.fields.totalMembersAllowed)
+              step.fields.totalMembersAllowed =
+                  6 -
+                  step.fields.selfCheckBox.value -
+                  step.fields.spouseCheckBox.value -
+                  step.fields.sonCheckBox.value -
+                  step.fields.daughterCheckBox.value -
+                  step.fields.fatherCheckBox.value -
+                  step.fields.motherCheckBox.value;
+              if(step.fields.totalMembersAllowed == 0){
+                if(!step.fields.selfCheckBox.clicked)
+                  step.fields.selfCheckBox.disabled = true;
+                if(!step.fields.spouseCheckBox.clicked)
+                  step.fields.spouseCheckBox.disabled = true;
+                if(!step.fields.sonCheckBox.clicked)
+                  step.fields.sonCheckBox.disabled = true;
+                if(!step.fields.daughterCheckBox.clicked)
+                  step.fields.daughterCheckBox.disabled = true;
+                if(!step.fields.fatherCheckBox.clicked)
+                  step.fields.fatherCheckBox.disabled = true;
+                if(!step.fields.motherCheckBox.clicked)
+                  step.fields.motherCheckBox.disabled = true;
+              }
+              else{
+                  step.fields.selfCheckBox.disabled = false;
+                  step.fields.spouseCheckBox.disabled = false;
+                  step.fields.fatherCheckBox.disabled = false;
+                  step.fields.motherCheckBox.disabled = false;
+                  if(step.fields.sonCheckBox.value + step.fields.daughterCheckBox.value >= 5){
+                    step.fields.sonCheckBox.disabled = true;
+                    step.fields.daughterCheckBox.disabled = true;
+                  }
+                  else{
+                    step.fields.sonCheckBox.disabled = false;
+                    step.fields.daughterCheckBox.disabled = false;
+                  }
+              }
+              
+              next(step);
+            }
+          },
+          sonCheckBox : {
+            type: "CheckBoxCounter",
+            id: "sonCheckBox",
+            name: "sonCheckBox",
+            label: "Son",
+            clickedPlus:false,
+            clickedMinus:true,
+            value:0,
+            maxValue:5,
+            image:"/pwa/img/img-son.svg",
+            onChange: (event, step, next) => {
+              console.log(step.fields.totalMembersAllowed)
+
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'members_select',lead_label: 'user_selected', is_mobile: window.__isMobile};
+              projectGlobals.setDataLayer(null, null, true, false, o);
+
+              step.fields.totalMembersAllowed =
+                  6 -
+                  step.fields.selfCheckBox.value -
+                  step.fields.spouseCheckBox.value -
+                  step.fields.sonCheckBox.value -
+                  step.fields.daughterCheckBox.value -
+                  step.fields.fatherCheckBox.value -
+                  step.fields.motherCheckBox.value;
+
+              if(step.fields.totalMembersAllowed == 0){
+                if(!step.fields.selfCheckBox.clicked)
+                  step.fields.selfCheckBox.disabled = true;
+                if(!step.fields.spouseCheckBox.clicked)
+                  step.fields.spouseCheckBox.disabled = true;
+                if(!step.fields.sonCheckBox.clicked)
+                  step.fields.sonCheckBox.disabled = true;
+                if(!step.fields.daughterCheckBox.clicked)
+                  step.fields.daughterCheckBox.disabled = true;
+                if(!step.fields.fatherCheckBox.clicked)
+                  step.fields.fatherCheckBox.disabled = true;
+                if(!step.fields.motherCheckBox.clicked)
+                  step.fields.motherCheckBox.disabled = true;
+              }
+              else{
+                  step.fields.selfCheckBox.disabled = false;
+                  step.fields.spouseCheckBox.disabled = false;
+                  step.fields.fatherCheckBox.disabled = false;
+                  step.fields.motherCheckBox.disabled = false;
+                  if(step.fields.sonCheckBox.value + step.fields.daughterCheckBox.value >= 5){
+                    step.fields.sonCheckBox.disabled = true;
+                    step.fields.daughterCheckBox.disabled = true;
+                  }
+                  else{
+                    step.fields.sonCheckBox.disabled = false;
+                    step.fields.daughterCheckBox.disabled = false;
+                  }
+              }
+
+              step.fields.sonCheckBox.maxValue = Math.min(step.fields.sonCheckBox.value + step.fields.totalMembersAllowed,5);
+              step.fields.daughterCheckBox.maxValue = Math.min(step.fields.daughterCheckBox.value + step.fields.totalMembersAllowed,5);
+
+              next(step);
+            }
+          },
+          daughterCheckBox : {
+            type: "CheckBoxCounter",
+            id: "daughterCheckBox",
+            name: "daughterCheckBox",
+            label: "Daughter",
+            clickedPlus:false,
+            clickedMinus:true,
+            value:0,
+            maxValue:5,
+            disabled:false,
+            image:"/pwa/img/img-son.svg",
+            onChange: (event, step, next) => {
+              console.log(step.fields.totalMembersAllowed)
+
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'members_select',lead_label: 'user_selected', is_mobile: window.__isMobile};
+              projectGlobals.setDataLayer(null, null, true, false, o);
+
+              step.fields.totalMembersAllowed =
+                  6 -
+                  step.fields.selfCheckBox.value -
+                  step.fields.spouseCheckBox.value -
+                  step.fields.sonCheckBox.value -
+                  step.fields.daughterCheckBox.value -
+                  step.fields.fatherCheckBox.value -
+                  step.fields.motherCheckBox.value;
+
+              if(step.fields.totalMembersAllowed == 0){
+                if(!step.fields.selfCheckBox.clicked)
+                  step.fields.selfCheckBox.disabled = true;
+                if(!step.fields.spouseCheckBox.clicked)
+                  step.fields.spouseCheckBox.disabled = true;
+                if(!step.fields.sonCheckBox.clicked)
+                  step.fields.sonCheckBox.disabled = true;
+                if(!step.fields.daughterCheckBox.clicked)
+                  step.fields.daughterCheckBox.disabled = true;
+                if(!step.fields.fatherCheckBox.clicked)
+                  step.fields.fatherCheckBox.disabled = true;
+                if(!step.fields.motherCheckBox.clicked)
+                  step.fields.motherCheckBox.disabled = true;
+              }
+              else{
+                  step.fields.selfCheckBox.disabled = false;
+                  step.fields.spouseCheckBox.disabled = false;
+                  step.fields.fatherCheckBox.disabled = false;
+                  step.fields.motherCheckBox.disabled = false;
+                  if(step.fields.sonCheckBox.value + step.fields.daughterCheckBox.value >= 5){
+                    step.fields.sonCheckBox.disabled = true;
+                    step.fields.daughterCheckBox.disabled = true;
+                  }
+                  else{
+                    step.fields.sonCheckBox.disabled = false;
+                    step.fields.daughterCheckBox.disabled = false;
+                  }
+              }
+
+              step.fields.sonCheckBox.maxValue = Math.min(step.fields.sonCheckBox.value + step.fields.totalMembersAllowed,5);
+              step.fields.daughterCheckBox.maxValue = Math.min(step.fields.daughterCheckBox.value + step.fields.totalMembersAllowed,5);
+
+              next(step);
+            }
+          },
+          fatherCheckBox : {
+            type: "CheckBoxIcon",
+            id: "fatherCheckBox",
+            name: "fatherCheckBox",
+            label: "Father",
+            clicked:false,
+            value:0,
+            disabled:false,
+            image:"/pwa/img/img-father.svg",
+            onChange: (event, step, next) => {
+              console.log(step.fields.totalMembersAllowed)
+
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'members_select',lead_label: 'user_selected', is_mobile: window.__isMobile};
+              projectGlobals.setDataLayer(null, null, true, false, o);
+
+              if(step.fields.fatherCheckBox.clicked){
+                step.fields.totalMembersAllowed = Math.max(step.fields.totalMembersAllowed-1,0)
+              }
+              else{
+                step.fields.totalMembersAllowed = Math.min(step.fields.totalMembersAllowed+1,6);
+              }
+              if(step.fields.totalMembersAllowed == 0){
+                if(!step.fields.selfCheckBox.clicked)
+                  step.fields.selfCheckBox.disabled = true;
+                if(!step.fields.spouseCheckBox.clicked)
+                  step.fields.spouseCheckBox.disabled = true;
+                if(!step.fields.sonCheckBox.clicked)
+                  step.fields.sonCheckBox.disabled = true;
+                if(!step.fields.daughterCheckBox.clicked)
+                  step.fields.daughterCheckBox.disabled = true;
+                if(!step.fields.fatherCheckBox.clicked)
+                  step.fields.fatherCheckBox.disabled = true;
+                if(!step.fields.motherCheckBox.clicked)
+                  step.fields.motherCheckBox.disabled = true;
+              }
+              else{
+                  step.fields.selfCheckBox.disabled = false;
+                  step.fields.spouseCheckBox.disabled = false;
+                  step.fields.fatherCheckBox.disabled = false;
+                  step.fields.motherCheckBox.disabled = false;
+                  if(step.fields.sonCheckBox.value + step.fields.daughterCheckBox.value >= 5){
+                    step.fields.sonCheckBox.disabled = true;
+                    step.fields.daughterCheckBox.disabled = true;
+                  }
+                  else{
+                    step.fields.sonCheckBox.disabled = false;
+                    step.fields.daughterCheckBox.disabled = false;
+                  }
+              }
+
+              next(step);
+            }
+          },
+          motherCheckBox : {
+            type: "CheckBoxIcon",
+            id: "motherCheckBox",
+            name: "motherCheckBox",
+            label: "Mother",
+            clicked:false,
+            value:0,
+            disabled:false,
+            image:"/pwa/img/img-mother.svg",
+            onChange: (event, step, next) => {
+              console.log(step.fields.totalMembersAllowed)
+              
+              let o = {event: 'TravelInsuranceLeadFunnel', lead_action: 'members_select',lead_label: 'user_selected', is_mobile: window.__isMobile};
+              projectGlobals.setDataLayer(null, null, true, false, o);
+
+              step.fields.totalMembersAllowed =
+                  6 -
+                  step.fields.selfCheckBox.value -
+                  step.fields.spouseCheckBox.value -
+                  step.fields.sonCheckBox.value -
+                  step.fields.daughterCheckBox.value -
+                  step.fields.fatherCheckBox.value -
+                  step.fields.motherCheckBox.value;
+
+              if(step.fields.totalMembersAllowed == 0){
+                if(!step.fields.selfCheckBox.clicked)
+                  step.fields.selfCheckBox.disabled = true;
+                if(!step.fields.spouseCheckBox.clicked)
+                  step.fields.spouseCheckBox.disabled = true;
+                if(!step.fields.sonCheckBox.clicked)
+                  step.fields.sonCheckBox.disabled = true;
+                if(!step.fields.daughterCheckBox.clicked)
+                  step.fields.daughterCheckBox.disabled = true;
+                if(!step.fields.fatherCheckBox.clicked)
+                  step.fields.fatherCheckBox.disabled = true;
+                if(!step.fields.motherCheckBox.clicked)
+                  step.fields.motherCheckBox.disabled = true;
+              }
+              else{
+                  step.fields.selfCheckBox.disabled = false;
+                  step.fields.spouseCheckBox.disabled = false;
+                  step.fields.fatherCheckBox.disabled = false;
+                  step.fields.motherCheckBox.disabled = false;
+                  if(step.fields.sonCheckBox.value + step.fields.daughterCheckBox.value >= 5){
+                    step.fields.sonCheckBox.disabled = true;
+                    step.fields.daughterCheckBox.disabled = true;
+                  }
+                  else{
+                    step.fields.sonCheckBox.disabled = false;
+                    step.fields.daughterCheckBox.disabled = false;
+                  }
+              }
+
+              next(step);
+            }
+          }
+        },
+        onLoad: function (step, next) {
+          
+        },
+      },
+    ],
+    activeStep: 0
+  },
+}

@@ -1,0 +1,235 @@
+window.formBuilderSchemaTravelProposal2 = {
+  
+  formBuilder: {
+    heading : "Proposer Details",
+    steps:[{
+      heading : "selectProposer",
+      submitButtonLabel: "Save & Continue",
+      fields: {
+        name: {
+          type: "TextField",
+          id: "name",
+          name: "name",
+          label: "Full Name",
+          multiline : false,
+          span: 12,
+          variant: "filled",
+          fieldType: "text",
+          validators: ["isEmpty"],
+          errormessages: ["This field is required"],
+        },
+        gender: {
+          type: "Radio",
+          options: [
+            { value: "male", label: "Male" },
+            { value: "female", label: "Female"},
+          ],
+          row : false,
+          id: "gender",
+          name: "gender",
+          label: "Gender",
+          labelPlacement:"start",
+          variant: "filled",
+          titlePlacement:"start",
+          background:"gray",
+          span: 6,
+          validators: ["isEmpty"],
+          errormessages: ["Gender is required field"],
+        },
+        dob: {
+          type:"DatePicker",
+          id: "dob",
+          name: "dob",
+          label: "Date Of Birth",
+          variant: "filled",
+          maxDate:'',
+          minDate:'',
+          span: 6,
+          validators: ["isEmpty"],
+          errormessages: ["This field is required"],
+        },
+        mobile: {
+          type: "TextField",
+          id: "mobile",
+          name: "mobile",
+          label: "Phone",
+          variant: "filled",
+          readOnly:true,
+          span: 6,
+          fieldType: "mobile",
+          validators: ["isEmpty"],
+          errormessages: ["Please enter contact number"],
+        },
+        email: {
+          type: "TextField",
+          id: "email",
+          name: "email",
+          label: "Email",
+          multiline : false,
+          variant: "filled",
+          span: 6,
+          fieldType: "email",
+          validators: ["isEmpty"],
+          errormessages: ["This field is required"],
+        },
+     
+        occupation:{
+          type:"SelectWithLabel",
+          id:"occupation",
+          name:"occupation",
+          label:"Occupation",
+          labelAuto:"Occupation",
+          options: [],
+          autoComplete: "given-name",
+          variant: "filled",
+          validators: ["isEmpty"],
+          value:"",
+          errormessages: ["This field is required"],
+      },
+        pincode:{
+          type:"Pincode",
+          id: "pincode",
+          name: "pincode",
+          label: "Pincode",
+          multiline : false,
+          variant: "filled",
+          stateRequired : false ,
+          span: 6,
+          validators: ["isEmpty"],
+          errormessages: ["This field is required"],
+          onChange: (event, step, next) => {
+            let storeCityName = step.fields.pincode.value && step.fields.pincode.value.city_name ? step.fields.pincode.value.city_name : "";
+            let storeStateName = step.fields.pincode.value && step.fields.pincode.value.state_name ? step.fields.pincode.value.state_name: "";
+            step.fields["state"]["value"] = storeStateName;
+            step.fields["state"]["error"] = false;
+            step.fields["state"]["helperText"] = "";
+            step.fields["city"]["value"] = storeCityName;
+            step.fields["city"]["error"] = false;
+            step.fields["city"]["helperText"] = "";
+            next(step);
+          },
+        },
+        state:{
+          type: "TextField",
+          id: "state",
+          name: "state",
+          label: "State",
+          readOnly : "true",
+          variant: "filled",
+          span: 6,
+          validators: ["isEmpty"],
+          errormessages: ["This field is required"],
+        },
+        city: {
+          type: "TextField",
+          id: "city",
+          name: "city",
+          label: "City",
+          readOnly : "true",
+          autoComplete: "given-name",
+          variant: "filled",
+          span: 6,
+          validators: ["isEmpty"],
+          errormessages: ["This field is required"],
+        },
+        address: {
+          type: "TextField",
+          id: "address",
+          name: "address",
+          label: "House No, Street, Building, Area",
+          variant: "filled",
+          span: 6,
+          inputProps: {maxLength:60},	
+          validators: ["isEmpty","!isValidAddress"],	
+          errormessages: ["This field is required","Please enter valid address"],
+        },
+      },
+      onLoad: function (step, next){
+          let getLocalStorageItem = (key) => {
+            if (typeof window.localStorage !== 'undefined') {
+                let data = localStorage.getItem(key);
+                if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                    let obj = JSON.parse(localStorage.getItem(key));
+                    return obj;
+                }
+            }
+            return {};
+          }
+          let getSessionStorageItem = (key) => {
+            if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+                let data = sessionStorage.getItem(key);
+              if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                  let obj = JSON.parse(sessionStorage.getItem(key));
+                  return obj;
+              }
+            }
+            return {};
+          }
+          let traveluserinfo=getSessionStorageItem("traveluserinfo");
+          insuredMembers=traveluserinfo["insuredMembers"];
+          let hideField = (key)=>{
+            let validationRules=getLocalStorageItem("TravelInsurerFields");
+            return  validationRules.findIndex(element => element.validationKey=="insuredMember"+ key)==-1 || 
+              validationRules.findIndex(element => 
+              element.validationKey=="insuredMember"+ key && element.isMandatory==1)==-1
+          };
+
+          let selfData;
+          for(var i=0;i<insuredMembers.length;i++)
+          {
+              if(insuredMembers[i]["relation"]=="self" && insuredMembers[i]["age"] >= 18)
+              selfData=insuredMembers[i];
+          }
+          let proposerData=traveluserinfo["proposerDetails"];
+          let communicationData=traveluserinfo["communicationDetails"];
+          let name=proposerData["firstName"]+ " " + (proposerData["lastName"] || '');
+          let dob=selfData ?selfData["dob"]:"";
+          let email=selfData ?selfData["email"]:"";
+          let mobile=proposerData["mobile"];
+          let od=selfData ?selfData["occupationId"]:"";
+
+          let occupation=getLocalStorageItem("occupations");
+          let occupationFields=[];
+          for(var j=0;j<occupation.length;j++)
+          {
+            occupationFields.push({label:occupation[j].masterOccupation,value:occupation[j].masterOccupation});
+          }
+          step.fields['name'].value= name;
+          step.fields['name'].readOnly = selfData ? true:false,
+          step.fields['gender'].value=proposerData["gender"]?proposerData["gender"]:'';
+          step.fields['dob'].value = proposerData["dob"]?proposerData["dob"]:dob;
+          step.fields['mobile'].value = proposerData["mobile"];
+          step.fields['email'].value = proposerData["email"];
+          if(hideField('OccupationId')){
+            step.fields['occupation'].hide=true;
+            step.fields['occupation'].validators=[];
+            step.fields['occupation'].errormessages=[];
+          }
+          else{
+            step.fields['occupation'].options = occupationFields;
+            step.fields['occupation'].value = proposerData["occupationId"]?occupation.find(occ => occ.gibplMasterId ==proposerData["occupationId"])["masterOccupation"]:(od?occupation.find(occ => occ.gibplMasterId ==od)["masterOccupation"]:"");
+            step.fields['occupation'].readOnly = od ? true: false;
+          }
+          step.fields['pincode'].value = "";
+          step.fields['address'].value = communicationData && communicationData["addressLine1"] && communicationData["addressLine2"] ?communicationData["addressLine1"] + communicationData["addressLine2"]:"";
+          let maxDate = new Date();
+          let minDate = new Date();
+          minDate.setYear(minDate.getFullYear() - 99);
+          minDate.setDate(minDate.getDate() + 1);
+          maxDate.setYear(maxDate.getFullYear() - 18);
+          step.fields.dob.minDate = minDate.toISOString().slice(0,10);
+          step.fields.dob.maxDate = maxDate.toISOString().slice(0,10);
+          next(step);
+        }
+        
+      
+      }],
+    activeStep: 0,
+    customValidators: {	
+      isValidAddress: function (str){	
+        var regexp = new RegExp(/^[ A-Za-z0-9-./#&, ]*$/i);	
+        return regexp.test(str);	
+      }	
+    },
+  },
+}

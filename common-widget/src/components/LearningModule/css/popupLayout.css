@@ -1,0 +1,1448 @@
+.popuplayoutwrap .popuplayoutcontain {
+    -webkit-transition: all 0.4s ease-in-out;
+    background: #fff;
+    bottom: -160px;
+    box-shadow: 0 8px 20px 0 rgba(36, 39, 44, .15);
+    color: #24272c;
+    max-height: 500px;
+    min-height: 220px;
+    position: fixed;
+    transition: all 0.4s ease-in-out;
+    width: 100%;
+    z-index: 1600;
+    box-shadow: 0 2px 24px 0 rgba(36, 39, 44, .15);
+    -webkit-box-shadow: 0 2px 24px 0 rgba(36, 39, 44, .15);
+    padding: 0 0px 10px;
+    text-align: left;
+}
+.popuplayoutwrap .popuplayoutcontain.active {
+    bottom: 0;
+    opacity: 1;
+}
+.popuplayoutwrap .popuplayoutcontain .gsc_modalWrapper {
+    padding: 15px 0px 0px;
+}
+.popuplayoutwrap .popuplayoutcontain .gsc_modalWrapper .title {
+    font-size: 20px;
+    line-height: 1;
+    margin-bottom: 20px;
+    padding-left: 20px;
+}
+.popuplayoutwrap .popuplayoutcontain .gsc_modalWrapper .eidtfield {
+    margin-bottom: 24px;
+}
+.popuplayoutwrap .submitButton {
+    font-size: 17px !important;
+    line-height: 17px !important;
+    height: 48px !important;
+}
+.gsc_closeBtn {
+    padding: 0;
+    color: #FFFFFF;
+   
+}
+.utubevdowrap .popuplayoutwrap .popuplayoutcontain.active {
+    bottom: auto;
+    top: 50%;
+    width: 98%;
+    background: transparent;
+    padding: 10px 20px;
+    background: #fff;
+    z-index: 99992;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+.utubevdowrap .scrolldiv {
+    background: transparent;
+    padding: 0;
+}
+.gsc_closeBtn {
+    padding: 0;
+    right: 0;
+    color: #fff;
+    position: absolute;
+    top: 0px;
+}
+.signupopup .popuplayoutcontain {
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+}
+.signupopup .popuplayoutcontain .gsc_modalWrapper {
+    padding-top: 25px;
+}
+.signupopup .popuplayoutcontain .title {
+    font-weight: 500;
+    margin-bottom: 30px !important;
+    padding-right: 20px !important;
+    font-size: 18px !important;
+}
+.signupopup .popuplayoutcontain .persinfoCorrect {
+    margin-bottom: 20px;
+    display: inline-block;
+    width: 100%;
+}
+.signupopup .popuplayoutcontain .persinfoCorrect .persimg {
+    float: left;
+    width: 75px;
+}
+.signupopup .popuplayoutcontain .persinfoCorrect .persdata {
+    float: left;
+    margin-left: 10px;
+    width: calc(100% - 85px);
+}
+.signupopup .popuplayoutcontain .persinfoCorrect .persdata .name {
+    font-size: 16px;
+    font-weight: 500;
+}
+.signupopup .popuplayoutcontain .persinfoCorrect .persdata .agecity {
+    font-size: 14px;
+}
+.signupopup .popuplayoutcontain .persinfoCorrect .persdata .mobno {
+    font-size: 14px;
+    font-weight: 500;
+    padding-top: 10px;
+}
+.signupopup .popuplayoutcontain .checkbutton .undefined {
+    width: 47%;
+    margin-right: 8px;
+}
+.signupopup .popuplayoutcontain .signupbtn .button {
+    max-width: 220px;
+}
+.signupopup .popuplayoutcontain .mobilenumbar {
+    margin-bottom: 25px;
+}
+.signupopup .popuplayoutcontain .otpverify {
+    margin-bottom: 10px;
+}
+.signupopup .popuplayoutcontain .otpverify .otptextmsg .error {
+    font-size: 11px;
+    top: -20px;
+}
+.signupopup .scrolldiv {
+    overflow-x: hidden !important;
+}
+ .gsc_closeBtn {
+    padding: 0;
+    right: 7px;
+    color: #fff;
+    /* background-color: white; */
+    position: absolute;
+    top: -25px;
+    font-size: 35px;
+}
+.signupopup.renewpopup .title {
+    margin-bottom: 10px !important;
+}
+.signupopup.renewpopup .subtitle {
+    font-size: 14px;
+    padding: 0 20px 0px;
+}
+.signupopup.renewpopup .popupbgdesktop {
+    z-index: 9999;
+}
+.signupopup.renewpopup .otpwrap {
+    position: relative;
+}
+.signupopup.renewpopup .otpwrap .otptimer {
+    cursor: auto;
+}
+.HealthNewPage .carhomeform .signupopup .popupbgdesktop {
+    z-index: 9999;
+}
+.signupopup .checkbutton .undefined:nth-of-type(2n) .button {
+    background: #fff;
+    border: solid 1px #888;
+    color: #888;
+}
+.signupopup .checkbutton .undefined:nth-of-type(2n) .button:hover {
+    color: #888 !important;
+}
+.signupopup .newOtpinput.otpverify .otpnumberbox {
+    height: 55px;
+    padding: 0 0 0 0px;
+    border: 1px solid #d9d9d9;
+}
+.signupopup .newOtpinput.otpverify .otpnumberbox input {
+    box-shadow: inset 0 1px 4px 0 rgba(0, 0, 0, .1);
+    background: #f7f7f7;
+    line-height: 53px;
+}
+.timebasepopup {
+    background: #fff;
+}
+.timebasepopup .timepop_header {
+    box-shadow: 0 4px 8px 0 rgba(36, 39, 44, 0.2);
+    padding-top: 5px;
+    position: relative;
+    padding-left: 15px;
+}
+.timebasepopup .timepop_header .icon-back {
+    font-size: 15px;
+    color: #333846;
+    position: relative;
+    top: 5px;
+    margin-right: 15px;
+}
+.timebasepopup .timepop-carbanner {
+    position: relative;
+    min-height: 150px;
+    max-height: 205px;
+    overflow: hidden;
+}
+.timebasepopup .timepop-carbanner .bannermsg {
+    background-image: linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, .7));
+    height: 73px;
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    text-align: center;
+    color: #fff;
+    font-size: 20px;
+    font-weight: 500;
+}
+.timebasepopup .timepop-carbanner .bannermsg span {
+    position: absolute;
+    width: 280px;
+    left: 50%;
+    text-align: center;
+    bottom: 10px;
+    margin-left: -140px;
+    line-height: 1.2;
+}
+.timebasepopup .timebaseInner {
+    padding: 0 20px 20px 20px;
+}
+.timebasepopup .timebaseInner .title {
+    color: #333846;
+    line-height: 1;
+    font-size: 18px;
+    margin-bottom: 15px;
+    margin-top: 15px;
+    font-weight: 500;
+}
+.timebasepopup .timebaseInner .home_dropbox .homeRedButton {
+    padding: 0 5px;
+    margin-bottom: 20px;
+}
+.timebasepopup .timebaseInner #prnt .customSelect:after {
+    display: none;
+}
+.timebasepopup .popup_closeBtn {
+    background: #fff;
+    border-radius: 50%;
+    width: 25px;
+    height: 25px;
+}
+.timebasepopup .popup_closeBtn img {
+    width: 11px;
+    position: relative;
+    top: 0px;
+}
+.timebasepopup .LeadFormV1 .button {
+    margin-bottom: 10px;
+}
+.saveuptoMobiPopup {
+    margin-top: 0px !important;
+    background: #f2f8ff;
+    bottom: -155px;
+    box-shadow: 0 -2px 6px 0 rgba(36, 39, 44, .2);
+    left: 0;
+    padding: 16px 15px;
+    position: fixed;
+    text-align: center;
+    transition: all 0.6s ease;
+    width: 100%;
+    z-index: 9999;
+}
+.saveuptoMobiPopup .title {
+    text-align: left;
+    font-size: 16px;
+    color: #333846;
+    font-weight: 600;
+    margin-bottom: 12px;
+}
+.saveuptoMobiPopup .home_dropbox {
+    background: transparent;
+}
+.saveuptoMobiPopup .home_dropbox .fieldleft {
+    width: 60%;
+    float: left;
+}
+.saveuptoMobiPopup .home_dropbox .fieldleft .inputborderbox {
+    border-top-right-radius: 0px;
+    border-bottom-right-radius: 0px;
+    height: 50px;
+    margin-bottom: 0px;
+}
+.saveuptoMobiPopup .home_dropbox .fieldleft .inputborderbox .gsc_mtl_field {
+    padding-left: 8px;
+}
+.saveuptoMobiPopup .home_dropbox .fieldleft .inputborderbox .gsc_mtl_field input {
+    padding-left: 0px;
+}
+.saveuptoMobiPopup .home_dropbox .fieldleft label {
+    text-align: left;
+    left: 7px !important;
+    font-size: 12px;
+}
+.saveuptoMobiPopup .home_dropbox .fieldleft .srv-validation-message {
+    width: 200px;
+}
+.saveuptoMobiPopup .home_dropbox .homeRedButton {
+    width: 40%;
+    min-width: unset;
+    margin: 0;
+    padding: 0;
+    font-size: 12px;
+    border-top-left-radius: 0px;
+    border-bottom-left-radius: 0px;
+}
+.saveuptoMobiPopup .bottomFormText {
+    font-size: 10px;
+    text-align: left !important;
+    margin-top: 10px;
+}
+.saveuptoMobiPopup .bottomFormText .textLink {
+    margin-right: 10px;
+    color: #007fff;
+}
+.saveuptoMobiPopup .bottomFormText .textLink img {
+    position: relative;
+    top: 2px;
+}
+.saveuptoMobiPopup .bottomFormText .clearfix {
+    display: inline-block;
+}
+.saveuptoMobiPopup .bottomFormText .clearfix a img {
+    display: inline-block;
+    vertical-align: middle;
+    width: 18px;
+}
+.saveuptoMobiPopup.stickyactive {
+    bottom: 0px;
+}
+.commonsteppopup.PopupPolicyBuy {
+    padding: 20px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap {
+    margin: 0px auto;
+    max-width: 320px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step1 {
+    display: none;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap .callbackgraphic {
+    text-align: center;
+    padding-bottom: 15px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap .title {
+    font-size: 20px;
+    color: #333846;
+    text-align: center;
+    margin-bottom: 12px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap .subtitle {
+    color: rgba(51, 56, 70, .7);
+    font-size: 13px;
+    text-align: center;
+    margin-bottom: 20px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap .btngrp {
+    width: 100%;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap .btngrp .homeRedButton {
+    width: 100%;
+    margin-bottom: 20px;
+    margin-top: 0;
+    padding: 0 20px;
+    font-weight: 500;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap .btngrp .homeRedButton .icon-next-arrow {
+    float: right;
+    margin-top: 20px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap .btngrp .homeRedButton.schedulebtn {
+    border: solid 1px #d9d9d9;
+    background: #fff;
+    color: #333846;
+    font-size: 14px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap .btngrp .homeRedButton.schedulebtn .rightarrow {
+    position: relative;
+    margin-top: 7px;
+    float: right;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap .btngrp .homeRedButton.schedulebtn .rightarrow:after {
+    border: 1px solid rgba(36, 39, 44, .7);
+    border-width: 0 0 1px 1px;
+    content: "";
+    display: inline-block;
+    font-size: 0;
+    height: 8px;
+    line-height: 0;
+    position: absolute;
+    right: 2px;
+    top: 14px;
+    transform: rotate(-135deg);
+    width: 8px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 {
+    padding-top: 40px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .Hsticky {
+    left: 0;
+    width: auto;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .title {
+    text-align: left;
+    margin-bottom: 4px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .subtitle {
+    text-align: left;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .formfield {
+    margin-bottom: 20px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .homeRedButton {
+    margin-bottom: 0px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .homeRedButton.callnowbtn {
+    border: solid 1px #007fff;
+    background: #fff;
+    color: #007fff;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .homeRedButton.callnowbtn .icon-next-arrow {
+    color: #007fff;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .homeRedButton button.RedButton {
+    background: transparent;
+    height: auto;
+    width: 100%;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .or {
+    margin: 10px 0;
+    text-align: center;
+    position: relative;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .or:before {
+    position: absolute;
+    content: '';
+    width: 80px;
+    height: 1px;
+    background: rgba(151, 151, 151, 0.1);
+    margin-left: -90px;
+    margin-top: 12px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .or:after {
+    position: absolute;
+    content: '';
+    width: 80px;
+    height: 1px;
+    background: rgba(151, 151, 151, 0.1);
+    margin-left: 10px;
+    margin-top: 12px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .inputborderbox {
+    margin-bottom: 0px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .schedlecalender {
+    position: relative;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .schedlecalender .datecalenicon {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+}
+.commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 .dcard {
+    margin-top: 0px !important;
+}
+.commonsteppopup.PopupPolicyBuy .popup_closeBtn {
+    display: block;
+}
+.commonsteppopup.PopupPolicyBuy.halfscreen {
+    height: auto;
+    overflow: hidden;
+}
+.commonsteppopup.PopupPolicyBuy.halfscreen .step2 {
+    padding-top: 0px;
+}
+.commonsteppopup.PopupPolicyBuy.halfscreen .step2 .schedlecalender .inputborderbox {
+    height: auto;
+}
+.commonsteppopup.PopupPolicyBuy.halfscreen .step2 .dcard {
+    position: relative;
+    top: 0;
+}
+.commonsteppopup.PopupPolicyBuy.halfscreen .step2 .btngrp {
+    margin-top: 30px;
+}
+.popupConfirmSubmit .backto {
+    text-align: center;
+    cursor: pointer;
+}
+.popupConfirmSubmit .title {
+    font-size: 20px;
+    color: #333846;
+    line-height: 1;
+    margin-bottom: 15px;
+}
+.popupConfirmSubmit .prdologo {
+    width: 125px;
+    border: 1px solid #f1f1f1;
+    padding: 5px;
+    height: auto;
+    border-radius: 4px;
+    text-align: center;
+    height: auto;
+}
+.popupConfirmSubmit .plname {
+    margin-left: 10px;
+    display: inline-block;
+    color: #333846;
+    font-size: 14px;
+    width: calc(100% - 82px);
+}
+.popupConfirmSubmit .plname div span {
+    float: right;
+}
+.popupConfirmSubmit .idvtitle {
+    float: left;
+    margin-left: 15px;
+    color: #333846;
+}
+.popupConfirmSubmit .insu_planBreakuppopup .divBroder {
+    display: none;
+}
+.popupConfirmSubmit .desptitle {
+    color: #333846;
+}
+.popupConfirmSubmit .desprightvalue {
+    color: #333846;
+}
+.popupConfirmSubmit .btngrp .button {
+    max-width: unset;
+}
+.popupConfirmSubmit .despRow .btngrp {
+    float: left !important;
+    width: 100%;
+}
+.popupConfirmSubmit .plandiscrip .button {
+    max-width: none;
+    margin-top: 10px;
+}
+.popupConfirmSubmit .pricecut {
+    font-weight: normal;
+    text-decoration: line-through;
+    margin-right: 5px;
+}
+.popupConfirmSubmit .revisedamt {
+    color: #f34653;
+    line-height: 1;
+}
+.popupConfirmSubmit .healthPremiumBtnGrp .btn2view {
+    max-width: 48%;
+    margin-top: 0;
+}
+.popupConfirmSubmit .healthPremiumBtnGrp .btn2view.btnnobg {
+    border: solid 1px #d6d7da;
+    background: #fff;
+    color: #333846;
+    margin-right: 10px;
+}
+.popupConfirmSubmit .healthPremiumBtnGrp .btn2view.btnnobg:hover {
+    color: #333846 !important;
+}
+.ncbnewpopup .prevnoclaim {
+    position: relative;
+}
+.ncbnewpopup .prevnoclaim.disable {
+    opacity: 0.2;
+    background: #fff;
+    width: 100%;
+    pointer-events: none;
+    z-index: 9;
+}
+.ncbnewpopup .scrolldiv {
+    padding-top: 0;
+}
+.ncbnewpopup .scrolldiv .radioSec .radioLab {
+    top: 0;
+}
+.ncbnewpopup .scrolldiv .radioSec .radioright {
+    float: left;
+}
+.ncbnewpopup .scrolldiv .addcoverdrop {
+    margin-bottom: 16px !important;
+}
+.ncbnewpopup .scrolldiv .addcoverdrop .filterPanel {
+    display: none;
+}
+.ncbnewpopup .scrolldiv .button .whiteCircle_m {
+    margin-left: 30px;
+}
+.ncbnewpopup .scrolldiv .link {
+    font-size: 15px;
+    padding: 0;
+    margin: 10px 0;
+}
+.ncbnewpopup .scrolldiv p {
+    padding-top: 10px;
+    font-size: 11px;
+    color: #333846;
+    font-weight: 100;
+    padding-bottom: 25px;
+}
+.ncbnewpopup .inputborderbox {
+    border: none;
+    padding: 0 !important;
+    box-shadow: none;
+    height: auto;
+    color: #333846 !important;
+    font-size: 14px;
+    font-weight: 500;
+}
+.ncbnewpopup .inputborderbox .gs_radio {
+    margin-top: 12px;
+    color: #333846 !important;
+    font-weight: normal !important;
+}
+.newquote2CYD_popup .error {
+    font-size: 10px;
+}
+.newquote2CYD_popup .centerRadio {
+    color: #333846;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 20px;
+}
+.newquote2CYD_popup .centerRadio .gs_control {
+    margin-right: 10px;
+    padding-left: 25px;
+}
+.newquote2CYD_popup .stcikybtngrp {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    text-align: center;
+    border-top: solid 1px #e2e2e2;
+    background: #fff;
+}
+.newquote2CYD_popup .stcikybtngrp button {
+    float: none;
+}
+.residentpopup {
+    padding: 20px;
+}
+.residentpopup .title {
+    margin-bottom: 0px;
+}
+.residentpopup .subtitle {
+    color: #333846;
+    font-size: 12px;
+}
+.residentpopup .memGender {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+.residentpopup .memGender .gs_control {
+    padding-left: 25px;
+    margin-right: 20px;
+}
+.residentpopup .homeRedButton {
+    margin-bottom: 5px;
+}
+.residentpopup .alert {
+    color: red;
+    font-size: 12px;
+    line-height: 1.3;
+    display: inline-block;
+}
+.BMIpopup {
+    width: 400px;
+    border-radius: 8px;
+    box-shadow: 0 2px 9px 0 rgba(0, 0, 0, .5);
+    background-color: #fff;
+    position: absolute;
+    left: 0;
+    top: 200px;
+    right: 0;
+    margin: 0px auto;
+    padding: 40px 45px;
+    overflow: hidden;
+    max-height: 260px;
+}
+.BMIpopup h2 {
+    padding: 0;
+    line-height: 1;
+}
+.BMIpopup h2 img {
+    position: relative;
+    top: 2px;
+}
+.BMIpopup p {
+    line-height: 1.5;
+    margin: 0 0 10px;
+}
+.BMIpopup .RedButton {
+    width: 48%;
+    margin-right: 10px;
+    padding: 0 10px;
+}
+.BMIpopup .RedButton:last-child {
+    margin-right: 0px;
+    float: right;
+}
+.BMIpopup .whiteBtn {
+    border: 1px solid #d9d9d9;
+    color: #f34653;
+    background: #fff;
+}
+.BMIpopup .scrolldiv {
+    max-height: 75px;
+    overflow: auto;
+    padding: 0;
+    margin: 15px 0 10px;
+}
+/*Covid Popup*/
+.cowiNotifyPop .popTop {
+    margin-bottom: 20px;
+}
+.cowiNotifyPop .popTop .icon-back-arrow {
+    height: auto;
+}
+.cowiNotifyPop .popTop .title {
+    display: inline-block;
+    margin: 0;
+    margin-left: 14px;
+    font-size: 16px;
+    color: #333846;
+}
+.cowiNotifyPop .popTop .popup_closeBtn {
+    display: none;
+}
+.cowiNotifyPop .noslotmsg {
+    color: #09c0aa;
+    font-size: 14px;
+    border-bottom: 1px solid #e2e2e2;
+    margin: 0px -20px;
+    padding: 0 20px 10px;
+}
+.cowiNotifyPop .noslotmsg img {
+    margin-right: 5px;
+    vertical-align: middle;
+}
+.cowiNotifyPop .slotavail {
+    font-size: 14px;
+    color: #333846;
+    position: relative;
+    padding: 0 20px 0 40px;
+}
+.cowiNotifyPop .slotavail img {
+    width: 36px;
+    vertical-align: middle;
+    position: absolute;
+    left: 0px;
+    top: 4px;
+}
+.cowiNotifyPop .Yrdetail {
+    margin-bottom: 15px;
+    margin-top: 15px;
+    padding-right: 15px;
+}
+.cowiNotifyPop .Yrdetail .title {
+    font-size: 14px;
+    color: #333846;
+    margin: 0;
+}
+.cowiNotifyPop .Yrdetail .urdetailGrp {
+    background: #f3faff;
+    width: 100%;
+    padding: 15px 10px 0;
+    border: 1px solid #acdeff;
+    border-radius: 5px;
+    margin-top: 10px;
+    margin-bottom: 15px;
+}
+.cowiNotifyPop .scrollableDiv {
+    overflow: auto;
+    height: calc(100% - 80px);
+}
+.cowiNotifyPop .commWhtsp {
+    display: inline-block;
+    margin-bottom: 0px !important;
+}
+.cowiNotifyPop .radiogrp {
+    margin-bottom: 15px;
+}
+.cowiNotifyPop .radiogrp .agetitle {
+    display: inline-block;
+    margin-right: 10px;
+    width: 60px;
+    vertical-align: top;
+    font-size: 12px;
+}
+.cowiNotifyPop .radiogrp .radioright {
+    display: inline-block;
+    width: calc(100% - 90px);
+}
+.cowiNotifyPop .radiogrp .radioright label {
+    margin-bottom: 5px;
+}
+.cowiNotifyPop .radiogrp .gs_control {
+    padding-left: 22px;
+    margin-right: 10px;
+    font-size: 12px;
+}
+.cowiNotifyPop .radiogrp .gs_control:last-child {
+    margin-right: 0px;
+}
+.cowiNotifyPop .notifyBtn {
+    position: fixed;
+    width: 100%;
+    left: 0;
+    padding: 0 20px;
+    bottom: 10px;
+}
+.cowiNotifyPop .notifyBtn .button {
+    max-width: unset;
+    width: 96%;
+}
+.cowiNotifyPop .namefield .srv-validation-message {
+    position: relative;
+    top: -10px;
+}
+/*Covin will Notify Popup*/
+.willNotifyPop .popTop {
+    margin-bottom: 20px;
+}
+.willNotifyPop .popTop .icon-back-arrow {
+    height: auto;
+}
+.willNotifyPop .popTop .title {
+    display: inline-block;
+    margin: 0;
+    margin-left: 14px;
+    font-size: 16px;
+    color: #333846;
+}
+.willNotifyPop .popTop .popup_closeBtn {
+    display: none;
+}
+.willNotifyPop .wilnotGrp {
+    width: 300px;
+    margin: 0px auto;
+    text-align: center;
+}
+.willNotifyPop .wilnotGrp .idlogo {
+    margin: 0px auto;
+    width: 37px;
+    margin-bottom: 14px;
+}
+.willNotifyPop .wilnotGrp .letknow {
+    width: 165px;
+    height: 40px;
+    border: 1px solid rgba(51, 56, 70, 0.2);
+    border-radius: 20px;
+    line-height: 38px;
+    color: #333846;
+    margin: 0px auto;
+    margin-top: 15px;
+}
+.willNotifyPop .wilnotGrp .letknow img {
+    vertical-align: middle;
+    position: relative;
+    top: -1px;
+    display: inline-block;
+    margin-right: 4px;
+}
+.willNotifyPop .popBanner {
+    margin-top: 20px;
+    width: 100%;
+    cursor: pointer;
+}
+.willNotifyPop .popBanner img {
+    width: 100%;
+}
+/*Cowin Unsubscribed Popup*/
+/*Covin Success Popup*/
+.vacSlotPop {
+    height: auto !important;
+}
+.vacSlotPop .popTop {
+    margin-bottom: 20px;
+}
+.vacSlotPop .popTop .icon-back-arrow {
+    height: auto;
+}
+.vacSlotPop .popTop .title {
+    display: inline-block;
+    margin: 0;
+    margin-left: 14px;
+    font-size: 16px;
+    color: #333846;
+}
+.vacSlotPop .popTop .title img {
+    display: none;
+}
+.vacSlotPop .popTop .popup_closeBtn {
+    display: none;
+}
+.vacSlotPop .procedto {
+    position: relative;
+}
+.vacSlotPop .procedto .vacdmy {
+    float: left;
+}
+.vacSlotPop .procedto .vacname {
+    float: right;
+}
+.vacSlotPop .procedto .HosName {
+    font-size: 18px;
+    color: #333846;
+    margin-top: 30px;
+    margin-bottom: 20px;
+    display: inline-block;
+    width: 100%;
+}
+.vacSlotPop .procedto .label {
+    display: none;
+}
+.vacSlotPop .procedto p {
+    font-size: 11px;
+}
+.vacSlotPop .procedto .vaccineDetil {
+    position: absolute;
+    top: 0;
+    width: 100%;
+}
+@media screen and (max-width: 768px) {
+    .academyVideoClose{
+        background: #fff;
+        width: 20px;
+        height: 20px;
+        border-radius: 50%;
+        position: absolute !important;
+        top: 20px !important;
+        right: 5px !important;
+       }
+    .BMIpopup {
+        top: auto;
+        bottom: 0;
+        height: auto;
+        border-bottom-left-radius: 0px;
+        border-bottom-right-radius: 0px;
+        padding: 20px;
+        position: fixed;
+        bottom: 0;
+        width: 100%;
+   }
+    .BMIpopup .popup_closeBtn {
+        display: block;
+   }
+    .BMIpopup .scrolldiv {
+        max-height: none;
+        overflow: unset;
+        padding: 0;
+   }
+    .newquote2CYD_popup .scrolldiv {
+        overflow: auto;
+        height: calc(100vh - 140px);
+   }
+ 
+}
+@media screen and (max-width: 999px) {
+    .cowiNotifyPop {
+        height: 90% !important;
+   }
+    .willNotifyPop {
+        height: auto !important;
+   }
+    .unsubsPop {
+        height: 200px !important;
+   }
+    .cowiNotifyPop .urdetailGrp .gs_control__indicator {
+        width: 14px;
+        height: 14px;
+   }
+    .cowiNotifyPop .urdetailGrp .gs_control__indicator:after {
+        left: 2px;
+        top: 2px;
+   }
+    .popupConfirmSubmit .prdologo {
+        width: 72px;
+        height: 53px;
+   }
+    .popupConfirmSubmit .prdologo img {
+        width: 70px;
+   }
+    .PopupEditDetail.ncbnewpopup {
+        bottom: 0;
+        overflow: unset;
+        position: fixed;
+        top: auto;
+        max-height: none;
+        transform: inherit;
+        width: 100%;
+        left: 0;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+   }
+    .popupConfirmSubmit .idvtitle {
+        margin-top: 15px;
+   }
+    .newquote2CYD_popup .PopupEditDetail {
+        height: 100%;
+        max-height: 100%;
+        width: 100%;
+        left: 0;
+        border-radius: 0;
+        overflow: unset;
+        position: fixed;
+   }
+    .PopupEditDetail.QuotesharePop {
+        bottom: 0;
+        overflow: unset;
+        position: fixed;
+        top: auto;
+        max-height: none;
+        transform: inherit;
+        width: 100%;
+        left: 0;
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+   }
+}
+@media screen and (min-width: 1000px) {
+   /*Covin popup*/
+    .healthChekoutWrap .popupConfirmSubmit .insu_planBreakuppopup {
+        width: 490px;
+        padding: 40px 50px;
+        margin-left: -245px !important;
+   }
+    .healthChekoutWrap .popupConfirmSubmit .despRow {
+        padding-bottom: 0px !important;
+        margin-top: 10px;
+   }
+    .popupConfirmSubmit .healthPremiumBtnGrp .btn2view {
+        margin-bottom: 0;
+   }
+    .cowiNotifyPop .popTop .icon-back-arrow {
+        display: none;
+   }
+    .cowiNotifyPop .popTop .popup_closeBtn {
+        display: block;
+   }
+    .cowiNotifyPop .popTop .title {
+        text-align: center;
+        padding-bottom: 10px;
+        font-size: 20px;
+        position: relative;
+        width: 100%;
+        margin: 0;
+   }
+    .cowiNotifyPop .popTop .title:after {
+        content: "";
+        width: 210px;
+        left: 103px;
+        height: 1px;
+        background: #dcdcdc;
+        position: absolute;
+        top: 35px;
+   }
+    .cowiNotifyPop .noslotmsg {
+        text-align: center;
+        padding: 10px 0;
+        background: rgba(9, 192, 170, 0.1);
+        border-top: solid 1px rgba(9, 192, 170, 0.3);
+        border-bottom: solid 1px rgba(9, 192, 170, 0.3);
+   }
+    .cowiNotifyPop {
+        padding: 25px 20px 30px !important;
+   }
+    .cowiNotifyPop .noslotmsg {
+        margin: 0 -50px;
+   }
+    .cowiNotifyPop .scrollableDiv {
+        height: calc(100% - 100px) !important;
+        margin-top: 5px;
+        overflow: auto;
+        overflow-x: hidden;
+        padding-right: 10px;
+   }
+    .cowiNotifyPop .scrollableDiv .namefield {
+        padding-left: 0;
+   }
+    .cowiNotifyPop .notifyBtn {
+        position: static !important;
+        width: 100% !important;
+        padding: 10px 0 0 !important;
+        display: inline-block !important;
+   }
+    .cowiNotifyPop .Yrdetail {
+        margin-bottom: 0px;
+   }
+    .cowiNotifyPop .notifyBtn .button {
+        max-width: unset !important;
+        width: 442px !important;
+   }
+    .cowiNotifyPop .radiogrp .radioright .gsc_col-xs-6 {
+        width: auto;
+        padding: 0px 5px 0 0;
+   }
+    .cowiNotifyPop .radiogrp .radioright .gsc_col-xs-6:last-child {
+        padding-right: 0px;
+   }
+    .cowiNotifyPop .radiogrp .gs_control {
+        font-size: 13px;
+        padding-top: 2px;
+   }
+    .willNotifyPop {
+        width: 410px !important;
+        height: 380px !important;
+   }
+    .willNotifyPop .popBanner {
+        width: 320px;
+        height: 160px;
+        margin: 0px auto;
+        margin-top: 20px;
+   }
+    .willNotifyPop .popBanner img {
+        border: 1px solid #ececec;
+        border-radius: 12px;
+   }
+    .willNotifyPop .popTop .icon-back-arrow {
+        display: none;
+   }
+    .willNotifyPop .popTop .popup_closeBtn {
+        display: block;
+   }
+    .willNotifyPop .popTop .title {
+        position: absolute;
+        top: 90px;
+        left: 125px;
+        margin: 0;
+        font-size: 20px;
+   }
+    .willNotifyPop .popTop .title:after {
+        content: "";
+        width: 160px;
+        left: -5px;
+        height: 1px;
+        background: #dcdcdc;
+        position: absolute;
+        top: 35px;
+   }
+    .willNotifyPop .wilnotGrp p {
+        margin-top: 50px;
+   }
+    .unsubsPop .wilnotGrp {
+        width: 215px !important;
+   }
+    .unsubsPop .wilnotGrp .idlogo {
+        width: 65px;
+        margin: 40px auto 0;
+   }
+    .unsubsPop .wilnotGrp p {
+        margin-top: 20px;
+        color: #4c515d;
+   }
+    .vacSlotPop {
+        height: 455px !important;
+        width: 410px !important;
+   }
+    .vacSlotPop .popTop .icon-back-arrow {
+        display: none;
+   }
+    .vacSlotPop .popTop .popup_closeBtn {
+        display: block;
+   }
+    .vacSlotPop .popTop .title {
+        margin: 0;
+        position: relative;
+        font-size: 20px;
+        width: 100%;
+        text-align: center;
+   }
+    .vacSlotPop .popTop .title:after {
+        content: "";
+        width: 200px;
+        left: 85px;
+        height: 1px;
+        background: #dcdcdc;
+        position: absolute;
+        bottom: -10px;
+   }
+    .vacSlotPop .popTop .title img {
+        display: block;
+        width: 66px;
+        margin: 0px auto;
+   }
+    .vacSlotPop .procedto .label {
+        color: #333846;
+        font-size: 10px;
+        text-transform: uppercase;
+        display: block;
+        margin-bottom: 5px;
+   }
+    .vacSlotPop .procedto .HosName {
+        font-size: 16px;
+        margin-top: 10px;
+   }
+    .vacSlotPop .procedto {
+        width: 280px;
+        margin: 0px auto;
+        margin-top: 35px;
+   }
+    .vacSlotPop .dstepsticky button {
+        min-width: unset;
+        width: 100%;
+   }
+    .vacSlotPop .procedto .vaccineDetil {
+        display: inline-block;
+        width: 100%;
+        margin-bottom: 20px;
+        position: static;
+   }
+    .insu_planBreakuppopup {
+        width: 360px;
+        top: 50% !important;
+        transform: translateY(-50%);
+      
+   }
+    .popupConfirmSubmit .plname {
+        width: calc(100% - 135px);
+   }
+    .popupConfirmSubmit .planpad0 {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+   }
+    .newquote2CYD_popup .title {
+        margin-bottom: 10px;
+   }
+    .newquote2CYD_popup .gsc_col-md-12, .newquote2CYD_popup .gsc_col-md-6 {
+        padding: 0;
+   }
+    .newquote2CYD_popup .PopupEditDetail .scrolldiv {
+        padding-bottom: 80px;
+   }
+    .signupopup.renewpopup .popupbg {
+        position: fixed;
+        background: rgba(0, 0, 0, .7);
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+   }
+    .HealthNewPage .carhomeform .signupopup .popupbg {
+        position: fixed;
+        background: rgba(0, 0, 0, .7);
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        z-index: 9999;
+   }
+    .gsc_closeBtn {
+    padding: 0;
+    right: 0px;
+    color: #fff;
+    position: absolute;
+    top: -10px;
+    cursor: pointer;
+   }
+    .popuplayoutwrap .popuplayoutcontain {
+        left: 50%;
+        top: 50%;
+        width: 360px;
+        transform: translateY(-50%);
+        min-height: auto;
+        height: auto;
+        max-height: none;
+        bottom: auto !important;
+        border-radius: 8px;
+   }
+    .popuplayoutwrap .popuplayoutcontain .scrolldiv {
+        max-height: 480px;
+        overflow: auto;
+        padding-top: 10px;
+        padding-bottom: 10px;
+   }
+   
+    .big-popup .popuplayoutcontain .addfamilywrap .insu_premiumdatapop.active {
+        width: 440px;
+        right: -3px;
+        top: 110px;
+   }
+    .utubevdowrap .popuplayoutwrap .popuplayoutcontain.active {
+        width: 640px;
+        bottom: auto;
+        top: 50%;
+       
+        background: transparent;    
+        padding: 0px;
+        z-index: 99992;
+        left: 50%;
+        transform: translate(-50%, -50%);
+   }
+    .utubevdowrap .popuplayoutwrap .popuplayoutcontain.active iframe {
+        height: 360px;
+   }
+    .utubevdowrap .scrolldiv {
+        max-height: none !important;
+   }
+    .signupopup .popupbgdesktop {
+        background: transparent;
+        position: absolute;
+        z-index: 0;
+   }
+    .signupopup .popuplayoutcontain {
+        border-radius: 5px;
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+        left: 44px;
+        margin-left: 0 !important;
+        bottom: unset !important;
+        transform: none;
+        width: 400px;
+        bottom: 94px !important;
+        top: auto;
+   }
+    .signupopup .popuplayoutcontain .gsc_modalWrapper:before {
+        width: 0;
+        height: 0;
+        border-left: 10px solid transparent;
+        border-right: 10px solid transparent;
+        border-top: 10px solid #fff;
+        position: absolute;
+        content: "";
+        bottom: -9px;
+        left: 50%;
+        margin-left: -5%;
+   }
+    .signupopup .popuplayoutcontain .title {
+        margin-bottom: 10px !important;
+   }
+    .signupopup .scrolldiv .mobilenumbar {
+        padding-left: 0;
+   }
+    .signupopup .popuplayoutcontain .title {
+        padding-right: 0px !important;
+   }
+    .signupopup .popuplayoutcontain .otptextmsg {
+        margin-right: 0px;
+   }
+    .signupopup .popuplayoutcontain .mobilenumbar {
+        margin-top: 10px;
+        padding-right: 0;
+   }
+    .signupopup .popuplayoutcontain .otptextmsg .gsc_col-xs-12 {
+        padding-right: 0px;
+   }
+    .signupopup .mobilenumbar input {
+        padding-left: 60px !important;
+   }
+    .renewpopup .popuplayoutcontain {
+        bottom: 59px !important;
+        left: 150px;
+   }
+    .commonsteppopup.timebasepopup {
+        padding: 0;
+        height: auto;
+        max-height: 600px;
+   }
+    .commonsteppopup.timebasepopup .srv-validation-message {
+        margin-top: 5px;
+        line-height: 1;
+   }
+    .commonsteppopup.timebasepopup .home_dropbox .homeRedButton {
+        margin-top: 0px;
+   }
+    .commonsteppopup.timebasepopup .home_dropbox .homeBlueButton {
+        margin-top: 0px;
+   }
+    .commonsteppopup.timebasepopup .home_dropbox .line-height-85 {
+        line-height: 50px !important;
+   }
+    .commonsteppopup.timebasepopup .timepop_header {
+        display: none;
+   }
+    .commonsteppopup.timebasepopup .timepop-carbanner .bannermsg {
+        font-size: 20px;
+   }
+    .commonsteppopup.timebasepopup .timebaseInner {
+        padding: 0;
+        max-width: 410px;
+        margin: 0px auto;
+   }
+    .commonsteppopup.timebasepopup .timebaseInner .home_dropbox .home_formSection {
+        padding: 0 10px;
+   }
+    .PopupPolicyBuy .popuplayoutwrap .title {
+        font-size: 22px;
+   }
+    .commonsteppopup.PopupPolicyBuy .popuplayoutwrap.step2 {
+        padding-top: 0px;
+   }
+    .commonsteppopup.PopupPolicyBuy .pageDirection {
+        display: inline-block;
+   }
+    .commonsteppopup.PopupPolicyBuy .pageDirection span.leftArrow {
+        left: -76px;
+        top: 0;
+   }
+    .popupConfirmSubmit .insu_planBreakuppopup:after {
+        display: none;
+   }
+    .commonsteppopup.PopupPolicyBuy.halfscreen {
+        height: 470px;
+        overflow: auto;
+   }
+    .commonsteppopup.PopupPolicyBuy.halfscreen .step2 .dcard {
+        position: absolute;
+        top: 58px;
+   }
+}
+@media screen and (min-width: 1600px) {
+    .popuplayoutwrap .popuplayoutcontain .scrolldiv {
+        max-height: none;
+   }
+    .cowiNotifyPop {
+        height: 690px !important;
+   }
+}
+@media screen and (max-width: 999px) {
+    .commonsteppopup.PopupPolicyBuy {
+        height: 510px;
+        bottom: 0;
+        top: auto;
+        border-top-left-radius: 10px;
+        border-top-right-radius: 10px;
+   }
+    .commonsteppopup.PopupPolicyBuy.height100 {
+        top: 0;
+        height: auto;
+        border-top-left-radius: 0;
+        border-top-right-radius: 0;
+   }
+}
+.homeRedButton.disabled {
+    background-color: #ccc !important;
+    color: rgba(0, 0, 0, .11);
+    cursor: not-allowed;
+}
+
+
+@media screen and (max-width: 999px) {
+.utubevdowrap .popuplayoutwrap .popuplayoutcontain.active {
+    bottom: auto;
+    top: 50%;
+    width: 100%;
+    background: transparent;
+    padding: 0px;
+    z-index: 99992;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+}

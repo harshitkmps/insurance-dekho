@@ -1,0 +1,151 @@
+getSessionStorageItem = (key) => {
+    if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+        let data = sessionStorage.getItem(key);
+      if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+          let obj = JSON.parse(sessionStorage.getItem(key));
+          return obj;
+      }
+    }
+    return {};
+  }
+  
+  planDetail=getSessionStorageItem('travelSelectedQuotes')
+  let traveluserinfo=getSessionStorageItem("traveluserinfo");
+  let proposerData=traveluserinfo["proposerDetails"];
+  let communicationData=traveluserinfo["communicationDetails"];
+  let finalAddressData=((communicationData && communicationData["addressLine1"] || "")+" " +(communicationData && communicationData["addressLine2"]||"")).trim();
+  hideFieldsForPropser=()=>{
+    if(planDetail.insurerSlug=="religare" && finalAddressData){
+      return true;
+    }
+    else{
+      false
+    }
+  }
+  
+  
+  
+  
+  
+  
+  window.userEmailPhoneFormSchemaTravel = {
+      formBuilder: {
+          steps: [
+            {
+              submitButtonLabel: "Make Payment",
+              fields: {
+                  mobile: {
+                      type: "TextField",
+                      id: "mobile",
+                      name: "mobile",
+                      label: "Phone",
+                      variant: "filled",
+                      readOnly:false,
+                      span: 5,
+                      value:proposerData["mobile"]?proposerData["mobile"]:"",
+                      fieldType: "mobile",
+                      validators: ["isEmpty"],
+                      errormessages: ["Please enter contact number"],
+                    },
+                    email: {
+                      type: "TextField",
+                      id: "email",
+                      name: "email",
+                      label: "Email",
+                      multiline : false,
+                      variant: "filled",
+                      span: 5,
+                      value:proposerData["email"]?proposerData["email"]:"",
+                      fieldType: "email",
+                      validators: ["isEmpty"],
+                      errormessages: ["This field is required"],
+                    },
+                    pincode:{
+                      type:"Pincode",
+                      id: "pincode",
+                      name: "pincode",
+                      label: "Pincode",
+                      multiline : false,
+                      variant: "filled",
+                      hide:hideFieldsForPropser(),
+                      stateRequired : false ,
+                      span: 5,
+                      validators: ["isEmpty"],
+                      errormessages: ["This field is required"],
+                      onChange: (event, step, next) => {
+                        let storeCityName = step.fields.pincode.value && step.fields.pincode.value.city_name ? step.fields.pincode.value.city_name : "";
+                        let storeStateName = step.fields.pincode.value && step.fields.pincode.value.state_name ? step.fields.pincode.value.state_name: "";
+                        step.fields["state"]["value"] = storeStateName;
+                        step.fields["state"]["error"] = false;
+                        step.fields["state"]["helperText"] = "";
+                        step.fields["city"]["value"] = storeCityName;
+                        step.fields["city"]["error"] = false;
+                        step.fields["city"]["helperText"] = "";
+                        next(step);
+                      },
+                    },
+                    state:{
+                      type: "TextField",
+                      id: "state",
+                      name: "state",
+                      hide: true,
+                      label: "State",
+                      readOnly : "true",
+                      variant: "filled",
+                      span: 6,
+                      validators: ["isEmpty"],
+                      errormessages: ["This field is required"],
+                    },
+                    city: {
+                      type: "TextField",
+                      id: "city",
+                      name: "city",
+                      label: "City",
+                      hide: true,
+                      readOnly : "true",
+                      autoComplete: "given-name",
+                      variant: "filled",
+                      span: 6,
+                      validators: ["isEmpty"],
+                      errormessages: ["This field is required"],
+                    },
+                    address: {
+                      type: "TextField",
+                      id: "address",
+                      name: "address",
+                      hide:hideFieldsForPropser(),
+                      label: "House No, Street, Building, Area",
+                      variant: "filled",
+                      value:finalAddressData.length>1?finalAddressData:"",
+                      span: 5,
+                      inputProps: {maxLength:60},
+                      validators: ["isEmpty","!isValidAddress"],
+                      errormessages: ["This field is required","Please enter valid address"],
+                    },
+               },
+            },
+          ],
+          activeStep: 0,
+          customValidators: {
+              checkMaxbreedsSelected: function (str) {
+                  let arr = str.split(",");
+                  if (arr.length >= 1 && arr.length <= 10) return false;
+                  else return true;
+                },
+                isFullName: function (str) {
+                    var regexp = new RegExp(
+                      /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+                    );
+                    return regexp.test(str);
+                },
+                isValidPassport: function (str){
+                  var regexp = new RegExp(/^([A-Z a-z]){1}([0-9]){7}$/);
+                  return regexp.test(str);
+                },
+                isValidAddress: function (str){
+                  var regexp = new RegExp(/^[ A-Za-z0-9-./#&, ]*$/i);
+                  return regexp.test(str);
+                },
+          }
+        },
+    }

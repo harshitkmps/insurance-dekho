@@ -1,0 +1,44 @@
+window.formBuilderSchemaTravel4 = {
+    formBuilder: {
+        steps: [
+          {
+            submitButtonLabel: "Show me plans",
+            fields: {
+              healthBox: {
+                type: "Radio",
+                options:[
+                  {
+                    value:"yes",
+                    label:"Yes"
+                  },
+                  {
+                    value:"no",
+                    label:"No"
+                  }
+                ],
+                row : true,
+                id: "healthBox",
+                name: "healthBox",
+                label:"Any travellers have pre-existing medical condition like diabetes,cancer,etc?",
+                labelPlacement:"start",
+                variant: "filled",
+                titlePlacement:"start",
+                span: 10,
+                value: "no",
+                validators: ["isEmpty"],
+                errormessages: ["Please select your value."],
+              },
+             },
+          },
+        ],
+        activeStep: 0,
+        customValidators: {
+          isValidName: function (str) {
+            var regexp = new RegExp(
+              /^[a-zA-Z ]{2,30}$/
+            );
+            return regexp.test(str);
+          },
+        }
+      },
+  }

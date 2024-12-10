@@ -1,0 +1,70 @@
+.CustomMobField {
+    flex-direction: inherit !important;
+
+    .MuiFilledInput-root {
+        width: 75px;
+        display: inline-block;
+        vertical-align: top;
+        border-radius: 8px 0 0 8px;
+        background: #f5f5f6;
+
+        .MuiSelect-filled {
+            padding-top: 18px;
+            background: transparent;
+            color: #333846;
+            font-size: 14px;
+        }
+    }
+
+    .MuiFormControl-fullWidth {
+        width: calc(100% - 75px);
+        display: inline-block;
+        vertical-align: top;
+        border-radius: 0px 8px 8px 0px;
+        background: #F5F5F6;
+
+        .MuiFilledInput-root {
+            width: 100%;
+        }
+    }
+    .CountryDisableArea {
+        z-index: 9999;
+        background: 0 0;
+        cursor: auto;
+        position: absolute;
+        display: inline-block;
+        pointer-events: unset;
+        width: 50px;
+        height: 100%;
+        left: 74px;
+    }
+}
+
+.dropdownStyle {
+    min-width: 85px !important;
+    padding: 7px 0;
+    margin-left: -16px;
+    margin-top: 8px;
+
+    ul {
+        padding: 0;
+
+        .CustomSelDrop {
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            padding: 5px 10px;
+            color: #6d717b;
+        }
+
+        li:hover {
+            background-color: transparent;
+        }
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .dropdownStyle {
+        padding: 0;
+    }
+}

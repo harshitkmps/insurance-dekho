@@ -1,0 +1,1 @@
+export const ENCRYPTED_ATTRIBUTES = ["MOBILE", "EMAIL", "PAN"];

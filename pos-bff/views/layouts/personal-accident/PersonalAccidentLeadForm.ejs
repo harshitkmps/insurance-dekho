@@ -1,0 +1,760 @@
+let DealerCityAndList = function(event, step, next) {
+    <% if(['1','2','5','8','9','10','11','12'].indexOf(schemaVal.roleId) !== -1) { %>
+      if(!step.fields.dealerCitySingleSelect){
+        step.fields['dealerCitySingleSelect'] = {
+          type: "SingleSelectReactselect",
+          options: [],
+          id: "dealerCitySingleSelect",
+          name: "dealerCitySingleSelect",
+          label: "Select Dealer City",
+          variant: "filled",
+          span: 4,
+          value: [],
+          max: 1,
+          disabled: false,
+          validators: ["isEmpty"],
+          errormessages: ["Please select the dealer city"],
+          onChange: (event, step, next) => {
+                let item = step.fields.dealerCitySingleSelect.value[0];
+                let uuid = '<%= schemaVal.uuid %>';
+                step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+                step.fields["dealerSingleSelect"]["value"] = [];
+                let dataParams = {};
+                  <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                  dataParams = {
+                    getDealerByReportingManager: true,
+                    projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                    city_id: item.value,
+                    //onboarded_on_general: true,
+                    getAllDealers: true
+                  }
+                  <% } else { %>
+                  dataParams = {
+                    getDealerByReportingManager: true,
+                    projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                    city_id: item.value,
+                    //onboarded_on_general: true,
+                    getHierarchyUsers: true,
+                    reporting_sfa_uuids: uuid,
+                    product: 'health'
+                  }
+                <% } %>
+                axios.get('/pos-bff/api/v1/dealers', {
+                  params: dataParams
+                }).then((res) => {
+                  var dealerSelect = [];
+                  if (res.status == 200) {
+                    if (res.data && res.data && res.data.data && res.data.data.data) {
+                      res.data.data.data.map((item) => {
+                        dealerSelect.push({ value: item.dealer_id, label: item.name });
+                      });
+                    }
+                  }
+                  step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                  next(step);  
+                }).catch((err) => {
+                  next(step);
+                });
+          }
+        }
+      }
+      let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+      if(dealerCityList) {
+        var dealerCitySelect = [];
+        dealerCityList.map((item) => {
+          dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+        });
+      } else {
+        dealerCitySelect.push([]);
+      }
+      step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+  
+      if(!step.fields.dealerSingleSelect){
+        step.fields['dealerSingleSelect'] = {
+          type: "AsyncReactSelect",
+          options: [],
+          id: "dealerSingleSelect",
+          name: "dealerSingleSelect",
+          label: "Select Dealer",
+          variant: "filled",
+          span: 4,
+          value: [],
+          max: 1,
+          disabled: false,
+          validators: ["isEmpty"],
+          errormessages: ["Please select the dealer name"],
+          loadOptions: (input, step, resolve) => {
+          let item = step.fields.dealerCitySingleSelect.value[0];
+          let uuid = '<%= schemaVal.uuid %>';
+          <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+            dataParams = {
+              getDealerByReportingManager: true,
+              projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+              city_id: item.value,
+              //onboarded_on_general: true,
+              getAllDealers: true,
+              name: input
+            }
+            <% } else { %>
+            dataParams = {
+              getDealerByReportingManager: true,
+              projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+              city_id: item.value,
+              //onboarded_on_general: true,
+              reporting_sfa_uuids: uuid,
+              getHierarchyUsers: true,
+              name: input,
+              product: 'health'
+            }
+          <% } %>
+          axios
+            .get(
+              "/pos-bff/api/v1/dealers",
+              {
+                params: dataParams
+              }
+            )
+            .then((res) => {
+              var dealerSelect = [];
+              if (res.status == 200) {
+                if (
+                  res.data &&
+                  res.data &&
+                  res.data.data &&
+                  res.data.data.data
+                ) {
+                  res.data.data.data.map((item) => {
+                    dealerSelect.push({
+                      value: item.dealer_id,
+                      label: item.name,
+                    });
+                  });
+                }
+              } else {
+                resolve([]);
+              }
+              resolve(dealerSelect)
+            });
+        },
+        }
+      }
+      <% } %>
+  }
+
+  let commonChildFunctionalityOnChange = function(event,step,next) {
+    let maxCheckVal = 0;
+    if(step.fields.selfAge.hide == false) {
+    maxCheckVal+=1;
+    }
+    if(step.fields.spouseAge.hide == false) {
+    maxCheckVal+=1;
+    }
+    if(step.fields.fatherAge.hide == false) {
+    maxCheckVal+=1;
+    }
+    if(step.fields.motherAge.hide == false) {
+    maxCheckVal+=1;
+    }
+    if(step.fields.sonCheckBox.hide == false) {
+    maxCheckVal+=step.fields.sonCheckBox.value;
+    }
+    if(step.fields.daughterCheckBox.hide == false) {
+    maxCheckVal+=step.fields.daughterCheckBox.value;
+    }
+    step.totalMembersAllowed = 6 - maxCheckVal;
+    if((step.fields.sonCheckBox.value + step.fields.daughterCheckBox.value >= 5) || step.totalMembersAllowed == 0){
+      step.fields.sonCheckBox.disabled = true;
+      step.fields.daughterCheckBox.disabled = true;
+      }
+      else{
+        step.fields.sonCheckBox.disabled = false;
+        step.fields.daughterCheckBox.disabled = false;
+      }
+    if (step.totalMembersAllowed == 0) {
+      step.fields.familyMembers.disabled = true;
+    } else {
+      step.fields.familyMembers.disabled = false;
+    }
+  }
+
+  let rerenderSonDaughterFieldsSchema = function(event, step, next) {
+    let childAgeList = [];
+    childAgeList.push({ value: "<1", label: "<1 Year" });
+    for (let i = 1; i <=24; i++) {
+        childAgeList.push({
+            value: i,
+            label: i + " Years",
+        });
+    }
+    
+    if(step.fields.sonCheckBox.hide == false && step.fields.sonCheckBox.value>0){
+        for(let i=0;i<step.fields.sonCheckBox.value;i++){
+          let sonAgeFieldName = `son${i+1}Age`;
+          step.fields[sonAgeFieldName].hide = false;
+          step.fields[sonAgeFieldName].validators = ["isEmpty"];
+          step.fields[sonAgeFieldName].errormessages = ["Please select the DOB of traveller"];
+        }
+      } else {
+          for(let i=0;i<=5;i++) {
+          if(step.fields[`son${i+1}Age`]) {
+            let sonAgeFieldName = `son${i+1}Age`;
+            step.fields[sonAgeFieldName].hide = true;
+            step.fields[sonAgeFieldName].validators = [""];
+            step.fields[sonAgeFieldName].errormessages = [""];  
+          }
+        }
+      }
+    
+      if(step.fields.daughterCheckBox.hide == false && step.fields.daughterCheckBox.value>0){
+          for(let i=0;i<step.fields.daughterCheckBox.value;i++){
+            let daughterAgeFieldName = `daughter${i+1}Age`;
+            step.fields[daughterAgeFieldName].hide = false;
+            step.fields[daughterAgeFieldName].validators = ["isEmpty"];
+            step.fields[daughterAgeFieldName].errormessages = ["Please select the DOB of traveller"];
+          }
+      } else {
+        for(let i=0;i<=5;i++) {
+          if(step.fields[`daughter${i+1}Age`]) {
+            let daughterAgeFieldName = `daughter${i+1}Age`;
+            step.fields[daughterAgeFieldName].hide = true;
+            step.fields[daughterAgeFieldName].validators = [""];
+            step.fields[daughterAgeFieldName].errormessages = [""];  
+          }
+        }
+      }
+  }
+
+  let formBuilderSchemaPersonalAccidentLeadFormHome = {
+      formBuilder: {
+        steps: [
+        {
+          submitButtonLabel: "View Plans",
+          fields: {
+            basicHeader:{
+              type: "HeadingComp",
+              span: 12,
+              label: "Get the best PA Cover that suits your requirements",
+              name: "basicHeader"
+            },
+            name: {
+              type: "TextField",
+              id: "name",
+              name: "name",
+              label: "Name",
+              value: "",
+              autoComplete: "name",
+              variant: "filled",
+              span: 4,
+              validators: ["isEmpty","isSpecialChar", "isContainNumber", "!isAtLeadThreeChar","!isValidName"],
+              errormessages: [
+                "Please enter the name.",
+                "Special Characters are not allowed in Full Name.",
+                "Numbers are not allowed in Full Name.",
+                "Please enter at least three characters",
+                "Please enter Full Name."
+              ],
+              onChange: (event, step, next) => {
+              }
+            },
+            mobile: {
+              type: "TextField",
+              id: "mobile",
+              name: "mobile",
+              label: "Contact Number",
+              variant: "filled",
+              value:"",
+              span: 4,
+              fieldType: "mobile",
+              validators: ["isEmpty"],
+              errormessages: ["Please enter contact number"],
+            },
+            familyMembers : {
+              type: "MultiselectReactselect",
+              options: [],
+              id: "familyMembers",
+              name: "familyMembers",
+              label: "Select Family Members",
+              variant: "filled",
+              span: 4,
+              value: [],
+              disabled: false,
+              validators: ["isEmpty"],
+              errormessages: ["Family Members is required field"],
+              onChange: (event, step, next) => {
+                 let options = step.fields.familyMembers.options;
+                 console.log("options",step.fields.familyMembers.value.length);
+                 if(!step.fields.familyMembers.value.length){
+                  console.log("knsd");
+                  let familyMembersList = [];
+                  let familyMembersObj = {1:'self', 2:'spouse', 3:'son', 4:'daughter', 5:'mother', 6:'father'};
+                  $.each(familyMembersObj, function( key, val ) {
+                      familyMembersList.push({value: key,label: val});
+                  })
+                  step.fields.familyMembers.options = familyMembersList;
+                 }
+                 step.fields.selfAge.validators = [""]
+                 step.fields.selfAge.errormessages = [""]
+                 step.fields.selfAge.hide =true
+                 step.fields.spouseAge.validators = [""]
+                 step.fields.spouseAge.errormessages = [""]
+                 step.fields.spouseAge.hide =true
+                 step.fields.sonCheckBox.hide =true
+                 step.fields.sonCheckBox.value =0;
+                 step.fields.daughterCheckBox.hide =true
+                 step.fields.daughterCheckBox.value =0;
+                 step.fields.motherAge.validators = [""]
+                 step.fields.motherAge.errormessages = [""]
+                 step.fields.motherAge.hide =true
+                 step.fields.fatherAge.validators = [""]
+                 step.fields.fatherAge.errormessages = [""]
+                 step.fields.fatherAge.hide =true
+                 step.fields.familyMembers.value.forEach((item)=>{
+                    let familyObj = {1:'self', 2:'spouse', 3:'son', 4:'daughter'};
+                    let parentsObj = {5:'mother', 6:'father'};
+                    if(item.label === 'mother' || item.label === 'father'){
+                      let parentList = [];
+                      $.each(parentsObj, function( key, val ) {
+                        parentList.push({value: key,label: val});
+                      })
+                      step.fields.familyMembers.options = parentList;
+                    } else {
+                      let familyList = [];
+                      $.each(familyObj, function( key, val ) {
+                        familyList.push({value: key,label: val});
+                      })
+                      step.fields.familyMembers.options = familyList;
+                    }
+                    if(item.value == 1) { 
+                     step.fields.selfAge.hide =false;
+                     step.fields.selfAge.validators = ["isEmpty"]
+                     step.fields.selfAge.errormessages = [`Please select the age of ${item.label}`]
+                     }
+                    if(item.value == 2) { 
+                      step.fields.spouseAge.hide =false;
+                      step.fields.spouseAge.validators = ["isEmpty"]
+                      step.fields.spouseAge.errormessages = [`Please select the age of ${item.label}`]
+                    }
+                    if(item.value == 3) {
+                      step.fields.sonCheckBox.hide =false
+                      step.fields.sonCheckBox.value =1;
+                    }
+                    if(item.value == 4) {
+                      step.fields.daughterCheckBox.hide =false;
+                      step.fields.daughterCheckBox.value =1;
+                    }
+                     
+                    if(item.value == 5) {
+                     step.fields.motherAge.hide =false;
+                     step.fields.motherAge.validators = ["isEmpty"]
+                     step.fields.motherAge.errormessages = [`Please select the age of ${item.label}`]
+                    }
+                    if(item.value == 6) {
+                      step.fields.fatherAge.hide =false;
+                      step.fields.fatherAge.validators = ["isEmpty"]
+                      step.fields.fatherAge.errormessages = [`Please select the age of ${item.label}`]
+                    }
+                   // let element = options.find(obj => obj.value == item.value)
+                  })
+                    rerenderSonDaughterFieldsSchema(event,step,next);
+                    commonChildFunctionalityOnChange(event,step,next); 
+                  next(step);
+              }
+            },
+            pincode: {
+              type: "Pincode",
+              id: "pincode",
+              name: "pincode",
+              label: "Enter pincode",
+              variant: "filled",
+              span: 4,
+              value: "",
+              disabled: false,
+              validators: ["isEmpty"],
+              errormessages: [
+              "This field is required"
+              ],
+            },
+          },
+          onSubmit: function(data, resolve, reject, step, next){
+            step.submitButtonLoader = true;
+            next(step);
+            let currDate = new Date();
+            let errorInStep = false;
+            Object.keys(step.fields).forEach((item)=>{
+              if(item !== 'sonCheckBox' && item !== 'daughterCheckBox') {
+                if(item.includes('son') || item.includes('daughter')){
+                    let selfAge = (step.fields.selfAge && step.fields.selfAge.value) || 99;
+                    let spouseAge = (step.fields.spouseAge && step.fields.spouseAge.value) || 99;
+                    if(Math.min(selfAge,spouseAge) - step.fields[item].value < 18){
+                        step.fields[item].error = true;
+                        step.fields[item].helperText = "Parent and child age gap should be 18 years or above.";
+                        errorInStep=true;
+                        next(step);
+                    }
+                    else{
+                        step.fields[item].error = false;
+                        step.fields[item].helperText = "";
+                        next(step);
+                    }
+                }
+              }
+            });
+            if(errorInStep) {
+              step.submitButtonLoader = false;
+              next(step);
+              return;
+            }
+           data = Object.fromEntries(
+              Object.entries(data).filter(([key, value]) => value !== undefined) )
+           const body = {};
+            body['source'] = '<%= schemaVal.source %>';
+            body['sub_source'] = '<%= schemaVal.subSource %>';
+            body['medium'] = '<%= schemaVal.medium %>';
+            body['creatorIamId'] = '<%= schemaVal.uuid %>';
+            body['productType'] = '<%= schemaVal.productType %>';
+            body['creatorType'] = '<%= schemaVal.creatorType %>';
+            body['guestUuid'] = '<%= schemaVal.guestUuid %>';
+            body['dealer_id'] = data.dealerSingleSelect ? data.dealerSingleSelect[0].value : "";
+            body['dealer_name'] = data.dealerSingleSelect ? data.dealerSingleSelect[0].label : "";
+            body['dealer_city'] = data.dealerCitySingleSelect ? data.dealerCitySingleSelect[0].value : "";
+            const dealerId = '<%= schemaVal.dealerId %>';
+            if(!!dealerId && dealerId != 0) {
+              body['dealer_id'] = dealerId;
+            }
+            body['sonCount'] = data.sonCheckBox;
+            body['daughterCount'] = data.daughterCheckBox;
+            body['familyMembers'] = data.familyMembers;
+            body['name'] = data.name;
+            body['mobile'] = data.mobile;
+            body['pincode'] = data.pincode.pincode;
+            body['city_id'] = data.pincode.city_id;
+            body['city_name'] = data.pincode.city_name;
+            body['state_id'] = data.pincode.state_id;
+            body['state_name'] = data.pincode.state_name;
+            if(data.selfAge){
+              body['self_age'] = data.selfAge;
+            }
+            if(data.spouseAge){
+              body['spouse_age'] = data.spouseAge;
+            }
+            if(data.fatherAge){
+              body['father_age'] = data.fatherAge;
+              body['father_gender'] = "Male";
+            }
+            if(data.motherAge){
+              body['mother_age'] = data.motherAge;
+              body['mother_gender'] = "Female";
+            }
+            if(data.sonCheckBox > 0){
+              for(let i=1;i<=data.sonCheckBox;i++){
+                body[`son${i}_age`] = data[`son${i}Age`];
+                body[`son${i}_gender`] = "Male";
+              }
+            }
+            if(data.daughterCheckBox > 0){
+              for(let i=1;i<=data.daughterCheckBox;i++){
+                body[`daughter${i}_age`] = data[`daughter${i}Age`];
+                body[`daughter${i}_gender`] = "Female";
+              }
+            }
+            axios({
+              method: "post",
+              url: `/pos-bff-hybrid/api/v1/personal-accident/leads`,
+              data: body,
+              headers: { "Content-Type": "application/json" },
+            })
+            .then(function(response){
+              //handle success
+            if(response.data && response.data.status==200 && response.data.data) {
+                if(window.location.hostname.includes("posapp")){
+                  window.projectGlobals.redirectUrl(`<%= posappUiUrl %>personal-accident/quotes?request=${response.data.data.visit_id}`);
+                } else {
+                  window.location.href = `<%= posUiUrl %>posui/personal-accident/quotes?request=${response.data.data.visit_id}`;
+                } 
+            } else {
+                reject({message : "Some error has occurred"});
+            }
+            step.submitButtonLoader = false;
+                next(step);
+          })
+          },
+          onLoad: function (step, next){
+           
+            let familyMembersList = [];
+            let familyMembersObj = {1:'self', 2:'spouse', 3:'son', 4:'daughter', 5:'mother', 6:'father'};
+            $.each(familyMembersObj, function( key, val ) {
+                familyMembersList.push({value: key,label: val});
+            })
+            step.fields["familyMembers"]["options"] = familyMembersList;
+
+            let parentsAgeList = [];
+            for (let i = 36; i <= 99; i++) {
+              parentsAgeList.push({
+                    value: i,
+                    label: i + " Years",
+                });
+            }
+            let ageList = [];
+            for (let i = 18; i <= 99; i++) {
+                ageList.push({
+                    value: i,
+                    label: i + " Years",
+                });
+            }
+            let childAgeList = [];
+            childAgeList.push({ value: "<1", label: "<1 Year" });
+            for (let i = 1; i <=24; i++) {
+                childAgeList.push({
+                    value: i,
+                    label: i + " Years",
+                });
+            }
+            if(!step.fields.selfAge){
+              step.fields['selfAge'] = {
+                hide: true,
+                type:"SelectWithLabel",
+                id:"selfAge",
+                name:"selfAge",
+                label:"Self Age in Years",
+                labelAuto:"Self Age in Years",
+                options: ageList,
+                span: 4,
+                autoComplete: "given-name",
+                variant: "filled",
+                validators: ["isEmpty"],
+                errormessages: ["Please select your age"],
+                onChange: (event, step, next) => {
+                
+                next(step);
+              }
+              }
+            }
+            if(!step.fields.spouseAge){
+                step.fields['spouseAge'] = {
+                  hide: true,
+                  type:"SelectWithLabel",
+                  id:"spouseAge",
+                  name:"spouseAge",
+                  label:"Spouse Age in Years",
+                  labelAuto:"Spouse Age in Years",
+                  options: ageList,
+                  span: 4,
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  validators: ["isEmpty"],
+                  errormessages: ["Please select the age of Spouse"],
+                  onChange: (event, step, next) => {
+                  
+                  next(step);
+                  }
+                }
+            }
+            if(!step.fields.sonCheckBox){
+              step.fields['sonCheckBox'] = {
+              hide: true,
+              type: "CheckBoxCounter",
+              id: "sonCheckBox",
+              name: "sonCheckBox",
+              label: "Son",
+              span: 4,
+              clickedPlus:false,
+              clickedMinus:true,
+              value:String(0),
+              maxValue: String(5),
+              disabled: false,
+              onChange: (event, step, next) => {
+                  for(let i=step.fields.sonCheckBox.value;i<step.fields.sonCheckBox.maxValue;i++){
+                    if(step.fields[`son${i+1}Age`]) {
+                      step.fields[`son${i+1}Age`].hide = true;
+                      step.fields[`son${i+1}Age`].validators = [""];
+                      step.fields[`son${i+1}Age`].errormessages = [""];  
+                    }
+                  }
+                  if(step.fields.sonCheckBox.value>0){
+                      for(let i=0;i<step.fields.sonCheckBox.value;i++){
+                        let sonAgeFieldName = [`son${i+1}Age`];
+                        step.fields[sonAgeFieldName].hide = false;
+                        step.fields[sonAgeFieldName].validators = ["isEmpty"];
+                        step.fields[sonAgeFieldName].errormessages = ["Please select the DOB of traveller"];
+                      }
+                   }
+                  commonChildFunctionalityOnChange(event,step,next); 
+                }
+              }
+            }
+            for(let i=0;i<5;i++){
+              if(!step.fields[`son${i+1}Age`]){
+                step.fields[`son${i+1}Age`] = {
+                  hide: true,
+                  type:"SelectWithLabel",
+                  id:`son${i+1}Age`,
+                  name:`son${i+1}Age`,
+                  label:`Son ${i+1} Age in Years`,
+                  labelAuto:`Son ${i+1} Age in Years`,
+                  options: childAgeList,
+                  span: 4,
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  validators: ["isEmpty"],
+                  errormessages: [`Please select the age of Son ${i+1}`],
+                  onChange: (event, step, next) => {
+                  
+                  next(step);
+                  }
+                }
+              }
+            }
+            if(!step.fields.daughterCheckBox){
+              step.fields['daughterCheckBox'] = {
+              hide: true,
+              type: "CheckBoxCounter",
+              id: "daughterCheckBox",
+              name: "daughterCheckBox",
+              span: 4,
+              label: "Daughter",
+              clickedPlus:false,
+              clickedMinus:true,
+              value:String(0),
+              span: 4,
+              maxValue:String(5),
+              disabled: false,
+              onChange: (event, step, next) => {
+                  for(let i=step.fields.daughterCheckBox.value;i<step.fields.daughterCheckBox.maxValue;i++){
+                    if(step.fields[`daughter${i+1}Age`]) {
+                      step.fields[`daughter${i+1}Age`].hide = true;
+                      step.fields[`daughter${i+1}Age`].validators = [""];
+                      step.fields[`daughter${i+1}Age`].errormessages = [""];  
+                    }
+                  }
+                  if(step.fields.daughterCheckBox.value>0){
+                      for(let i=0;i<step.fields.daughterCheckBox.value;i++){
+                        let daughterAgeFieldName = `daughter${i+1}Age`;
+                        step.fields[daughterAgeFieldName].hide = false;
+                        step.fields[daughterAgeFieldName].validators = ["isEmpty"];
+                        step.fields[daughterAgeFieldName].errormessages = ["Please select the DOB of traveller"];
+                      }
+                  }
+                 commonChildFunctionalityOnChange(event,step,next);  
+              }
+              }
+            }
+            for(let i=0;i<5;i++){
+              if(!step.fields[`daughter${i+1}Age`]){
+                step.fields[`daughter${i+1}Age`] = {
+                  hide: true,
+                  type:"SelectWithLabel",
+                  id:`daughter${i+1}Age`,
+                  name:`daughter${i+1}Age`,
+                  label:`Daughter ${i+1} Age in Years`,
+                  labelAuto:`Daughter ${i+1} Age in Years`,
+                  options: childAgeList,
+                  span: 4,
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  validators: ["isEmpty"],
+                  errormessages: [`Please select the age of Daughter ${i+1}`],
+                  onChange: (event, step, next) => {
+                  
+                  next(step);
+                  }
+                }
+              }
+            }
+            if(!step.fields.fatherAge){
+                step.fields['fatherAge'] = {
+                  hide: true,
+                  type:"SelectWithLabel",
+                  id:"fatherAge",
+                  name:"fatherAge",
+                  label:"Father Age in Years",
+                  labelAuto:"Father Age in Years",
+                  options: parentsAgeList,
+                  span: 4,
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  validators: ["isEmpty"],
+                  errormessages: ["Please select the age of Father"],
+                  onChange: (event, step, next) => {
+                  
+                  next(step);
+                  }
+               }
+            }
+            if(!step.fields.motherAge){
+                step.fields['motherAge'] = {
+                  hide: true,
+                  type:"SelectWithLabel",
+                  id:"motherAge",
+                  name:"motherAge",
+                  label:"Mother Age in Years",
+                  labelAuto:"Mother Age in Years",
+                  options: parentsAgeList,
+                  span: 4,
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  validators: ["isEmpty"],
+                  errormessages: ["Please select the age of Mother"],
+                  onChange: (event, step, next) => {
+                  
+                  next(step);
+                  }
+                }
+            }
+            DealerCityAndList(event,step, next);
+            if(!step.fields.whatsappcheckbox){
+              step.fields['whatsappcheckbox'] = {
+                type: "WhatsappCheckBox",
+                id: "whatsappcheckbox",
+                name: "whatsappcheckbox",
+                label: "",
+                span: 12,
+                validators: [],
+                errormessages: [],
+                options: [{ value: "check" }],
+                value : [
+                  'check'
+                ]
+              }
+            }
+            next(step);
+          }
+        }
+      ],
+      activeStep: 0,
+      customValidators: {
+        isValidName: function (str) {
+          var regexp = new RegExp(
+            /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+          );
+          return regexp.test(str);
+        },
+        isSpecialChar: function (str) {
+          var regexp = new RegExp(
+            "[!@#$%&*()_+=|<>?{}\\[\\]~-]"
+          );
+          return regexp.test(str);
+        },
+        isContainNumber: function (str) {
+          var regexp = new RegExp(
+            "[0-9]"
+          );
+          return regexp.test(str);
+        },
+        isAtLeadThreeChar: function (str) {
+          var regexp = new RegExp(
+            /(.*[a-z]){3,}/i
+          );
+          return regexp.test(str);
+        },
+        isValidPincode: function (str) {
+          var regexp = new RegExp(
+            "^[1-9][0-9]{5}$"
+          );
+          return regexp.test(str) ;
+        }
+      },
+    },
+    }
+  
+    
+  

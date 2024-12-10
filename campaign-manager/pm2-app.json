@@ -1,0 +1,16 @@
+{
+    "apps": [
+        {
+            "version" : "0.0.1",
+            "name": "CampaignManager",
+            "script": "npm",
+            "args" : "start",
+            "watch": ["app", "server.js"],
+            "ignore_watch" : ["node_modules", "logs"],
+            "env_staging": {
+                "PORT": "3056",
+                "NODE_ENV": "staging"
+            }
+        }
+    ]
+}

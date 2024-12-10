@@ -1,0 +1,594 @@
+function setDateMinMax() {
+  const currentDate = new Date();
+  const dobMinDate = new Date().setFullYear(currentDate.getFullYear() - 66);
+  const dobMaxDate = new Date().setFullYear(currentDate.getFullYear() - 18);
+
+  const doiMinDate = new Date().setFullYear(currentDate.getFullYear() - 100);
+  const doiMaxDate = currentDate;
+
+  const startMinDate = currentDate;
+  const startMaxDate = new Date().setDate(currentDate.getDate() + 179);
+  return { dobMaxDate, dobMinDate, doiMinDate, doiMaxDate, startMinDate, startMaxDate };
+}
+
+async function handleRiskPincode(pincode) {
+  if (typeof pincode === "object") {
+    return pincode || {};
+  } else {
+    const res = await window.projectGlobals.fetchPincode(pincode);
+    return res || {};
+  }
+}
+
+function handleIsPanValid(isPanIndia = false, riskAddressDetails, fields) {
+  riskAddressDetails?.forEach((industry) => {
+    const industryId = industry?.id || "";
+    fields[`isSame_${industryId}`].hide = isPanIndia;
+    fields[`riskLocationAddress_${industryId}`].hide = isPanIndia;
+    fields[`forIndustry_${industryId}`].hide = isPanIndia;
+    fields[`riskAddressLine1_${industryId}`].hide = isPanIndia;
+    fields[`riskAddressLine2_${industryId}`].hide = isPanIndia;
+    fields[`riskPincode_${industryId}`].hide = isPanIndia;
+    fields[`riskCity_${industryId}`].hide = isPanIndia;
+    fields[`riskState_${industryId}`].hide = isPanIndia;
+  });
+}
+
+function checkSameAddress(commAddress = {}, riskAddress = {}) {
+  const communicationObj = {
+    addressLine1: commAddress?.addressLine1 || "",
+    addressLine2: commAddress?.addressLine2 || "",
+    city: commAddress?.pincode?.city_id || "",
+    state: commAddress?.pincode?.state_id || "",
+    pincode: commAddress?.pincode?.pincode || "",
+  };
+  const riskObj = {
+    addressLine1: riskAddress?.addressLine1 || "",
+    addressLine2: riskAddress?.addressLine2 || "",
+    city: riskAddress?.pincode?.city_id || "",
+    state: riskAddress?.pincode?.state_id || "",
+    pincode: riskAddress?.pincode?.pincode || "",
+  };
+
+  if (!communicationObj?.pincode || !riskObj?.pincode) return false;
+  for (const [key, value] of Object.entries(communicationObj)) {
+    if (value != riskObj[key]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function riskLocationMap(leadDetails, fields) {
+  let riskfields = {
+    isPanIndia: {
+      type: "Switch",
+      id: "isPanIndia",
+      name: "isPanIndia",
+      span: 12,
+      value: "no",
+      labelPlacement: "left",
+      question: "Location Is Pan India Support",
+      onChange: (event, step, next) => {
+        const isPanIndiaValue = event.target.value == "yes";
+        handleIsPanValid(isPanIndiaValue, leadDetails?.productDetails?.riskAddressDetails, step.fields);
+        next(step);
+      },
+    },
+  };
+  const riskAddressDetails = leadDetails?.productDetails?.riskAddressDetails || [];
+  riskAddressDetails.forEach((industry, index) => {
+    const industryId = industry?.id;
+    riskfields = {
+      ...riskfields,
+      [`isSame_${industryId}`]: {
+        type: "Switch",
+        id: `isSame_${industryId}`,
+        name: `isSame_${industryId}`,
+        labelPlacement: "left",
+        question: "Is risk address same as communication address?",
+        span: 12,
+        value: "no",
+        onChange: (event, step, next) => {
+          if (step.fields[`isSame_${industryId}`].value == "yes") {
+            step.fields[`riskPincode_${industryId}`].value = step.fields["pincode"].value;
+            step.fields[`riskAddressLine1_${industryId}`].value = step.fields["addressLine1"].value;
+            step.fields[`riskAddressLine2_${industryId}`].value = step.fields["addressLine2"].value;
+            step.fields[`riskState_${industryId}`].value = step.fields["city"].value;
+            step.fields[`riskCity_${industryId}`].value = step.fields["state"].value;
+            step.fields[`riskPincode_${industryId}`].error = false;
+            step.fields[`riskAddressLine1_${industryId}`].error = false;
+            step.fields[`riskAddressLine2_${industryId}`].error = false;
+            step.fields[`riskState_${industryId}`].error = false;
+            step.fields[`riskCity_${industryId}`].error = false;
+            step.fields[`riskPincode_${industryId}`].helperText = "";
+            step.fields[`riskAddressLine1_${industryId}`].helperText = "";
+            step.fields[`riskAddressLine2_${industryId}`].helperText = "";
+            step.fields[`riskState_${industryId}`].helperText = "";
+            step.fields[`riskCity_${industryId}`].helperText = "";
+          } else {
+            step.fields[`riskPincode_${industryId}`].value = {};
+            step.fields[`riskAddressLine1_${industryId}`].value = "";
+            step.fields[`riskAddressLine2_${industryId}`].value = "";
+            step.fields[`riskState_${industryId}`].value = "";
+            step.fields[`riskCity_${industryId}`].value = "";
+            step.fields[`riskPincode_${industryId}`].error = false;
+            step.fields[`riskAddressLine1_${industryId}`].error = false;
+            step.fields[`riskAddressLine2_${industryId}`].error = false;
+            step.fields[`riskState_${industryId}`].error = false;
+            step.fields[`riskCity_${industryId}`].error = false;
+            step.fields[`riskPincode_${industryId}`].helperText = "";
+            step.fields[`riskAddressLine1_${industryId}`].helperText = "";
+            step.fields[`riskAddressLine2_${industryId}`].helperText = "";
+            step.fields[`riskState_${industryId}`].helperText = "";
+            step.fields[`riskCity_${industryId}`].helperText = "";
+            next(step);
+          }
+        },
+      },
+      [`riskLocationAddress_${industryId}`]: {
+        type: "HeadingComp",
+        span: 12,
+        label: `Risk Location Address ${riskAddressDetails.length > 1 ? `- ${index + 1}` : ""}`,
+        name: `riskLocationAddress_${industryId}`,
+      },
+      [`forIndustry_${industryId}`]: {
+        type: "TextField",
+        id: `forIndustry_${industryId}`,
+        name: `forIndustry_${industryId}`,
+        label: "For Industry",
+        value: "",
+        disabled: true,
+        autoComplete: "name",
+        variant: "filled",
+        span: 12,
+      },
+      [`riskAddressLine1_${industryId}`]: {
+        type: "TextField",
+        id: `riskAddressLine1_${industryId}`,
+        name: `riskAddressLine1_${industryId}`,
+        label: "Address Line 1",
+        value: "",
+        autoComplete: "name",
+        variant: "filled",
+        span: 12,
+        validators: ["isEmpty", "isValidAddress"],
+        errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+      },
+      [`riskAddressLine2_${industryId}`]: {
+        type: "TextField",
+        id: `riskAddressLine2_${industryId}`,
+        name: `riskAddressLine2_${industryId}`,
+        label: "Address Line 2",
+        value: "",
+        autoComplete: "name",
+        variant: "filled",
+        span: 12,
+        validators: ["isEmpty", "isValidAddress"],
+        errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+      },
+      [`riskPincode_${industryId}`]: {
+        type: "Pincode",
+        id: `riskPincode_${industryId}`,
+        name: `riskPincode_${industryId}`,
+        label: "Pincode",
+        variant: "filled",
+        stateRequired: false,
+        autoComplete: "name",
+        span: 6,
+        value: {},
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+        onChange: (event, step, next) => {
+          let storeCityName = step.fields[`riskPincode_${industryId}`].value.city_name || "";
+          let storeStateName = step.fields[`riskPincode_${industryId}`].value.state_name || "";
+
+          step.fields[`riskState_${industryId}`].value = storeStateName;
+          step.fields[`riskState_${industryId}`].error = false;
+          step.fields[`riskState_${industryId}`].helperText = "";
+          step.fields[`riskCity_${industryId}`].value = storeCityName;
+          step.fields[`riskCity_${industryId}`].error = false;
+          step.fields[`riskCity_${industryId}`].helperText = "";
+
+          next(step);
+        },
+      },
+      [`riskCity_${industryId}`]: {
+        type: "TextField",
+        id: `riskCity_${industryId}`,
+        name: `riskCity_${industryId}`,
+        label: "City",
+        value: "",
+        readOnly: true,
+        autoComplete: "given-name",
+        variant: "filled",
+        span: 6,
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+      },
+      [`riskState_${industryId}`]: {
+        type: "TextField",
+        id: `riskState_${industryId}`,
+        name: `riskState_${industryId}`,
+        label: "State",
+        value: "",
+        readOnly: true,
+        autoComplete: "given-name",
+        variant: "filled",
+        span: 6,
+        validators: ["isEmpty"],
+        errormessages: ["This field is required"],
+      },
+    };
+  });
+
+  return { ...fields, ...riskfields };
+}
+
+window.workmenCompensationProposalFormSchema = {
+  formBuilder: {
+    steps: [
+      {
+        submitButtonLabel: "Summary & Payment",
+        fields: {
+          proposalForm: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Proposal Form",
+            name: "proposalForm",
+          },
+          salutation: {
+            hide: false,
+            type: "SelectWithLabel",
+            id: "salutation",
+            name: "salutation",
+            label: "Salutation",
+            labelAuto: "Salutation",
+            options: [
+              { label: "Mr", value: "Mr" },
+              { label: "Mrs", value: "Mrs" },
+              { label: "Ms", value: "Ms" },
+            ],
+            span: 6,
+            autoComplete: "given-name",
+            variant: "filled",
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["Please select the salutation"],
+          },
+          customerName: {
+            hide: false,
+            type: "TextField",
+            id: "customerName",
+            name: "customerName",
+            label: "Proposer Name",
+            autoComplete: "name",
+            variant: "filled",
+            span: 6,
+            value: "",
+            validators: ["isEmpty", "!isValidName"],
+            errormessages: ["Please enter the proposer name", "Please enter valid proposer name"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("WorkmenCompensationInsuranceLeadFunnel", "SME_WorkmenCompensation_CustName", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          mobile: {
+            type: "TextField",
+            id: "mobile",
+            name: "mobile",
+            label: "Phone Number (Payment OTP sent here)",
+            variant: "filled",
+            value: "",
+            span: 6,
+            fieldType: "mobile",
+            validators: ["isEmpty"],
+            errormessages: ["Please enter contact number"],
+          },
+          email: {
+            type: "TextField",
+            id: "email",
+            name: "email",
+            label: "Proposer Email",
+            multiline: false,
+            variant: "filled",
+            span: 6,
+            fieldType: "email",
+            validators: ["isEmpty", "!isValidEmail"],
+            errormessages: ["This field is required"],
+          },
+          dob: {
+            hide: false,
+            type: "DatePicker",
+            id: "dob",
+            name: "dob",
+            label: "Date Of Birth",
+            variant: "filled",
+            maxDate: "",
+            minDate: "",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("WorkmenCompensationInsuranceLeadFunnel", "SME_WC_DOB", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          doi: {
+            hide: true,
+            type: "DatePicker",
+            id: "doi",
+            name: "doi",
+            label: "Date of Incorporation",
+            variant: "filled",
+            maxDate: "",
+            minDate: "",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("WorkmenCompensationInsuranceLeadFunnel", "SME_WC_DOI", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          gstNo: {
+            type: "TextField",
+            id: "gstNo",
+            name: "gstNo",
+            label: "Enter GST for printing on policy doc - optional",
+            variant: "filled",
+            value: "",
+            span: 6,
+            inputProps: { minLength: 15, maxLength: 15 },
+            validators: ["isValidGST"],
+            errormessages: ["Please enter a valid GST number"],
+            onBlur: () => {
+              window.projectGlobals.smeTrackGaEvent("WorkmenCompensationInsuranceLeadFunnel", "SME_WC_GST", "<%= schemaVal.gcd_code %>");
+            },
+          },
+          communicationAddress: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Communication Address",
+            name: "communicationAddress",
+          },
+          addressLine1: {
+            type: "TextField",
+            id: "addressLine1",
+            name: "addressLine1",
+            label: "Address Line 1",
+            value: "",
+            autoComplete: "name",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty", "isValidAddress"],
+            errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+          },
+          addressLine2: {
+            type: "TextField",
+            id: "addressLine2",
+            name: "addressLine2",
+            label: "Address Line 2",
+            value: "",
+            autoComplete: "name",
+            variant: "filled",
+            span: 12,
+            validators: ["isEmpty", "isValidAddress"],
+            errormessages: ["Please enter the address", "Address Limit of 100 characters"],
+          },
+          pincode: {
+            type: "Pincode",
+            id: "pincode",
+            name: "pincode",
+            label: "Pincode: Enter same as GST Document (If GST Entered)",
+            variant: "filled",
+            stateRequired: false,
+            autoComplete: "name",
+            span: 6,
+            value: {},
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onChange: (event, step, next) => {
+              let storeCityName = step.fields.pincode.value && step.fields.pincode.value.city_name ? step.fields.pincode.value.city_name : "";
+              let storeStateName = step.fields.pincode.value && step.fields.pincode.value.state_name ? step.fields.pincode.value.state_name : "";
+              step.fields.state.value = storeStateName;
+              step.fields.state.error = false;
+              step.fields.state.helperText = "";
+              step.fields.city.value = storeCityName;
+              step.fields.city.error = false;
+              step.fields.city.helperText = "";
+              next(step);
+            },
+          },
+          city: {
+            type: "TextField",
+            id: "city",
+            name: "city",
+            label: "City",
+            value: "",
+            readOnly: "true",
+            autoComplete: "given-name",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          state: {
+            type: "TextField",
+            id: "state",
+            name: "state",
+            label: "State",
+            value: "",
+            readOnly: "true",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          spacingone: {
+            span: 8,
+          },
+          policyDate: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Policy Date",
+            name: "policyDate",
+          },
+          startDate: {
+            type: "DatePicker",
+            id: "startDate",
+            name: "startDate",
+            label: "Policy Start Date",
+            variant: "filled",
+            maxDate: "",
+            minDate: "",
+            span: 6,
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onChange: (event, step, next) => {
+              const leadDetails = window.projectGlobals.getSessionStorageItem("workmenCompensationLead");
+              let policyTenure = leadDetails?.productDetails?.policyTenure;
+              let date = new Date(step.fields.startDate.value);
+              date.setMonth(date.getMonth() + policyTenure);
+              date.setDate(date.getDate() - 1);
+              step.fields.endDate.value = date.toISOString().slice(0, 10);
+            },
+          },
+          endDate: {
+            disabled: true,
+            type: "DatePicker",
+            id: "endDate",
+            name: "endDate",
+            label: "Policy End Date",
+            variant: "filled",
+            maxDate: "",
+            minDate: "",
+            span: 6,
+            value: "",
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          spacingone: {
+            span: 8,
+          },
+        },
+        onLoad: async function (step, next) {
+          try {
+            const { dobMaxDate, dobMinDate, doiMaxDate, doiMinDate, startMaxDate, startMinDate } = setDateMinMax();
+            step.fields.startDate.minDate = startMinDate;
+            step.fields.startDate.maxDate = startMaxDate;
+
+            const { getSessionStorageItem, setDefaultFormValues, setFormOptions, getSmeMaster } = window.projectGlobals;
+            const { parsedMasterData, rawMasterData } = getSmeMaster();
+            const leadDetails = getSessionStorageItem("workmenCompensationLead");
+            const kycDetails = getSessionStorageItem("kyc_details");
+
+            if (kycDetails?.kycData?.customerType == "O" && kycDetails?.kycStatus != "failed") {
+              step.fields.doi.hide = false;
+              step.fields.customerName.hide = true;
+              step.fields.salutation.hide = true;
+              step.fields.dob.hide = true;
+              step.fields["doi"].minDate = doiMinDate;
+              step.fields["doi"].maxDate = doiMaxDate;
+            } else {
+              step.fields.doi.hide = true;
+              step.fields.customerName.hide = false;
+              step.fields.salutation.hide = false;
+              step.fields.dob.hide = false;
+              step.fields["dob"].minDate = dobMinDate;
+              step.fields["dob"].maxDate = dobMaxDate;
+            }
+
+            if (leadDetails) {
+              let {
+                proposerDetails: { firstName = "", lastName = "", mobile = "", salutation = "Mr", dob = "", email = "", doi = "" } = {},
+                communicationDetails: { addressLine1 = "", addressLine2 = "", pincode = "" } = {},
+                productDetails: { businessDetails: { gstNo = "" } = {}, startDate = "", endDate = "", riskAddressDetails = [], isPanIndia = false } = {},
+              } = leadDetails;
+
+              if (startDate) {
+                let policyTenure = leadDetails?.productDetails?.policyTenure;
+                let date = new Date(startDate);
+                date.setMonth(date.getMonth() + policyTenure);
+                date.setDate(date.getDate() - 1);
+                endDate = date.toISOString().slice(0, 10);
+              }
+
+              step.fields = riskLocationMap(leadDetails, step.fields);
+              handleIsPanValid(isPanIndia, riskAddressDetails, step.fields);
+
+              const pincodePromises = riskAddressDetails.map((riskLocation) => {
+                if (riskLocation.pincode) {
+                  return handleRiskPincode(riskLocation.pincode);
+                } else {
+                  return Promise.resolve({});
+                }
+              });
+              const resolvedPincodes = await Promise.all(pincodePromises);
+
+              const riskAddress = riskAddressDetails.reduce((acc, riskLocation, index) => {
+                const industryId = riskLocation.id;
+                const checkIsSame = checkSameAddress(leadDetails?.communicationDetails, {
+                  addressLine1: riskLocation.addressLine1,
+                  addressLine2: riskLocation.addressLine2,
+                  pincode: resolvedPincodes[index],
+                });
+                acc[`isSame_${industryId}`] = checkIsSame ? "yes" : "no";
+                acc[`forIndustry_${industryId}`] = rawMasterData?.industry?.find((item) => item.id === industryId)?.industryName || "";
+                acc[`riskAddressLine1_${industryId}`] = riskLocation.addressLine1;
+                acc[`riskAddressLine2_${industryId}`] = riskLocation.addressLine2;
+                acc[`riskPincode_${industryId}`] = resolvedPincodes[index] || {};
+                acc[`riskCity_${industryId}`] = acc[`riskPincode_${industryId}`].city_name || "";
+                acc[`riskState_${industryId}`] = acc[`riskPincode_${industryId}`].state_name || "";
+                return acc;
+              }, {});
+
+              setFormOptions(step.fields, parsedMasterData);
+              const defautlValues = {
+                salutation,
+                customerName: [firstName, lastName].filter(Boolean).join(" "),
+                mobile,
+                email,
+                dob,
+                doi,
+                gstNo,
+                addressLine1,
+                addressLine2,
+                pincode,
+                city: pincode.city_name || "",
+                state: pincode.state_name || "",
+                endDate,
+                startDate,
+                isPanIndia: isPanIndia ? "yes" : "no",
+                ...riskAddress,
+              };
+              setDefaultFormValues(step.fields, defautlValues);
+            }
+            next(step);
+          } catch (error) {
+            console.error("An error occurred", error);
+            next(step);
+          }
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidName: function (str) {
+        var regexp = new RegExp(/^\s*[a-zA-Z]([-']?[a-zA-Z]+)*( [a-zA-Z]([-']?[a-zA-Z]+)*)+\s*$/);
+        return regexp.test(str);
+      },
+      isValidEmail: function (str) {
+        var regexp = new RegExp(/^$|^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/);
+        return regexp.test(str);
+      },
+      isValidAddress: function (str) {
+        var regExp = new RegExp(/^.{1,100}$/);
+        return !regExp.test(str);
+      },
+      isValidGST: function (str) {
+        if (!str.length) return false;
+        var regExp = new RegExp(/^[0-9]{2}[a-zA-Z]{5}[0-9]{4}[a-zA-Z]{1}[1-9a-zA-Z]{1}Z[0-9a-zA-Z]{1}$/);
+        return !regExp.test(str);
+      },
+    },
+  },
+};

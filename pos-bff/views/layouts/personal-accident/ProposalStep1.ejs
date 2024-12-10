@@ -1,0 +1,165 @@
+validateFields = (step,next) => {
+  let checkValidationKey = (key,type) => {
+    let validationRules = _.get(window.projectGlobals.getSessionStorageItem('investmentMasterData'),'insurers[0].validationRules',[]);
+    for(let i in validationRules){
+      if(validationRules[i].type == type && validationRules[i].validationKey.includes(key) && validationRules[i].isMandatory){
+        return true;
+      }
+    }
+    return false;
+  }
+  next(step);
+}
+
+getDateRangeFromAge = (age) => {
+  let date = new Date();
+  let minRange = date - ((age + 2) * 1000 * 60 * 60 * 24 * 365);	
+  let maxRange = date - ((age - 2) * 1000 * 60 * 60 * 24 * 365);	
+  minRange = new Date(minRange);	
+  maxRange  = new Date(maxRange);	
+  minRange.setHours(0,0,0);	
+  minRange.setDate((date).getDate()+1);	
+  maxRange.setHours(23,59,59);	
+  maxRange.setDate((date).getDate());
+  return {
+    minDate:minRange,
+    maxDate:maxRange
+  }
+}
+
+window.formBuilderSchemaPersonalAccidentProposalForm = {
+    formBuilder: {
+      steps: [
+        {
+          submitButtonLabel: "Continue to Insurer Details",
+          submitButtonSticky: false,
+          submitButtonLoader: false,
+          fields: {
+            "proposer": {
+              "hide": true,
+              "type": "YesNoComp",
+              "id": "proposer",
+              "name": "proposer",
+              "label": "Select The Proposer",
+              "span": 8,
+              "validators": [
+                "isEmpty"
+              ],
+              "errormessages": [
+                "This field is required"
+              ],
+              "options": []
+            },
+            "communicationHeading": {
+              "type": "HeadingComp",
+              "id": "communicationHeading",
+              "name": "communicationHeading",
+              "label": "Communication details",
+              "span": 12
+            },
+            proposeeMobile: {
+              type: "TextField",
+              id: "proposeeMobile",
+              name: "proposeeMobile",
+              label: "Mobile",
+              variant: "filled",
+              value:"",
+              span: 6,
+              fieldType: "mobile",
+              validators: ["isEmpty"],
+              errormessages: ["Please enter contact number"],
+            },
+            proposeeEmail: {
+              type: "TextField",
+              id: "proposeeEmail",
+              name: "proposeeEmail",
+              label: "Email ID",
+              variant: "filled",
+              value:"",
+              span: 6,
+              fieldType: "email",
+              validators: ["isEmpty"],
+              errormessages: ["Please enter Email ID"],
+            },
+            proposeeAddress1: {
+              type: "TextField",
+              id: "proposeeAddress1",
+              name: "proposeeAddress1",
+              label: "Address Line - 1",
+              variant: "filled",
+              span: 6,
+              validators: [
+                "isEmpty"
+              ],
+              errormessages: [
+                "This field is required"
+              ]
+            },
+            proposeeAddress2: {
+              type: "TextField",
+              id: "proposeeAddress2",
+              name: "proposeeAddress2",
+              label: "Address Line - 2",
+              variant: "filled",
+              span: 6,
+              validators: [
+                "isEmpty"
+              ],
+              errormessages: [
+                "This field is required"
+              ]
+            },
+            proposeePincode:{
+              type: "Pincode",
+              id: "proposeePincode",
+              name: "proposeePincode",
+              label: "Pincode",
+              multiline : false,
+              variant: "filled",
+              stateRequired : false ,
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+              onChange: (event, step, next) => {
+                let storeCityName = step.fields.proposeePincode.value && step.fields.proposeePincode.value.city_name ? step.fields.proposeePincode.value.city_name : "";
+                step.fields["proposeeCity"]["value"] = storeCityName;
+                step.fields["proposeeCity"]["error"] = false;
+                step.fields["proposeeCity"]["helperText"] = "";
+                next(step);
+              },
+            },
+            proposeeCity: {
+              type: "TextField",
+              id: "proposeeCity",
+              name: "proposeeCity",
+              label: "City",
+              value : "",
+              readOnly : "true",
+              autoComplete: "given-name",
+              variant: "filled",
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+          },
+        },
+      ],
+      activeStep: 0,
+      customValidators: {
+        isValidName: function (str) {
+          var regexp = new RegExp(/^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i);
+          return regexp.test(str);
+        },
+        isValidIncome: function (str) {
+          var regexp = new RegExp(
+            /^[0-9]*$/i
+          );
+          return regexp.test(str);
+        },
+        isValidPanCard: function (str){
+          var regexp = new RegExp(/^([A-Z]){5}([0-9]){4}([A-Z]){1}?$/i);
+          return regexp.test(str);
+        }
+      },
+    },
+  }

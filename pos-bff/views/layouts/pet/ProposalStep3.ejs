@@ -1,0 +1,83 @@
+window.formBuilderSchemaProposal3 = {
+    formBuilder: {
+      steps: [
+        {
+          name: "Declaration",
+          submitButtonLabel: "Review Details",
+          fields: {},
+          onSubmit: function (data, resolve, reject) {
+            console.log("Proposal Step", data);
+            resolve({ message: "" });
+          },
+          onLoad: function (step, next) {
+            let getSessionStorageItem = (key) => {
+              if (typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined') {
+                  let data = sessionStorage.getItem(key);
+                if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                    let obj = JSON.parse(sessionStorage.getItem(key));
+                    return obj;
+                }
+              }
+              return {};
+            }
+            let getLocalStorageItem = (key) => {
+              if (typeof window.localStorage !== 'undefined') {
+                  let data = localStorage.getItem(key);
+                  if (typeof data !== 'undefined' && data != 'undefined' && data != undefined) {
+                      let obj = JSON.parse(localStorage.getItem(key));
+                      return obj;
+                  }
+              }
+              return {};
+            }
+            let questionnaire = getSessionStorageItem('questionnaire');
+            let petuserinfo = getLocalStorageItem('petuserinfo');
+            questionnaire.forEach((item)=>{
+              if(!step.fields[item.questionCode]){
+                if(item.type == 'radio'){
+                  step.fields[item.questionCode] =  {
+                    type: "YesNoComp",
+                    id: item.questionCode,
+                    name: item.questionCode,
+                    label: item.questionText,
+                    validators: ["isEmpty"],
+                    errormessages: [
+                      "This field is required",
+                    ],
+                    options: item.ansChoice,
+                  }
+                }
+                else if(item.type == 'multi-select'){
+                  step.fields[item.questionCode] = {
+                    type: "CheckBox",
+                    id: item.questionCode,
+                    name: item.questionCode,
+                    label: item.questionText,
+                    span: 12,
+                    validators: ["isEmpty"],
+                    errormessages: [
+                      "This field is required",
+                    ],
+                    options: item.ansChoice
+                  }
+                }
+              }
+            })
+            if(_.get(petuserinfo,'insuredMembers[0].questions')){
+              let questionSelected = _.get(petuserinfo,'insuredMembers[0].questions');
+              questionSelected.forEach((item)=>{
+                if(step.fields[item.questionCode].type == 'YesNoComp')
+                  step.fields[item.questionCode].value = item.answer;
+                else if(step.fields[item.questionCode].type == 'CheckBox'){
+                  if(item.answer)
+                    step.fields[item.questionCode].value = item.answer.split(',');
+                }
+              })
+            }
+            next(step);
+          },
+        },
+      ],
+      activeStep: 0
+    },
+  }

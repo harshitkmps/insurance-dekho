@@ -1,0 +1,14 @@
+
+
+.tripSEUi button{text-align: left;background:#fff;border: none;width: 160px;border-right: solid 1px rgba(51, 56, 70, 0.20); padding: 14px 0 10px 33px;}
+.tripSEUi .titletext2{color: #333846 !important; font-size: 13px; cursor: pointer; }
+
+@media screen and (max-width:1023px) {
+.tripSEUi button {text-align: left;background: #fff;width: 100%;margin-bottom: 16px;
+        border: none;border-right: none;padding: 10px 0 10px 10px;height: 54px;
+        border: 1px solid rgba(51, 56, 70, 0.30);border-radius: 8px;
+    }
+    .travelRow .css-1wrgmsj-MuiGrid-root:last-child .tripSEUi button{width: 324px;border: 1px solid rgba(51, 56, 70, 0.30); margin-bottom: 0px; }
+    .tripSEUi .titletext2{ line-height: 1;padding-top: 4px;}
+    .tripSEUi button .MuiTypography-body2{ font-weight: 600 !important; }
+}

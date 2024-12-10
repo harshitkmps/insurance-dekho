@@ -1,0 +1,392 @@
+let validations = {};
+let prefilledDataObject = {};
+const validateFields = () => {
+  let validationRules = JSON.parse(
+    sessionStorage.getItem("ValidationsCheck_rules")
+  );
+  validationRules.map((obj) => {
+    validations[`${obj.validationKey}`] = obj.isMandatory;
+  });
+};
+let eligibleProposers = ["Self", "Spouse", "children", "father", "mother"];
+
+const getDateRangeFromAge = (age) => {
+  let date = new Date();
+  let minRange = date - (age + 2) * 1000 * 60 * 60 * 24 * 365;
+  let maxRange = date - (age - 2) * 1000 * 60 * 60 * 24 * 365;
+  minRange = new Date(minRange);
+  maxRange = new Date(maxRange);
+  minRange.setHours(0, 0, 0);
+  minRange.setDate(date.getDate() + 1);
+  maxRange.setHours(23, 59, 59);
+  maxRange.setDate(date.getDate());
+  return {
+    minDate: minRange,
+    maxDate: maxRange,
+  };
+};
+const getAdultDateRange = (key) => {
+  let minRange = new Date();
+  let maxRange = new Date();
+  let selectedAge = "";
+
+  if (["self", "spouse"].includes(key)) {
+    minRange.setFullYear(minRange.getFullYear() - 65);
+    maxRange.setFullYear(maxRange.getFullYear() - 18);
+    minRange.setDate(minRange.getDate() + 1);
+  } else if (["child_1", "child_2"].includes(key)) {
+    minRange.setFullYear(minRange.getFullYear() - 21);
+    maxRange.setFullYear(maxRange.getFullYear() - 5);
+  } else if (["father", "mother"].includes(key)) {
+    minRange.setYear(minRange.getFullYear() - 100);
+    minRange.setDate(minRange.getDate() + 1);
+    maxRange.setYear(maxRange.getFullYear() - 35);
+  } else if (key == "proposer_details") {
+    minRange.setYear(minRange.getFullYear() - 100);
+    minRange.setDate(minRange.getDate() + 1);
+    maxRange.setYear(maxRange.getFullYear() - 18);
+  }
+  return {
+    minDate: minRange,
+    maxDate: maxRange,
+  };
+};
+
+const getTitle = (key) => {
+  if (["self"].includes(key)) {
+    return [
+      { label: "Mr.", value: "Mr." },
+      { label: "Ms.", value: "Ms" },
+    ];
+  } else if (key.includes("spouse")) {
+    return [
+      { label: "Mr.", value: "Mr." },
+      { label: "Ms.", value: "Ms." },
+    ];
+  } else if (key.includes("child_1")) {
+    return [
+      { label: "Mr.", value: "Mr." },
+      { label: "Ms.", value: "Ms." },
+    ];
+  } else if (key.includes("child_2")) {
+    return [
+      { label: "Mr.", value: "Mr." },
+      { label: "Ms.", value: "Ms." },
+    ];
+  } else if (["father", "mother"].includes(key)) {
+    return [
+      { label: "Mr.", value: "Mr." },
+      { label: "Ms.", value: "Ms." },
+    ];
+  } else if (key == "proposer_details") {
+    return [
+      { label: "Mr.", value: "Mr." },
+      { label: "Ms.", value: "Ms." },
+    ];
+  }
+};
+
+const memberDetailsMapping = (totalMembers) => {
+  if (totalMembers === "1A") {
+    familymemberList.push("Self");
+  } else if (totalMembers === "2A") {
+    familymemberList.push("Self", "Spouse");
+  } else if (totalMembers === "2A1C") {
+    familymemberList.push("Self", "Spouse", "child_1");
+  } else if (totalMembers === "2A2C") {
+    familymemberList.push("Self", "Spouse", "child_1", "child_2");
+  }
+};
+
+const prefilledCheck = (memberDetails, familymemberList, memberCheck) => {
+  let finalData = {};
+  const insuredMembers = memberDetails.insuredMembers;
+
+  if (Object.keys(memberDetails.insuredMembers[0]).length > 1) {
+    const childrenCount = {
+      child: 0,
+    };
+
+    insuredMembers.forEach((member) => {
+      const { salutation, firstName, lastName, dob, relation } = member;
+
+      if (relation === "son" || relation === "daughter") {
+        childrenCount.child++;
+        finalData[`child_${childrenCount.child}`] = {
+          salutation,
+          firstName,
+          lastName,
+          dob,
+        };
+      } else {
+        finalData[relation] = {
+          salutation,
+          firstName,
+          lastName,
+          dob,
+        };
+      }
+    });
+    finalData.communicationDetails = memberDetails.communicationDetails
+      ? {
+          addressLine1: memberDetails.communicationDetails.addressLine1 || "",
+          addressLine2: memberDetails.communicationDetails.addressLine2 || "",
+          city_name: memberDetails.communicationDetails.cityName || "",
+          pincode: parseInt(memberDetails.communicationDetails.pincode) || 0,
+        }
+      : {};
+
+    finalData.proposerDetails = memberDetails.proposerDetails
+      ? {
+          email: memberDetails.proposerDetails.email || "",
+          mobile: memberDetails.proposerDetails.mobile || "",
+        }
+      : {};
+  }
+  return finalData;
+};
+
+window.formBuilderSchemaHospicashProposalForm = {
+  formBuilder: {
+    steps: [
+      {
+        submitButtonLabel: "Continue to Plan Summary",
+        submitButtonSticky: false,
+        submitButtonLoader: false,
+        fields: {},
+        onLoad: function (step, next) {
+          validateFields();
+          let memberDetails = JSON.parse(
+            sessionStorage.getItem("hospicashuserinfo")
+          );
+          let familymemberList = JSON.parse(
+            sessionStorage.getItem("familymemberList")
+          );
+          let memberCheck = JSON.parse(sessionStorage.getItem("memberCheck"));
+          prefilledDataObject = prefilledCheck(
+            memberDetails,
+            familymemberList,
+            memberCheck
+          );
+          Object.keys(familymemberList).map((key) => {
+            step.fields[`${key}Heading`] = {
+              type: "HeadingComp",
+              id: `${key}Heading`,
+              name: `${key}Heading`,
+              label: `${key}`,
+              span: 12,
+            };
+            step.fields[`${key}Title`] = {
+              type: "SelectWithLabel",
+              options: getTitle(key),
+              max: 1,
+              disabled: false,
+              id: `${key}Title`,
+              name: `${key}Title`,
+              label: "Salutation",
+              labelAuto: "Salutation",
+              variant: "filled",
+              span: 4,
+              validators: ["isEmpty"],
+              value:
+                prefilledDataObject[key] && prefilledDataObject[key].salutation
+                  ? prefilledDataObject[key].salutation
+                  : "",
+              errormessages: ["Required"],
+              onChange: (event, step, next) => {},
+            };
+            step.fields[`${key}Name`] = {
+              type: "TextField",
+              id: `${key}Name`,
+              name: `${key}Name`,
+              label: "Full Name",
+              value:
+                prefilledDataObject[key] &&
+                (prefilledDataObject[key].full_name ||
+                  (prefilledDataObject[key].firstName &&
+                    prefilledDataObject[key].lastName))
+                  ? prefilledDataObject[key].full_name ||
+                    prefilledDataObject[key].firstName +
+                      " " +
+                      prefilledDataObject[key].lastName
+                  : "",
+              variant: "filled",
+              span: 8,
+              validators: [
+                "isEmpty",
+                "isSpecialChar",
+                "isContainNumber",
+                "!isAtLeadThreeChar",
+                "!isValidName",
+              ],
+              errormessages: [
+                "Please enter the name.",
+                "Special Characters are not allowed in Full Name.",
+                "Numbers are not allowed in Full Name.",
+                "Please enter at least three characters",
+                "Please enter Full Name.",
+              ],
+              onChange: (event, step, next) => {},
+            };
+            step.fields[`${key}Dob`] = {
+              type: "DatePicker",
+              id: `${key}Dob`,
+              name: `${key}Dob`,
+              label: "Date Of Birth",
+              variant: "filled",
+              value:
+                prefilledDataObject[key] && prefilledDataObject[key].dob
+                  ? prefilledDataObject[key].dob
+                  : "",
+              maxDate: getAdultDateRange(key).maxDate,
+              minDate: getAdultDateRange(key).minDate,
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            };
+            if (
+              memberCheck.addressCheckFor1 ||
+              (memberCheck.selfAddressOnly && key == "self")
+            ) {
+              step.fields[`${key}Mobile`] = {
+                type: "TextField",
+                id: `${key}Mobile`,
+                name: `${key}Mobile`,
+                label: "Phone",
+                variant: "filled",
+                span: 6,
+                value:
+                  prefilledDataObject.proposerDetails &&
+                  prefilledDataObject.proposerDetails.mobile
+                    ? prefilledDataObject.proposerDetails.mobile
+                    : "",
+                fieldType: "mobile",
+                inputProps: { maxLength: 10 },
+                validators: ["isEmpty", "!isMobilePhone"],
+                errormessages: [
+                  "Please enter a valid value",
+                  "Please enter a valid mobile number",
+                ],
+              };
+              step.fields[`${key}Email`] = {
+                type: "TextField",
+                id: `${key}Email`,
+                name: `${key}Email`,
+                label: "Email",
+                multiline: false,
+                variant: "filled",
+                span: 6,
+                value:
+                  prefilledDataObject.proposerDetails &&
+                  prefilledDataObject.proposerDetails.email
+                    ? prefilledDataObject.proposerDetails.email
+                    : "",
+                fieldType: "email",
+                validators: ["isEmpty", "!isEmail"],
+                errormessages: ["This field is required", "Email is invalid"],
+              };
+              step.fields[`${key}Address1`] = {
+                type: "TextField",
+                id: `${key}Address1`,
+                name: `${key}Address1`,
+                label: "Address",
+                variant: "filled",
+                span: 6,
+                value:
+                  prefilledDataObject.communicationDetails &&
+                  prefilledDataObject.communicationDetails.addressLine1
+                    ? prefilledDataObject.communicationDetails.addressLine1
+                    : "",
+                inputProps: { maxLength: 60 },
+                validators: ["isEmpty", "!isValidAddress"],
+                errormessages: [
+                  "This field is required",
+                  "Please enter a valid address",
+                ],
+              };
+              step.fields[`${key}Pincode`] = {
+                type: "Pincode",
+                id: `${key}Pincode`,
+                name: `${key}Pincode`,
+                label: "Pincode",
+                multiline: false,
+                variant: "filled",
+                stateRequired: false,
+                value:
+                  prefilledDataObject.communicationDetails &&
+                  prefilledDataObject.communicationDetails.pincode
+                    ? prefilledDataObject.communicationDetails.pincode
+                    : "",
+                span: 6,
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+                onChange: (event, step, next) => {
+                  let storeCityName =
+                    step.fields[`${key}Pincode`].value &&
+                    step.fields[`${key}Pincode`].value.city_name
+                      ? step.fields[`${key}Pincode`].value.city_name
+                      : "";
+                  step.fields[`${key}City`]["value"] = storeCityName;
+                  step.fields[`${key}City`]["error"] = false;
+                  step.fields[`${key}City`]["helperText"] = "";
+                  next(step);
+                },
+              };
+              step.fields[`${key}City`] = {
+                type: "TextField",
+                id: `${key}City`,
+                name: `${key}City`,
+                label: "City",
+                value:
+                  prefilledDataObject.communicationDetails &&
+                  prefilledDataObject.communicationDetails.city_name
+                    ? prefilledDataObject.communicationDetails.city_name
+                    : "",
+                readOnly: "true",
+                autoComplete: "given-name",
+                variant: "filled",
+                span: 6,
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+              };
+            }
+            if (memberCheck.length < 0) {
+              step.fields[`${key}Address2`] = {
+                type: "TextField",
+                id: `${key}Address2`,
+                name: `${key}Address2`,
+                label: "Address line - 2",
+                variant: "filled",
+                span: 6,
+                inputProps: { maxLength: 60 },
+                validators: ["isEmpty", "!isValidAddress"],
+                errormessages: [
+                  "This field is required",
+                  "Please enter a valid address",
+                ],
+              };
+            }
+          });
+          next(step);
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidName: function (str) {
+        var regexp = new RegExp(
+          /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+        );
+        return regexp.test(str);
+      },
+      isValidIncome: function (str) {
+        var regexp = new RegExp(/^[0-9]*$/i);
+        return regexp.test(str);
+      },
+      isValidPanCard: function (str) {
+        var regexp = new RegExp(/^([A-Z]){5}([0-9]){4}([A-Z]){1}?$/i);
+        return regexp.test(str);
+      },
+    },
+  },
+};

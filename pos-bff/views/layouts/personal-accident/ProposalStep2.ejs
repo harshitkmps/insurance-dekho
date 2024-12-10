@@ -1,0 +1,389 @@
+var validations = {};
+
+validateFields = () => {
+  let validationRules = JSON.parse(sessionStorage.getItem('validation_rules'));
+  console.log("hkki",validationRules);
+  validationRules.map((obj) => {
+    validations[`${obj.validationKey}`] = obj.isMandatory;
+  })
+}
+
+  var eligibleProposers = ["self","spouse","father","mother"];
+  
+  fieldHeader = (key,member) => {
+    //let proposer = JSON.parse(sessionStorage.getItem('paProposer'));
+    let proposer = 'self';
+    let value = key;
+    if(key === 'self'){
+      value = "Self";
+    } else if(key === 'spouse'){
+      value = "Spouse";
+    } else if(key === 'mother') {
+      value = "Mother";
+    } else if(key === 'father') {
+      value = "Father";
+    } else if(key.includes('_')){
+      let splitKey = key.split('_');
+      if(member.gender === "Male")
+      value = `Son ${splitKey[1]}`;
+      if(member.gender === "Female")
+      value = `Daughter ${splitKey[1]}`;
+    }
+
+    if(proposer === key){
+      value = value + " (Proposer)";
+    }
+    return value;
+  }
+
+  getDateRangeFromAge = (age) => {
+    let date = new Date();
+    let minRange = date - ((age + 2) * 1000 * 60 * 60 * 24 * 365);	
+    let maxRange = date - ((age - 2) * 1000 * 60 * 60 * 24 * 365);	
+    minRange = new Date(minRange);	
+    maxRange  = new Date(maxRange);	
+    minRange.setHours(0,0,0);	
+    minRange.setDate((date).getDate()+1);	
+    maxRange.setHours(23,59,59);	
+    maxRange.setDate((date).getDate());
+    return {
+      minDate:minRange,
+      maxDate:maxRange
+    }
+  }
+  getAdultDateRange = (key) => {
+    let minRange = new Date();
+    let maxRange = new Date();
+    let selectedAge = "";
+
+
+    if (["self", "spouse"].includes(key)) {
+      minRange.setYear(minRange.getFullYear() - 100);
+      minRange.setDate(minRange.getDate() + 1);
+      maxRange.setYear(maxRange.getFullYear() - 18);
+        //selectedAge = healthinfo[fieldMapping[member]];
+
+  } else if (key.includes('child')) {
+    minRange.setYear(minRange.getFullYear() - 30);
+    minRange.setDate(minRange.getDate() + 1);
+  } else if (["father", "mother"].includes(key)) {
+    minRange.setYear(minRange.getFullYear() - 100);
+    minRange.setDate(minRange.getDate() + 1);
+    maxRange.setYear(maxRange.getFullYear() - 35);
+  } else if (key == "proposer_details") {
+    minRange.setYear(minRange.getFullYear() - 100);
+    minRange.setDate(minRange.getDate() + 1);
+    maxRange.setYear(maxRange.getFullYear() - 18);
+  }
+  //else{
+  //  let date = new Date();
+  //  let minRange = date - (100 * 1000 * 60 * 60 * 24 * 365);	
+  //  let maxRange = date - (18 * 1000 * 60 * 60 * 24 * 365);	
+  //  minRange = new Date(minRange);	
+  //  maxRange  = new Date(maxRange);	
+  //  minRange.setHours(0,0,0);	
+  //  minRange.setDate((date).getDate()+1);	
+  //  maxRange.setHours(23,59,59);	
+  //  maxRange.setDate((date).getDate());
+  //}
+  return {
+    minDate:minRange,
+    maxDate:maxRange
+  }
+
+  }
+
+  getTitle = (key) => {
+    if (["self", "spouse"].includes(key)) {
+      return [{ label: "Mr.", value: "Mr." },
+      { label: "Mrs.", value: "Mrs." }]
+
+    } else if (key.includes('child')) {
+      return [{ label: "Mr.", value: "Mr." },
+      { label: "Ms.", value: "Ms." }]
+    
+    } else if (["father", "mother"].includes(key)) {
+      return [{ label: "Mr.", value: "Mr." },
+      { label: "Mrs.", value: "Mrs." }]
+      
+    } else if (key == "proposer_details") {
+      return [{ label: "Mr.", value: "Mr." },
+      { label: "Mrs.", value: "Mrs." },
+      { label: "Ms.", value: "Ms." }]
+    }
+  }
+  
+  window.personalAccidentProposalFormStep2 = {
+      formBuilder: {
+        steps: [
+        {
+          submitButtonLabel: "Continue to Nominee Details",
+          submitButtonSticky: false,
+          submitButtonLoader: false,
+          fields: {
+            
+          },
+          onLoad: function (step, next){
+            validateFields();
+            let memberDetails = sessionStorage.getItem('memberDetails');
+            memberDetails = JSON.parse(memberDetails);
+            let occupations = _.get(JSON.parse(sessionStorage.getItem('occupations')),'occupations');
+            let occupationList = []
+            occupations.map(occupation => {
+                occupationList.push({
+                  value: occupation.occupation,
+                  label : occupation.occupation
+                })
+            });
+            let educationData = _.get(JSON.parse(sessionStorage.getItem('insurerDetails')),'education');
+            let qualificationList = [];
+            educationData.map(education => {
+              qualificationList.push({
+                value: education.masterEducation,
+                label: education.masterEducation
+              })
+            })
+            let maritalStatusList = [];
+            let maritalStatusDetails = _.get(JSON.parse(sessionStorage.getItem('insurerDetails')),'marital_status');
+            maritalStatusDetails.map(maritalStatus => {
+              maritalStatusList.push({
+                value: maritalStatus.maritalStatus,
+                label : maritalStatus.maritalStatus
+              })
+          });
+          let insurerDetails = JSON.parse(sessionStorage.getItem('insurerDetails'));
+            if(validations['isSelfMandatory'] ){
+              memberDetails = {
+                'self' : {
+                  ...insurerDetails.self_proposer
+                },
+                ...memberDetails
+              };
+            }
+            let membersList = Object.keys(memberDetails) ;
+            console.log("menjds",membersList)
+            membersList && membersList.filter(member => member !== 'proposer_details').map(key => {
+              step.fields[`${key}Heading`] = {
+                "type": "HeadingComp",
+                "id": `${key}Heading`,
+                "name": `${key}Heading`,
+                "label": fieldHeader(key, memberDetails[key]),
+                "span": 12
+              };
+              step.fields[`${key}Title`] = {
+                type: "SelectWithLabel",
+                options: getTitle(key),
+                max: 1,
+                disabled: false,
+                id: `${key}Title`,
+                name: `${key}Title`,
+                label:"Salutation",
+                labelAuto:"Salutation",
+                variant: "filled",
+                span: 2,
+                validators: ["isEmpty"],
+                value: memberDetails[key].title ? memberDetails[key].title : "",
+                errormessages: [
+                  "Please select the title."
+                ],
+                onChange: (event, step, next) => {
+                }
+              };
+              step.fields[`${key}Name`] = {
+                type: "TextField",
+                id: `${key}Name`,
+                name: `${key}Name`,
+                label: "Full Name",
+                value: memberDetails[key].full_name ? memberDetails[key].full_name : memberDetails[key].first_name ? memberDetails[key].first_name + " " + memberDetails[key].last_name : "",
+                autoComplete: `${key}Name`,
+                variant: "filled",
+                span: 6,
+                disabled: key === 'self' && (memberDetails[key].first_name || memberDetails[key].full_name) ? true : false,
+                validators: ["isEmpty","isSpecialChar", "isContainNumber", "!isAtLeadThreeChar","!isValidName"],
+                errormessages: [
+                  "Please enter the name.",
+                  "Special Characters are not allowed in Full Name.",
+                  "Numbers are not allowed in Full Name.",
+                  "Please enter at least three characters",
+                  "Please enter Full Name."
+                ],
+                onChange: (event, step, next) => {
+                }
+              };
+              step.fields[`${key}Dob`] = {
+                type: "DatePicker",
+                id: `${key}Dob`,
+                name: `${key}Dob`,
+                label: "Date Of Birth",
+                variant: "filled",
+                value: memberDetails[key].dob,
+                disabled: key === 'self' && memberDetails[key].dob ? true : false,
+                maxDate: getAdultDateRange(key).maxDate,
+                minDate: getAdultDateRange(key).minDate,
+                span: 6,
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+              };
+              if(key === 'self' || (!('self' in memberDetails) && key === 'spouse')){
+                step.fields[`${key}Gender`] = {
+                  type: "Radio",
+                  options: [
+                    { value: "Male", label: "Male" },
+                    { value: "Female", label: "Female" },
+                  ],
+                  row : true,
+                  id: `${key}Gender`,
+                  name: `${key}Gender`,
+                  label: "Gender",
+                  labelPlacement:"start",
+                  variant: "filled",
+                  titlePlacement:"start",
+                  background:"gray",
+                  span: 6,
+                  value: memberDetails[key].gender,
+                  validators: ["isEmpty"],
+                  errormessages: ["Gender is required field"],
+                };
+              }
+                step.fields[`${key}HeightFeet`] = {
+                  hide: validations['heightFeet'] ? false : true,
+                  type: "TextField",
+                  id: `${key}HeightFeet`,
+                  name: `${key}HeightFeet`,
+                  label: "Height in Feet",
+                  value : memberDetails[key].height_feet ? memberDetails[key].height_feet : "",
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  span: 6,
+                  validators: ["isEmpty","!isInt"],
+                  errormessages: ["This field is required","Please enter the value in numbers"],
+                };
+                step.fields[`${key}HeightInch`] = {
+                  hide: validations['heightInch'] ? false : true,
+                  type: "TextField",
+                  id: `${key}HeightInch`,
+                  name: `${key}HeightInch`,
+                  label: "Height in Inch",
+                  value : memberDetails[key].height_inch ? memberDetails[key].height_inch : "",
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  span: 6,
+                  validators: ["isEmpty","!isInt"],
+                  errormessages: ["This field is required","Please enter the value in numbers"],
+                };
+                step.fields[`${key}Weight`] = {
+                  hide: validations['weight'] ? false : true,
+                  type: "TextField",
+                  id: `${key}Weight`,
+                  name: `${key}Weight`,
+                  label: "Weight",
+                  value : memberDetails[key].weight ? memberDetails[key].weight : "",
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  span: 6,
+                  validators: ["isEmpty","!isInt"],
+                  errormessages: ["This field is required","Please enter valid weight"],
+                };
+
+                step.fields[`${key}Qualification`] = {
+                  hide: validations['education_list'] ? (eligibleProposers.includes(key) ? false : true ): true,
+                  type:"SelectWithLabel",
+                  id:`${key}Qualification`,
+                  name:`${key}Qualification`,
+                  label:"Qualification",
+                  labelAuto:"Qualification",
+                  options: qualificationList,
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  span:6,
+                  value: memberDetails[key].qualification ? memberDetails[key].qualification : "",
+                  onChange: (event, step, next) => {
+              
+                    next(step);
+                  }
+                };
+
+                
+                step.fields[`${key}Occupation`] = {
+                  hide: validations['occupation']? (eligibleProposers.includes(key) ? false : true) : true,
+                  type:"SelectWithLabel",
+                  id:`${key}Occupation`,
+                  name:`${key}Occupation`,
+                  label:"Occupation",
+                  labelAuto:"Occupation",
+                  options: occupationList,
+                  autoComplete: "given-name",
+                  variant: "filled",
+                  validators: ["isEmpty"],
+                  span:6,
+                  value: memberDetails[key].occupation ? memberDetails[key].occupation : "",
+                  errormessages: ["This field is required"],
+                  onChange: (event, step, next) => {
+              
+                    next(step);
+                  }
+                };
+               
+                step.fields[`${key}AnnualIncome`] = {
+                  hide: validations['annualIncome'] ? (eligibleProposers.includes(key) ? false : true ): true,
+                  type: "AmountField",
+                  id: `${key}AnnualIncome`,
+                  name: `${key}AnnualIncome`,
+                  label: "Annual Income",
+                  value: memberDetails[key].annual_income ? memberDetails[key].annual_income : "",
+                  variant: "filled",
+                  span: 6,
+                  validators: ["isEmpty","!isValidIncome"],
+                  errormessages: [
+                    "This field is required",
+                    "Please enter valid income"
+                  ],
+                };
+                if(Object.keys(memberDetails).length === 1 && key === 'self'){
+                  step.fields[`${key}MaritalStatus`] = {
+                    hide: validations['maritalStatus'] ? false : true,
+                    type:"SelectWithLabel",
+                    id:`${key}MaritalStatus`,
+                    name:`${key}MaritalStatus`,
+                    label:"Marital Status",
+                    labelAuto:"Marital Status",
+                    options: maritalStatusList,
+                    autoComplete: "given-name",
+                    variant: "filled",
+                    validators: ["isEmpty"],
+                    value: "",
+                    span:6,
+                    errormessages: ["This field is required"],
+                    onChange: (event, step, next) => {
+                      step.fields
+                      next(step);
+                    }
+                  };
+                  
+                  let maritalStatusSelected = maritalStatusDetails.find( item =>  item.mId == memberDetails[key].marital_status || item.maritalStatus == memberDetails[key].marital_status);
+                  step.fields[`${key}MaritalStatus`].value = maritalStatusSelected ? maritalStatusSelected.maritalStatus : "";
+                }
+              })
+            next(step);
+          }
+        },
+        ],
+        activeStep: 0,
+        customValidators: {
+          isValidName: function (str) {
+            var regexp = new RegExp(/^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i);
+            return regexp.test(str);
+          },
+          isValidIncome: function (str) {
+            var regexp = new RegExp(
+              /^[0-9]*$/i
+            );
+            return regexp.test(str);
+          },
+          isValidPanCard: function (str){
+            var regexp = new RegExp(/^([A-Z]){5}([0-9]){4}([A-Z]){1}?$/i);
+            return regexp.test(str);
+          }
+        },
+      },
+    }

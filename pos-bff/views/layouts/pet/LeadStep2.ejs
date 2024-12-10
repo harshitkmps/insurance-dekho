@@ -1,0 +1,109 @@
+window.formBuilderSchema2 = {
+    formBuilder: {
+      heading: "What’s the age of your pet?",
+      steps: [
+        {
+          submitButtonLabel: "Show Me Plans",
+          submitButtonSticky: true,
+          fields: {
+            
+          },
+          onSubmit: function (data, resolve, reject) {
+            //console.log("Personal Details", data);
+            resolve({ message: "" });
+          },
+          onLoad: function (step, next) {
+            let yearList = [];
+            for (let i = 0; i <= 9; i++) {
+                yearList.push({
+                    value: new String(i),
+                    label: i,
+                });
+            }
+
+            let monthList = [];
+            for (let i = 0; i < 12; i++) {
+              monthList.push({
+                value: new String(i),
+                label: i,
+              });
+            }
+
+            if(!step.fields.petYear){
+              step.fields['petYear'] = {
+                type:"SelectWithLabel",
+                id:"petYear",
+                name:"petYear",
+                label:"Years",
+                labelAuto:"Years",
+                options: yearList,
+                autoComplete: "given-name",
+                variant: "filled",
+                validators: ["isEmpty"],
+                span: 12,
+                errormessages: ["Please select the age of the Pet"],
+                onChange: (event, step, next) => {
+                  if(step.fields.petYear.value == 0){
+                    let ageList = [];
+                    for (let i = 6; i < 12; i++) {
+                        ageList.push({
+                            value: new String(i),
+                            label: i,
+                        });
+                    }
+                    step.fields.petMonth.options = ageList;
+                  }
+                  else{
+                    let ageList = [];
+                    for (let i = 0; i < 12; i++) {
+                        ageList.push({
+                            value: new String(i),
+                            label: i,
+                        });
+                    }
+                    step.fields.petMonth.options = ageList;
+                  }
+                  next(step);
+                }
+              }
+            }
+            
+            if(!step.fields.petMonth){
+              step.fields['petMonth'] = {
+                type:"SelectWithLabel",
+                id:"petMonth",
+                name:"petMonth",
+                label:"Months",
+                labelAuto:"Months",
+                options: monthList,
+                autoComplete: "given-name",
+                variant: "filled",
+                validators: ["isEmpty"],
+                span: 12,
+                errormessages: ["Please select the month"]
+              }
+            }
+            
+            if(!step.fields.pedSwitch){
+              step.fields['pedSwitch'] = {
+                type: "Switch",
+                id: "pedSwitch",
+                name: "pedSwitch",
+                label: "",
+                span: 12,
+                labelPlacement: "end",
+                value:"yes",
+                question:
+                  "Pet is sound, healthy, and free from pre-existing diseases?",
+              }
+            }
+
+            next(step);
+          },
+        },
+      ],
+      activeStep: 0,
+      customValidators: {
+      },
+    },
+  }

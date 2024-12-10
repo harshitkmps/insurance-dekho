@@ -1,0 +1,433 @@
+let DealerCityAndList = function(event, step, next) {
+  <% if(schemaVal.showDealerDropDown) { %>
+    if(!step.fields.dealerCitySingleSelect){
+      step.fields['dealerCitySingleSelect'] = {
+        type: "SingleSelectReactselect",
+        options: [],
+        id: "dealerCitySingleSelect",
+        name: "dealerCitySingleSelect",
+        label: "Select Dealer City",
+        variant: "outlined",
+        span: 6,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer city"],
+        onChange: (event, step, next) => {
+              let item = step.fields.dealerCitySingleSelect.value[0];
+              let uuid = '<%= schemaVal.uuid %>';
+              step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+              step.fields["dealerSingleSelect"]["value"] = [];
+              let dataParams = {};
+                <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getAllDealers: true
+                }
+                <% } else { %>
+                dataParams = {
+                  getDealerByReportingManager: true,
+                  projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                  city_id: item.value,
+                  //onboarded_on_general: true,
+                  getHierarchyUsers: true,
+                  reporting_sfa_uuids: uuid,
+                  product: 'sme',
+                }
+              <% } %>
+              axios.get('/pos-bff/api/v1/dealers', {
+                params: dataParams
+              }).then((res) => {
+                var dealerSelect = [];
+                if (res.status == 200) {
+                  if (res.data && res.data && res.data.data && res.data.data.data) {
+                    res.data.data.data.map((item) => {
+                      dealerSelect.push({ value: item.iam_uuid, label: item.name });
+                    });
+                    step.fields["dealerSingleSelect"].validators = ["isEmpty"]
+                  } else {
+                    step.fields["dealerSingleSelect"].validators = []
+                  }
+                }
+                step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                next(step);  
+              }).catch((err) => {
+                next(step);
+              });
+        }
+      }
+    }
+    let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+    if(dealerCityList) {
+      var dealerCitySelect = [];
+      dealerCityList.map((item) => {
+        dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+      });
+    } else {
+      dealerCitySelect.push([]);
+    }
+    step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+
+    if(!step.fields.dealerSingleSelect){
+      step.fields['dealerSingleSelect'] = {
+        type: "AsyncReactSelect",
+        options: [],
+        id: "dealerSingleSelect",
+        name: "dealerSingleSelect",
+        label: "Select Dealer",
+        variant: "outlined",
+        span: 6,
+        value: [],
+        max: 1,
+        disabled: false,
+        validators: ["isEmpty"],
+        errormessages: ["Please select the dealer name"],
+        loadOptions: (input, step, resolve) => {
+        let item = step.fields.dealerCitySingleSelect.value[0];
+        let uuid = '<%= schemaVal.uuid %>';
+        <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            getAllDealers: true,
+            name: input
+          }
+          <% } else { %>
+          dataParams = {
+            getDealerByReportingManager: true,
+            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+            city_id: item.value,
+            //onboarded_on_general: true,
+            reporting_sfa_uuids: uuid,
+            getHierarchyUsers: true,
+            name: input,
+            product: 'sme',
+          }
+        <% } %>
+        axios
+          .get(
+            "/pos-bff/api/v1/dealers",
+            {
+              params: dataParams
+            }
+          )
+          .then((res) => {
+            var dealerSelect = [];
+            if (res.status == 200) {
+              if (
+                res.data &&
+                res.data &&
+                res.data.data &&
+                res.data.data.data
+              ) {
+                res.data.data.data.map((item) => {
+                  dealerSelect.push({
+                    value: item.iam_uuid,
+                    label: item.name,
+                  });
+                });
+              }
+            } else {
+              resolve([]);
+            }
+            resolve(dealerSelect)
+          });
+      },
+      }
+    }
+    <% } %>
+}
+
+function getOccupencyOptions(key) {
+  const allOptions = window.projectGlobals.getSmeMaster()?.parsedMasterData?.occupancy;
+  const filteredOptions = allOptions.filter((option) => option.category.toLowerCase().includes(key.toLowerCase()));
+  return filteredOptions;
+}
+
+function handleUnderwriter(selValue, step) {
+  if (!selValue) return (step.fields["underwriter"].hide = true);
+  const allOptions = window.projectGlobals.getSmeMaster()?.rawMasterData?.occupancy;
+  const occupancyPriority = allOptions?.find((item) => item.occupancyName == selValue)?.priority;
+  return (step.fields["underwriter"].hide = occupancyPriority == 1);
+}
+
+function handleOccupancyCategory(selValue, step) {
+  step.fields["occupancy"].value = '';
+  if (selValue === "Shop") {
+    step.fields["occupancy"].hide = false;
+    step.fields["occupancy"].options = getOccupencyOptions("Shop");
+    step.fields["occupancy"].labelAuto = "Types of Shops";
+  } else if (selValue === "Office") {
+    step.fields["occupancy"].hide = true;
+  } else if (selValue === "Hotel/Restaurant") {
+    step.fields["occupancy"].hide = false;
+    step.fields["occupancy"].options = getOccupencyOptions("Hotel/Restaurant");
+    step.fields["occupancy"].labelAuto = "Types of Hotel/Restaurant";
+  } else if (selValue === "Clinics/Hospitals") {
+    step.fields["occupancy"].hide = false;
+    step.fields["occupancy"].options = getOccupencyOptions("Clinics/Hospitals");
+    step.fields["occupancy"].labelAuto = "Types of Clinics/Hospitals";
+  } else if (selValue === "Other") {
+    step.fields["occupancy"].hide = false;
+    step.fields["occupancy"].options = getOccupencyOptions("Other");
+    step.fields["occupancy"].labelAuto = "Select Business Type";
+  } else {
+    step.fields["occupancy"].hide = true;
+  }
+}
+
+function handleConstructionType(selValue, step) {
+  if (selValue === "Pucca") {
+    step.fields["isBasement"].hide = false;
+    step.fields["underwriter"].hide = true;
+  } else {
+    step.fields["isBasement"].hide = true;
+    step.fields["underwriter"].hide = false;
+  }
+}
+
+function handleBasement(selValue, step) {
+  if (selValue === "Yes" || selValue === true) {
+    step.fields["underwriter"].hide = false;
+  } else {
+    step.fields["underwriter"].hide = true;
+  }
+}
+
+window.FireBusinessDetails = {
+  formBuilder: {
+    steps: [
+      {
+        heading: "Basic Details",
+        submitButtonLabel: "Next",
+        fields: {
+          underwriter: {
+            hide: true,
+            type: "Hint",
+            id: "underwriter",
+            name: "underwriter",
+            span: 12,
+            parentClass: "smeErrorMsg",
+            label: "This will be referred to the Underwriter for review since this is a high risk!",
+          },
+          hintbubble: {
+            type: "Hint",
+            id: "hintbubble",
+            name: "hintbubble",
+            span: 12,
+            parentClass: "smeInfo",
+            label: "Disclaimer - Only Fresh cases to be purchased using this journey. For Renewal / Rollover cases contact your RM",
+          },
+          occupancyCategory: {
+            type: "CardRadio",
+            id: "occupancyCategory",
+            name: "occupancyCategory",
+            label: "Popular Business",
+            parentClass: "cardRadioRounded",
+            span: 12,
+            options: [
+              { value: "Shop", label: "Shop" },
+              { value: "Office", label: "Office" },
+              { value: "Hotel/Restaurant", label: "Hotel/Restaurant" },
+              { value: "Clinics/Hospitals", label: "Clinics/Hospitals" },
+              { value: "Other", label: "Other" },
+            ],
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onChange: (event, step, next) => {
+              const selValue = step.fields["occupancyCategory"].value;
+              handleOccupancyCategory(selValue, step);
+            },
+          },
+          occupancy: {
+            hide: true,
+            type: "SelectWithLabel",
+            id: "occupancy",
+            name: "occupancy",
+            labelAuto: "Select Business Type",
+            span: 6,
+            options: [],
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+            onChange: (event, step, next) => {
+              const selValue = step.fields["occupancy"].value;
+              handleUnderwriter(selValue, step);
+            },
+          },
+          businessDetails: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Business Details",
+            name: "businessDetails",
+          },
+          businessName: {
+            type: "TextField",
+            id: "businessName",
+            name: "businessName",
+            label: "Business Name (as per Govt records)",
+            value: "",
+            autoComplete: "name",
+            variant: "filled",
+            span: 6,
+            value: "",
+            validators: ["isEmpty", "!isValidBusinessName"],
+            errormessages: ["Please enter the business name", "Please enter valid business name"],
+          },
+          pincode: {
+            type: "TextField",
+            id: "pincode",
+            name: "pincode",
+            label: "Risk Pincode",
+            variant: "filled",
+            value: "",
+            span: 6,
+            fieldType: "pincode",
+            validators: ["isEmpty", "!isValidPincode"],
+            errormessages: ["Please enter the pincode", "Please enter valid pincode"],
+          },
+          ownershipType: {
+            type: "SelectWithLabel",
+            id: "ownershipType",
+            name: "ownershipType",
+            label: "Property Ownership Type",
+            labelAuto: "Property Ownership Type",
+            variant: "filled",
+            span: 6,
+            options: [],
+            value: "",
+            max: 1,
+            validators: ["isEmpty"],
+            errormessages: ["Please select the ownership type"],
+          },
+          noOfFloors: {
+            type: "TextField",
+            id: "noOfFloors",
+            name: "noOfFloors",
+            label: "No. of floors in the building",
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty", "!isValidFloors"],
+            errormessages: ["Please enter the total floor", "Minimum 1 floor required"],
+          },
+          ageOfBuilding: {
+            type: "TextField",
+            id: "ageOfBuilding",
+            name: "ageOfBuilding",
+            label: "Age of the building (in yrs)",
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty", "!isValidAge"],
+            errormessages: ["Please enter the building age", "Please enter valid age"],
+          },
+          constructionType: {
+            type: "SelectWithLabel",
+            id: "constructionType",
+            name: "constructionType",
+            label: "Risk Construction Type",
+            labelAuto: "Risk Construction Type",
+            options: [
+              { value: "Pucca", label: "Pucca" },
+              { value: "Kutcha", label: "Kutcha" },
+            ],
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This is a required field."],
+            onChange: (event, step, next) => {
+              const selValue = step.fields["constructionType"].value;
+              handleConstructionType(selValue, step);
+              const basementValue = step.fields["isBasement"].value;
+              handleBasement(basementValue, step);
+            },
+          },
+          isBasement: {
+            type: "SelectWithLabel",
+            id: "isBasement",
+            name: "isBasement",
+            label: "Is this risk location a basement risk?",
+            labelAuto: "Is this risk location a basement risk?",
+            options: [
+              { value: "Yes", label: "Yes" },
+              { value: "No", label: "No" },
+            ],
+            value: "",
+            variant: "filled",
+            span: 6,
+            validators: ["isEmpty"],
+            errormessages: ["This is a required field."],
+            onChange: (event, step, next) => {
+              const selValue = step.fields["isBasement"].value;
+              handleBasement(selValue, step);
+            },
+          },
+          endSpacing: {
+            span: 12,
+          },
+        },
+        onLoad: function (step, next) {
+          DealerCityAndList(event, step, next);
+          const { getSessionStorageItem, setDefaultFormValues, setFormOptions, getSmeMaster } = window.projectGlobals;
+          const { parsedMasterData, rawMasterData } = getSmeMaster();
+          const leadDetails = getSessionStorageItem("fireLead");
+          if (leadDetails) {
+            const {
+              productDetails: {
+                businessDetails: { businessName = "", pincode = "", occupancyTypeId = "", occupancyCategory = "", ownershipType = "Owned" } = {},
+                buildingDetails: { constructionType = "Pucca", ageOfBuilding = "", isBasement = false, noOfFloors = "" } = {},
+              } = {},
+            } = leadDetails;
+            const occupancy = rawMasterData.occupancy?.find((item) => item.id == occupancyTypeId)?.occupancyName || "";
+
+            const defautlValues = {
+              occupancyCategory,
+              occupancy,
+              businessName,
+              pincode,
+              ageOfBuilding,
+              noOfFloors,
+              ownershipType,
+              constructionType,
+              isBasement: isBasement ? "Yes" : "No",
+            };
+            setFormOptions(step.fields, parsedMasterData);
+            handleUnderwriter(occupancy, step);
+            handleConstructionType(constructionType, step);
+            handleBasement(isBasement, step);
+            handleOccupancyCategory(occupancyCategory, step);
+            setDefaultFormValues(step.fields, defautlValues);
+          }
+
+          next(step);
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidBusinessName: function (str) {
+        const regExp = new RegExp(/^.{1,70}$/);
+        return regExp.test(str);
+      },
+      isValidFloors: function (str) {
+        return !isNaN(str) && parseInt(str) >= 1;
+      },
+      isValidAge: function (str) {
+        return !isNaN(str) && parseInt(str) >= 0;
+      },
+      isValidPincode: function (str) {
+        var regExp = new RegExp(/^[1-9]{1}[0-9]{2}\s{0,1}[0-9]{3}$/);
+        return regExp.test(str);
+      },
+    },
+  },
+};
+
+

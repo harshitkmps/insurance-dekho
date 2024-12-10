@@ -1,0 +1,320 @@
+window.formBuilderSchemaPersonalAccidentLeadFormHome = {
+    formBuilder: {
+      steps: [
+        {
+          submitButtonLabel: "View Plans",
+          submitButtonSticky: false,
+          submitButtonLoader: false,
+          fields: {
+            gender: {
+              type: "Radio",
+              options: [
+                { value: "male", label: "Male" },
+                { value: "female", label: "Female" },
+              ],
+              row : true,
+              id: "gender",
+              name: "gender",
+              label: "Gender",
+              parentClass: 'personalAccidentGenderSelect',
+              labelPlacement:"start",
+              variant: "filled",
+              titlePlacement:"start",
+              background:"gray",
+              span: 7,
+              value: "",
+              validators: ["isEmpty"],
+              errormessages: ["Gender is required field"],
+            },
+            name: {
+              type: "TextField",
+              id: "name",
+              name: "name",
+              label: "Name",
+              value: "",
+              autoComplete: "name",
+              variant: "filled",
+              span: 12,
+              validators: ["isEmpty","isSpecialChar", "isContainNumber", "!isAtLeadThreeChar","!isValidName"],
+              errormessages: [
+                "Please enter the name.",
+                "Special Characters are not allowed in Full Name.",
+                "Numbers are not allowed in Full Name.",
+                "Please enter at least three characters",
+                "Please enter Full Name."
+              ],
+              onChange: (event, step, next) => {
+              }
+            },
+            dob: {
+              type: "DatePicker",
+              id: "dob",
+              name: "dob",
+              label: "Date Of Birth",
+              variant: "filled",
+              maxDate:'',
+              minDate:'',
+              span: 6,
+              validators: ["isEmpty"],
+              errormessages: ["This field is required"],
+            },
+            contactwithcode: {	
+              type: "InputDropdown",	
+              id:"contactwithcode",	
+              name:"contactwithcode",	
+              label:"Mobile Number",	
+              labelAuto:"",	
+              options: [	
+                {key: 'india', label: 'IND', fullName: 'INDIA', code: '+91'},	
+                {key: 'uae', label: 'UAE', fullName: 'UAE', code: '+971'},	
+              ],	
+              variant: "filled",	
+              validators: ["isEmpty","!isValidContact"],	
+              extraValue:"",	
+              value:"",	
+              span:12,	
+              errormessages: ["Please enter your mobile number", "Please enter a valid mobile number"],	
+            },	
+          },
+          onLoad: function (step, next){
+  
+            <% if(['1','2','5','8','9','10','11','12'].indexOf(schemaVal.roleId) !== -1) { %>
+              if(!step.fields.dealerCitySingleSelect){
+                step.fields['dealerCitySingleSelect'] = {
+                  type: "SingleSelectReactselect",
+                  options: [],
+                  id: "dealerCitySingleSelect",
+                  name: "dealerCitySingleSelect",
+                  label: "Select Dealer City",
+                  variant: "outlined",
+                  span: 4,
+                  value: [],
+                  max: 1,
+                  disabled: false,
+                  validators: ["isEmpty"],
+                  errormessages: ["Please select the dealer city"],
+                  onChange: (event, step, next) => {
+                        let item = step.fields.dealerCitySingleSelect.value[0];
+                        let uuid = '<%= schemaVal.uuid %>';
+                        step.fields["dealerSingleSelect"]["defaultOptions"] = [];
+                        step.fields["dealerSingleSelect"]["value"] = [];
+                        let dataParams = {};
+                          <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                          dataParams = {
+                            getDealerByReportingManager: true,
+                            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                            city_id: item.value,
+                            //onboarded_on_general: true,
+                            getAllDealers: true
+                          }
+                          <% } else { %>
+                          dataParams = {
+                            getDealerByReportingManager: true,
+                            projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                            city_id: item.value,
+                            //onboarded_on_general: true,
+                            getHierarchyUsers: true,
+                            reporting_sfa_uuids: uuid
+                          }
+                        <% } %>
+                        axios.get('/pos-bff/api/dealers', {
+                          params: dataParams
+                        }).then((res) => {
+                          var dealerSelect = [];
+                          if (res.status == 200) {
+                            if (res.data && res.data && res.data.data && res.data.data.data) {
+                              res.data.data.data.map((item) => {
+                                dealerSelect.push({ value: item.dealer_id, label: item.name });
+                              });
+                            }
+                          }
+                          step.fields["dealerSingleSelect"]["defaultOptions"] = dealerSelect;
+                          next(step);  
+                        }).catch((err) => {
+                          next(step);
+                        });
+                  }
+                }
+              }
+              let dealerCityList = <%- schemaVal.dealerCityData ? schemaVal.dealerCityData : [] %>
+              if(dealerCityList) {
+                var dealerCitySelect = [];
+                dealerCityList.map((item) => {
+                  dealerCitySelect.push({ value: item.central_city_id, label: item.central_city_name });
+                });
+              } else {
+                dealerCitySelect.push([]);
+              }
+              step.fields["dealerCitySingleSelect"]["options"] = dealerCitySelect;
+          
+              if(!step.fields.dealerSingleSelect){
+                step.fields['dealerSingleSelect'] = {
+                  type: "AsyncReactSelect",
+                  options: [],
+                  id: "dealerSingleSelect",
+                  name: "dealerSingleSelect",
+                  label: "Select Dealer",
+                  variant: "outlined",
+                  span: 4,
+                  value: [],
+                  max: 1,
+                  disabled: false,
+                  validators: ["isEmpty"],
+                  errormessages: ["Please select the dealer city"],
+                  loadOptions: (input, step, resolve) => {
+                  let item = step.fields.dealerCitySingleSelect.value[0];
+                  let uuid = '<%= schemaVal.uuid %>';
+                  <% if(['1','2','5'].indexOf(schemaVal.roleId) !== -1) { %>
+                    dataParams = {
+                      getDealerByReportingManager: true,
+                      projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                      city_id: item.value,
+                      //onboarded_on_general: true,
+                      getAllDealers: true,
+                      name: input
+                    }
+                    <% } else { %>
+                    dataParams = {
+                      getDealerByReportingManager: true,
+                      projection: 'id,organization,city_id,reporting_sfa_id,email,mobile,gcd_code,dealer_id,iam_uuid,name',
+                      city_id: item.value,
+                      //onboarded_on_general: true,
+                      reporting_sfa_uuids: uuid,
+                      getHierarchyUsers: true,
+                      name: input
+                    }
+                  <% } %>
+                  axios
+                    .get(
+                      "/pos-bff/api/dealers",
+                      {
+                        params: dataParams
+                      }
+                    )
+                    .then((res) => {
+                      var dealerSelect = [];
+                      if (res.status == 200) {
+                        if (
+                          res.data &&
+                          res.data &&
+                          res.data.data &&
+                          res.data.data.data
+                        ) {
+                          res.data.data.data.map((item) => {
+                            dealerSelect.push({
+                              value: item.dealer_id,
+                              label: item.name,
+                            });
+                          });
+                        }
+                      } else {
+                        resolve([]);
+                      }
+                      resolve(dealerSelect)
+                    });
+                },
+                }
+              }
+              <% } %>
+              if(!step.fields.whatsappcheckbox){
+                step.fields['whatsappcheckbox'] = {
+                  type: "WhatsappCheckBox",
+                  id: "whatsappcheckbox",
+                  name: "whatsappcheckbox",
+                  label: "",
+                  span: 12,
+                  validators: [],
+                  errormessages: [],
+                  options: [{ value: "check" }],
+                  value : [
+                    'check'
+                  ]
+                }
+              }
+  
+              
+              let maxDate = new Date();
+              let minDate = new Date();
+              minDate.setYear(minDate.getFullYear() - 66);
+              minDate.setDate(minDate.getDate() + 1);
+              maxDate.setYear(maxDate.getFullYear() - 18);
+              step.fields.dob.minDate = minDate.toISOString().slice(0,10);
+              step.fields.dob.maxDate = maxDate.toISOString().slice(0,10);
+  
+              let leadinfo = window.projectGlobals.getSessionStorageItem('__inv_l_data__');
+              if(_.get(leadinfo,'customer_name')){
+                step.fields.name.value = _.get(leadinfo,'customer_name');
+                step.fields.dob.value = _.get(leadinfo,'date_of_birth');
+                step.fields.gender.value = _.get(leadinfo,'customer_gender')==='M'?"male":"female";
+                step.fields.contactwithcode.extraValue = _.get(leadinfo,'country_name');
+                let mobile = _.get(leadinfo,'mobile_number')
+                let code = _.get(leadinfo,'country_code')
+                step.fields.contactwithcode.value = mobile ? `${code}  ${mobile}` : '';
+              }
+              if(!step.fields.gender.value){
+                step.fields.gender.value = "male";
+              }
+              if(!step.fields.contactwithcode.extraValue){
+                step.fields.contactwithcode.extraValue = "INDIA";
+              }
+  
+              if(window.projectGlobals.isLifeAgentLogin()){
+                step.fields.contactwithcode.fieldType =""
+                step.fields.contactwithcode.validators.length = 1
+              }
+  
+  
+            next(step);
+          }
+        },
+      ],
+      activeStep: 0,
+      customValidators: {
+        isValidName: function (str) {
+          var regexp = new RegExp(
+            /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+          );
+          return regexp.test(str);
+        },
+        isSpecialChar: function (str) {
+          var regexp = new RegExp(
+            "[!@#$%&*()_+=|<>?{}\\[\\]~-]"
+          );
+          return regexp.test(str);
+        },
+        isContainNumber: function (str) {
+          var regexp = new RegExp(
+            "[0-9]"
+          );
+          return regexp.test(str);
+        },
+        isAtLeadThreeChar: function (str) {
+          var regexp = new RegExp(
+            /(.*[a-z]){3,}/i
+          );
+          return regexp.test(str);
+        },
+        isEnglish: function (str) {
+          var regexp = new RegExp(
+            /^([A-Za-z ]){1,}$/i
+          );
+          return regexp.test(str);
+        },
+        isValidContact: function (str) {
+          let strArr = str.split('  ')
+          var regexp;
+          let regexCountryCodeMap={
+            'india': { countryCode: '+91', regexPattern:'^(?![9]{10})(?:[6|7|8|9][0-9]{9})$'},
+            'uae': { countryCode: '+971', regexPattern:'^(50|52|54|55|56|58)[0-9]{7}$'},
+          };
+          Object.keys(regexCountryCodeMap).map((country)=>{
+            if(regexCountryCodeMap[country]['countryCode'] === strArr[0]){
+              regexp = new RegExp(regexCountryCodeMap[country]['regexPattern'])
+              return;
+            }
+          })
+          return regexp.test(strArr[1])
+        }
+      },
+    },
+  }

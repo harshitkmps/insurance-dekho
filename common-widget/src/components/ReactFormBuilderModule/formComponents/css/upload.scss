@@ -1,0 +1,33 @@
+.imageUpload{ width: 100%;
+    .dropzone{ height: 180px; width: 100%; padding: 0;
+        span{ font-size: 15px;color: #333846; font-weight: 600;font-family: 'Poppins';}
+    }
+    .demoImg{width: 64px;height: 44px;margin: 28px auto 0; }
+    .addedImg{height: 111px;overflow: hidden;display: flex;}
+
+    .closeimage{ background: url(../../../../img/close-black.png) no-repeat; cursor: pointer; right: 0;top: -5px; width: 16px; height: 16px; position: absolute; }
+}
+
+.pdfview{height: 115px;padding-top: 30px; cursor: pointer;}
+.pdfname{max-width: 290px;text-overflow: ellipsis;margin: 0px auto;
+    overflow: hidden;font-size: 13px;margin-top: 20px;}
+
+.uploadLoader{
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+}
+
+@media screen and (max-width:1023px) {
+    .imageUpload .dropzone{ height: 115px;}
+    .imgUploadWrap{ display: inline-block ; flex: none !important; width:50%}
+}
+
+@media screen and (min-width:1024px) {
+.imageUpload .demoImg {width: 78px;height: 54px;margin: 48px auto 0;}
+.imageUpload .addedImg{ height: 178px;}
+.pdfview{ padding-top: 60px;}
+.pdfname{max-width: 230px; margin: 55px auto 0;}
+}

@@ -1,0 +1,22 @@
+---
+version: "3.8"
+
+services:
+    main:
+        network_mode: host
+        image: api-gateway
+        container_name: api-gateway
+        env_file:
+            - .env
+        ports:
+            - $PORT:$PORT
+        volumes:
+            - ./:/app/    
+        build:
+            context: .
+            dockerfile: Dockerfile
+        # networks: 
+        #     - api-gateway-network
+
+# networks:
+#     api-gateway-network:

@@ -1,0 +1,502 @@
+management:
+  server:
+    port: 50000
+  endpoints:
+    web:
+      exposure:
+        include: prometheus, health
+      base-path: "/"
+      path-mapping:
+        health: "/serverHealth"
+        prometheus: "/metrics"
+  endpoint:
+    metrics:
+      enabled: true
+    prometheus:
+      enabled: true
+
+    health:
+      enabled: true
+      show-details: "ALWAYS"
+      db:
+        enabled: false
+server:
+  port: 8080
+  servlet:
+    context-path: ""
+es-lead:
+  events: ${ES_LEAD_EVENTS:GENERAL_TRAINING_MATERIAL_SHARED:general_training_material_shared,GENERAL_TRAINING_MATERIAL_DOWNLOADED:general_training_material_downloaded,GENERAL_TEST_LINK_SHARED:general_test_link_shared,GENERAL_COMPLETED:general_completed,LIFE_TRAINING_MATERIAL_SHARED:life_training_material_shared,LIFE_TRAINING_MATERIAL_DOWNLOADED:life_training_material_downloaded,LIFE_TEST_LINK_SHARED:life_test_link_shared,LIFE_COMPLETED:life_completed,REGISTRATION_REQUESTED:registration_requested}
+spring:
+  application:
+    name: lead-onboarding-service
+  main:
+    allow-bean-definition-overriding: true
+  profiles:
+    active: ${LOS_ENVIRONMENT:dev}
+  jpa:
+    show-sql: true
+    properties:
+      hibernate:
+        ejb:
+          interceptor: com.leadonboardingservice.leadonboardingservice.serviceimpls.CustomEntityInterceptor
+logging:
+  level:
+    root: ${LOS_ROOT_LOG_LEVEL:INFO}
+    org.springframework.web: INFO
+    com.leadonboardingservice: ${LOS_LOG_LEVEL:INFO}
+    org.hibernate: ERROR
+    org.springframework.amqp: ERROR
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %logger{36} - %msg%n"
+    file: "%d %p %c{1.} [%t] %m%n"
+---
+
+spring:
+  config:
+    activate:
+      on-profile: dev
+  elasticsearch:
+    rest:
+      uris: ${LOS_ELASTIC_URL:172.50.3.71}:9200
+  liquibase:
+    change-log: classpath:db/changelog-master.yml
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: ${LOS_DATABASE_URL:jdbc:mysql://172.50.3.6:3306/pos_dev?zeroDateTimeBehavior=convertToNull}
+    username: ${LOS_DATABASE_USERNAME:pos_user}
+    password: ${LOS_DATABASE_PASSWORD:sdsdUpdszs@d3@67}
+    hikari:
+      connectionTimeout: ${LOS_DATABASE_CONNECTION_TIMEOUT:60000}
+      maximum-pool-size: ${LOS_DATABASE_MAXIMUM_POOL_SIZE:10}
+  data:
+    mongodb:
+      uri: mongodb://mongo-admin:mongoAmerica123@10.75.40.57:27017
+      database: pos
+  redis:
+    host: ${LOS_REDI_HOST:127.0.0.1}
+    port: 6379
+  rabbitmq:
+    host: ${LOS_RABBITMQ_HOST:10.75.40.57}
+    port: ${LOS_RABBITMQ_PORT:5672}
+    username: ${LOS_RABBITMQ_USERNAME:mqadmin2}
+    password: ${LOS_RABBITMQ_PASSWORD:GRV3DdAfA2css}
+enabled: true
+esClient:
+  endpoint: ${LOS_ELASTIC_URL:172.50.3.71}
+  username: ${LOS_ELASTIC_USERNAME:elastic}
+  password: ${LOS_ELASTIC_PASSWORD:elasticp@ssw0rd}
+losBaseUrl: ${LOS_BASE_URL:http://localhost:8080}
+ide:
+  fraud:
+    host: ${FRAUD_API_HOST:https://fraudmitigationstaging.insurancedekho.com}
+    search-path: ${FRAUD_API_SEARCH_PATH:/api/v1/attributes/search}
+    do-validate: ${FRAUD_DO_VALIDATE:true}
+  iib:
+    host: ${IIB_API_HOST:https://iibautomationstaging.insurancedekho.com}
+    path: ${IIB_API_PATH:/api/checkPanPresent}
+  lsq:
+    allowedRms: ${LSQ_ALLOWED_RM_UUIDS:2cc620a8-6ba9-4f18-80d3-f5a20a51e25b,0cf6f0cc-ee90-4f3b-92d4-d0a8869b7671}
+    host: ${LSQ_HOST:https://asyncapi-in.leadsquared.com}
+    upsert-path: ${LSQ_UPSERT_PATH:/activity/createcustom}
+    x-api-key: ${LSQ_X_API_KEY:jmKAvPwRdR3GDENa2QpYnoUzlgDDHQi3a1UEfaB9}
+    access-key: ${LSQ_ACCESS_KEY:u$r2b2fe43ae96eac1e65b0d83e60e4344d}
+    secret-key: ${LSQ_SECRET_KEY:6c2db32e906b4eb1986bf69ffd04ecce567604df}
+  penny-drop:
+    host: ${PENNY_DROP_HOST:https://uat-fsmw.gaadi.com}
+    add-beneficiary-path: ${ADD_BENEFICIARY_PATH:/bankbox/addBeneficiary}
+    do-penny-drop-path: ${DO_PENNY_DROP_PATH:/bankbox/pennyDrop/e7dc9f3a-164c-45ef-9d92-1267bea92942}
+    auth: ${PENNY_DROP_AUTHORIZATION:Basic Q0FSREVLSE9VU0VST05FOmMwMDJkZGMxLThhN2ItNTM5Ny04YjEyLTQ0MTkxMDExZWQzNA==}
+  sps:
+    host: https://apisfastaging.insurancedekho.com
+    usersPath: /sfa/v2/users/get
+  brokerage-master:
+    host: https://brokeragemasterstaging.insurancedekho.com
+    pincode:
+      path: /api/v1/master/pincode
+    fetch-tenant-path: ${MASTER_FETCH_TENANT_PATH:/api/v1/master/tenant/}
+  document-service:
+    host: https://documentservicestaging.insurancedekho.com
+    register-documents: /doc-service/v1/documents/register
+    upload-documents: /doc-service/v1/documents
+    x-api-key: 3NrGnLdHs8DtQDFAMu86SFs-g__PdpXWLHpT_mFvKVNo55fREVX6RZ8nqnltWZe3RlASYrv6U7oh6oMtlGJ5_w
+  iam:
+    host: ${IAM_HOST:https://iamstaging.insurancedekho.com}
+    fetch-user-path: ${IAM_FETCH_USER_PATH:/api/v1/user/accounts/uuid/}
+    create-user-path: ${IAM_CREATE_USER:/api/v1/user/accounts}
+    x-host-name: ${IAM_X_HOST_NAME:posstaging.insurancedekho.com}
+    x-api-key: ${IAM_X_API_KEY:fcd14a5a-7219-41b1-9d4d-d9c3ccbeba67}
+  cps:
+    host: ${CPS_HOST:https://apicpsstaging.insurancedekho.com}
+    path: ${CPS_PATH:/cps/v2/channel-partners}
+  apipos:
+    host: ${APIPOS_HOST:https://apiposstaging.insurancedekho.com}
+    user-info-path: ${APIPOS_USER_INFO_PATH:/api/v1/user-info}
+    x-api-key: ${APIPOS_X_API_KEY:b57d0c73-a20c-4744-9a5a-631fd06234ae}
+  encryption:
+    host: ${ENCRYPTION_SERVICE_HOST_URL:https://encryptionstaging.insurancedekho.com}
+  stub:
+    okyc: true
+    penny-drop-service: true
+  trackwizz:
+    host: ${TRACKWIZZ_HOST:https://trackwizzstage.insurancedekho.com}
+    x-api-key: ${TRACKWIZZ_X_API_KEY:a9a5e734-51dc-486c-a129-4b57bfc0edb2}
+    search-path-v2: ${TRACKWIZZ_SEARCH_API_PATH_V2:/api/v1/ckyc/search}
+    download-path-v2: ${TRACKWIZZ_DOWNLOAD_API_PATH_V2:/api/v1/ckyc/download}
+    aadhaar-otp-path: ${TRACKWIZZ_AADHAAR_OTP_PATH:/api/v1/uidai/otp}
+    aadhaar-details-path: ${TRACKWIZZ_AADHAAR_DETAILS_PATH:/api/v1/uidai/otp/validate}
+  rabbitmq:
+    queue:
+      name: ${LSQ_QUEUE_NAME:lsq_data_staging}
+      lead-event-name: ${LEAD_EVENT_QUEUE_NAME:lead_event_data_dev}
+      lead-event-retry-name: ${LEAD_EVENT_RETRY_QUEUE_NAME:lead_event_retry_data_dev}
+      lead-event-lsq-name: ${LEAD_EVENT_LSQ_QUEUE_NAME:lead_event_lsq_data_dev}
+      lsq-event-retry-name: ${LSQ_EVENT_RETRY_QUEUE_NAME:lsq_event_retry_data_dev}
+      lead-event-irdai-name: ${LEAD_EVENT_IRDAI_QUEUE_NAME:lead_event_irdai_dev}
+      lead-event-irdai-dlq-name: ${LEAD_EVENT_IRDAI_DLQ_NAME:lead_event_irdai_dlq_dev}
+    exchange:
+      name: ${LSQ_EXCHANGE_NAME:lsq_data_staging_exchange}
+      lead-event-retry-name: ${LEAD_EVENT_RETRY_EXCHANGE_NAME:lead_event_retry_exchange_dev}
+      lead-event-name: ${LEAD_EVENT_EXCHANGE_NAME:lead_event_exchange_dev}
+      lsq-event-retry-name: ${LSQ_EVENT_RETRY_EXCHANGE_NAME:lsq_event_retry_exchange_dev}
+      pos-user-creation-name: ${POS_USER_CREATION_EXCHANGE_NAME:pos_user_creation_exchange_dev}
+    routing:
+      key: ${LSQ_ROUTING_KEY:lsq_data_staging_routing_key}
+      lead-event-retry-key: ${LEAD_EVENT_RETRY_ROUTING_KEY:lead_event_retry_routing_key_dev}
+      lead-event-key: ${LEAD_EVENT_KEY:lead_event_key_dev}
+      lsq-event-retry-key: ${LSQ_EVENT_RETRY_KEY:lsq_event_retry_key_dev}
+      pos-user-creation-name: ${POS_USER_CREATION_ROUTING_KEY:pos_user_creation_routing_key_dev}
+  signzy:
+    host: ${SIGNZY_HOST:https://preproduction.signzy.tech}
+    path: ${SIGNZY_PATH:/api/v2/patrons}
+    username: ${SIGNZY_USERNAME:insurance_dekho_test}
+    password: ${SIGNZY_PASSWORD:b4crI6ayl!-#hobr4brl}
+  bankVerification:
+    vendor: ${BANK_VERIFICATION_VENDOR:PENNYDROPSTUB}
+    name-score: ${BANK_VERIFICATION_NAME_SCORE:0.85}
+  panVerification:
+    vendor: ${PAN_VERIFICATION_VENDOR:SIGNZY}
+  digilocker:
+    host: ${DIGILOCKER_APP_HOST:https://digilocker.meripehchaan.gov.in}
+    response-type: ${DIGILOCKER_APP_RESPONSE_TYPE:code}
+    grant-type: ${DIGILOCKER_APP_GRANT_TYPE:authorization_code}
+    path: ${DIGILOCKER_APP_PATH:/public/oauth2/1}
+    web:
+      client-id: ${DIGILOCKER_CLIENT_ID:BI220DE196}
+      client-secret: ${DIGILOCKER_CLIENT_SECRET:ff2ded44ab8a94d52e03}
+      redirect-uri: ${DIGILOCKER_REDIRECT_URI:https://posdev.insurancedekho.com/self-onboarding}
+    app:
+      client-id: ${DIGILOCKER_APP_CLIENT_ID:014FD3A7}
+      client-secret: ${DIGILOCKER_APP_CLIENT_SECRET:a0f9e99b0128f2c8ce62}
+      redirect-uri: ${DIGILOCKER_APP_REDIRECT_URI:https://posappdev.insurancedekho.com/self-onboarding}
+  facebook-webhook:
+    host: ${FACEBOOK_WEBHOOK_HOST:https://graph.facebook.com}
+    path: ${FACEBOOK_WEBHOOK_PATH:/v17.0/}
+    access-token: ${FACEBOOK_WEBHOOK_ACCESS_TOKEN:EAABcMZAE7AZBMBO3Uz7Db38TdUCxyQkCYQ43MQBkHt1hCydQ6WxMQX2ZCrSz1aVGZCHnvt7d8gIh5mAsktGTGbLWBoze8RetwXss2ZBZAptEZBwsCcKBHzxozNOZCiXy686TPu3DdeITQqeFrS1Dje3wD3hR4bZB4sIie0FHQ07vKgbZB8Y05fT8FrUiiFTaSQ2KrLtFU44DIc}
+    verification-token: ${FACEBOOK_WEBHOOK_VERIFICATION_TOKEN:testverify}
+  s3:
+    bucket-name: ${S3_BUCKET_NAME}
+    region: ${S3_REGION}
+    access-key: ${ACCESS_KEY_ID}
+    secret-key: ${SECRET_ACCESS_KEY}
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: stage
+  elasticsearch:
+    rest:
+      uris: ${LOS_ELASTIC_URL:172.50.3.71}:9200
+  liquibase:
+    change-log: classpath:db/changelog-master.yml
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: ${LOS_DATABASE_URL:jdbc:mysql://172.50.3.197:3306/pos_staging?zeroDateTimeBehavior=convertToNull}
+    username: ${LOS_DATABASE_USERNAME:root}
+    password: ${LOS_DATABASE_PASSWORD:Test@123}
+    hikari:
+      connectionTimeout: ${LOS_DATABASE_CONNECTION_TIMEOUT:60000}
+      maximum-pool-size: ${LOS_DATABASE_MAXIMUM_POOL_SIZE:50}
+  jpa:
+    show-sql: false
+  data:
+    mongodb:
+      uri: ${LOS_MONGODB_URL:mongodb://mongo-admin:mongoAmerica123@10.75.40.57:27017}
+      database: ${LOS_MONGODB_NAME:pos}
+  redis:
+    host: ${LOS_REDI_HOST:10.75.40.57}
+    port: 6379
+  rabbitmq:
+    host: ${LOS_RABBITMQ_HOST:10.75.40.71}
+    port: ${LOS_RABBITMQ_PORT:5672}
+    username: ${LOS_RABBITMQ_USERNAME:mqadmin2}
+    password: ${LOS_RABBITMQ_PASSWORD:GRV3DdAfA21zpp}
+enabled: true
+esClient:
+  endpoint: ${LOS_ELASTIC_URL:172.50.3.71}
+  username: ${LOS_ELASTIC_USERNAME:elastic}
+  password: ${LOS_ELASTIC_PASSWORD:elasticp@ssw0rd}
+losBaseUrl: ${LOS_BASE_URL:https://poscorebestaging.insurancedekho.com}
+ide:
+  fraud:
+    host: ${FRAUD_API_HOST:https://fraudmitigationstaging.insurancedekho.com}
+    search-path: ${FRAUD_API_SEARCH_PATH:/api/v1/attributes/search}
+    do-validate: $FRAUD_DO_VALIDATE:true}
+  iib:
+    host: ${IIB_API_HOST:https://iibautomationstaging.insurancedekho.com}
+    path: ${IIB_API_PATH:/api/checkPanPresent}
+  lsq:
+    allowedRms: ${LSQ_ALLOWED_RM_UUIDS:2cc620a8-6ba9-4f18-80d3-f5a20a51e25b,0cf6f0cc-ee90-4f3b-92d4-d0a8869b7671}
+    host: ${LSQ_HOST:https://asyncapi.leadsquared.com}
+    upsert-path: ${LSQ_UPSERT_PATH:/activity/createcustom}
+    x-api-key: ${LSQ_X_API_KEY:jmKAvPwRdR3GDENa2QpYnoUzlgDDHQi3a1UEfaB9}
+    access-key: ${LSQ_ACCESS_KEY:u$r1da903865b2709d4213232bc99e12a02}
+    secret-key: ${LSQ_SECRET_KEY:d9c55c2c13f3488d27d7bc2963684966de8dc6c5}
+  stub:
+    penny-drop-service: true
+  penny-drop:
+    host: ${PENNY_DROP_HOST:https://uat-fsmw.gaadi.com}
+    add-beneficiary-path: ${ADD_BENEFICIARY_PATH:/bankbox/addBeneficiary}
+    do-penny-drop-path: ${DO_PENNY_DROP_PATH:/bankbox/pennyDrop/e7dc9f3a-164c-45ef-9d92-1267bea92942}
+    auth: ${PENNY_DROP_AUTHORIZATION:Basic Q0FSREVLSE9VU0VST05FOmMwMDJkZGMxLThhN2ItNTM5Ny04YjEyLTQ0MTkxMDExZWQzNA==}
+  sps:
+    host: ${SPS_HOST:https://apisfastaging.insurancedekho.com}
+    usersPath: ${SPS_PATH:/sfa/v2/users/get}
+  brokerage-master:
+    host: ${BROKERAGE_MASTER_HOST:https://brokeragemasterstaging.insurancedekho.com}
+    pincode:
+      path: ${BROKERAGE_MASTER_PINCODE_PATH:/api/v1/master/pincode}
+    fetch-tenant-path: ${MASTER_FETCH_TENANT_PATH:/api/v1/master/tenant/}
+  document-service:
+    host: ${DOCUMENT_SERVICE_HOST:https://documentservicestaging.insurancedekho.com}
+    register-documents: ${DOCUMENT_SERVICE_REGISTER_DOCUMENTS_PATH:/doc-service/v1/documents/register}
+    upload-documents: ${DOCUMENT_SERVICE_UPLOAD_DOCUMENT_PATH:/doc-service/v1/documents}
+    x-api-key: ${DOCUMENT_SERVICE_X_API_KEY:3NrGnLdHs8DtQDFAMu86SFs-g__PdpXWLHpT_mFvKVNo55fREVX6RZ8nqnltWZe3RlASYrv6U7oh6oMtlGJ5_w}
+  iam:
+    host: ${IAM_HOST:https://iamstaging.insurancedekho.com}
+    fetch-user-path: ${IAM_FETCH_USER_PATH:/api/v1/user/accounts/uuid/}
+    create-user-path: ${IAM_CREATE_USER:/api/v1/user/accounts}
+    x-host-name: ${IAM_X_HOST_NAME:posstaging.insurancedekho.com}
+    x-api-key: ${IAM_X_API_KEY:fcd14a5a-7219-41b1-9d4d-d9c3ccbeba67}
+  cps:
+    host: ${CPS_HOST:https://apicpsstaging.insurancedekho.com}
+    path: ${CPS_PATH:/cps/v2/channel-partners}
+  apipos:
+    host: ${APIPOS_HOST:https://apiposstaging.insurancedekho.com}
+    user-info-path: ${APIPOS_USER_INFO_PATH:/api/v1/user-info}
+    x-api-key: ${APIPOS_X_API_KEY:b57d0c73-a20c-4744-9a5a-631fd06234ae}
+  encryption:
+    host: ${ENCRYPTION_SERVICE_HOST_URL:https://encryptionstaging.insurancedekho.com}
+  trackwizz:
+    host: ${TRACKWIZZ_HOST:https://trackwizzstage.insurancedekho.com}
+    x-api-key: ${TRACKWIZZ_X_API_KEY:a9a5e734-51dc-486c-a129-4b57bfc0edb2}
+    search-path-v2: ${TRACKWIZZ_SEARCH_API_PATH_V2:/api/v1/ckyc/search}
+    download-path-v2: ${TRACKWIZZ_DOWNLOAD_API_PATH_V2:/api/v1/ckyc/download}
+    aadhaar-otp-path: ${TRACKWIZZ_AADHAAR_OTP_PATH:/api/v1/uidai/otp}
+    aadhaar-details-path: ${TRACKWIZZ_AADHAAR_DETAILS_PATH:/api/v1/uidai/otp/validate}
+  rabbitmq:
+    queue:
+      name: ${LSQ_QUEUE_NAME:lsq_data_staging}
+      lead-event-name: ${LEAD_EVENT_QUEUE_NAME:lead_event_data_staging}
+      lead-event-retry-name: ${LEAD_EVENT_RETRY_QUEUE_NAME:lead_event_retry_data_staging}
+      lead-event-lsq-name: ${LEAD_EVENT_LSQ_QUEUE_NAME:lead_event_lsq_data_staging}
+      lsq-event-retry-name: ${LSQ_EVENT_RETRY_QUEUE_NAME:lsq_event_retry_data_staging}
+      lead-event-irdai-name: ${LEAD_EVENT_IRDAI_QUEUE_NAME:lead_event_irdai_queue_staging}
+      lead-event-irdai-dlq-name: ${LEAD_EVENT_IRDAI_DLQ_NAME:lead_event_irdai_dlq_staging}
+    exchange:
+      name: ${LSQ_EXCHANGE_NAME:lsq_data_staging_exchange}
+      lead-event-name: ${LEAD_EVENT_EXCHANGE_NAME:lead_event_exchange_staging}
+      lead-event-retry-name: ${LEAD_EVENT_RETRY_EXCHANGE_NAME:lead_event_retry_exchange_staging}
+      lead-event-lsq-name: ${LEAD_EVENT_LSQ_EXCHANGE_NAME:lead_event_lsq_exchange_staging}
+      lsq-event-retry-name: ${LSQ_EVENT_RETRY_EXCHANGE_NAME:lsq_event_retry_exchange_staging}
+      pos-user-creation-name: ${POS_USER_CREATION_EXCHANGE_NAME:pos_user_creation_exchange_staging}
+    routing:
+      key: ${LSQ_ROUTING_KEY:lsq_data_staging_routing_key}
+      lead-event-key: ${LEAD_EVENT_KEY:lead_event_key_staging}
+      lead-event-retry-key: ${LEAD_EVENT_RETRY_ROUTING_KEY:lead_event_retry_routing_key_staging}
+      lsq-event-retry-key: ${LSQ_EVENT_RETRY_KEY:lsq_event_retry_key_staging}
+      pos-user-creation-name: ${POS_USER_CREATION_ROUTING_KEY:pos_user_creation_routing_key_staging}
+  signzy:
+    host: ${SIGNZY_HOST:https://preproduction.signzy.tech}
+    path: ${SIGNZY_PATH:/api/v2/patrons}
+    username: ${SIGNZY_USERNAME:insurance_dekho_test}
+    password: ${SIGNZY_PASSWORD:b4crI6ayl!-#hobr4brl}
+  bankVerification:
+    vendor: ${BANK_VERIFICATION_VENDOR:PENNYDROPSTUB}
+    name-score: ${BANK_VERIFICATION_NAME_SCORE:0.85}
+  panVerification:
+    vendor: ${PAN_VERIFICATION_VENDOR:SIGNZYSTUB}
+  digilocker:
+    host: ${DIGILOCKER_APP_HOST:https://digilocker.meripehchaan.gov.in}
+    response-type: ${DIGILOCKER_APP_RESPONSE_TYPE:code}
+    grant-type: ${DIGILOCKER_APP_GRANT_TYPE:authorization_code}
+    path: ${DIGILOCKER_APP_PATH:/public/oauth2/1}
+    web:
+      client-id: ${DIGILOCKER_CLIENT_ID:BI220DE196}
+      client-secret: ${DIGILOCKER_CLIENT_SECRET:ff2ded44ab8a94d52e03}
+      redirect-uri: ${DIGILOCKER_REDIRECT_URI:https://posdev.insurancedekho.com/self-onboarding}
+    app:
+      client-id: ${DIGILOCKER_APP_CLIENT_ID:014FD3A7}
+      client-secret: ${DIGILOCKER_APP_CLIENT_SECRET:a0f9e99b0128f2c8ce62}
+      redirect-uri: ${DIGILOCKER_APP_REDIRECT_URI:https://posappdev.insurancedekho.com/self-onboarding}
+  facebook-webhook:
+    host: ${FACEBOOK_WEBHOOK_HOST:https://graph.facebook.com}
+    path: ${FACEBOOK_WEBHOOK_PATH:/v17.0/}
+    access-token: ${FACEBOOK_WEBHOOK_ACCESS_TOKEN:EAABcMZAE7AZBMBO3Uz7Db38TdUCxyQkCYQ43MQBkHt1hCydQ6WxMQX2ZCrSz1aVGZCHnvt7d8gIh5mAsktGTGbLWBoze8RetwXss2ZBZAptEZBwsCcKBHzxozNOZCiXy686TPu3DdeITQqeFrS1Dje3wD3hR4bZB4sIie0FHQ07vKgbZB8Y05fT8FrUiiFTaSQ2KrLtFU44DIc}
+    verification-token: ${FACEBOOK_WEBHOOK_VERIFICATION_TOKEN:testverify}
+  s3:
+    bucket-name: ${S3_BUCKET_NAME}
+    region: ${S3_REGION}
+    access-key: ${ACCESS_KEY_ID}
+    secret-key: ${SECRET_ACCESS_KEY}
+
+---
+
+spring:
+  config:
+    activate:
+      on-profile: production
+  elasticsearch:
+    rest:
+      uris: ${LOS_ELASTIC_URL}:9200
+  liquibase:
+    change-log: classpath:db/changelog-master.yml
+  datasource:
+    driverClassName: com.mysql.cj.jdbc.Driver
+    url: ${LOS_DATABASE_URL}
+    username: ${LOS_DATABASE_USERNAME}
+    password: ${LOS_DATABASE_PASSWORD}
+    hikari:
+      connectionTimeout: ${LOS_DATABASE_CONNECTION_TIMEOUT:60000}
+      maximum-pool-size: ${LOS_DATABASE_MAXIMUM_POOL_SIZE:50}
+  jpa:
+    show-sql: false
+  data:
+    mongodb:
+      uri: ${LOS_MONGODB_URL}
+      database: ${LOS_MONGODB_NAME}
+  redis:
+    host: ${LOS_REDI_HOST}
+    port: 6379
+  rabbitmq:
+    host: ${LOS_RABBITMQ_HOST}
+    port: ${LOS_RABBITMQ_PORT}
+    username: ${LOS_RABBITMQ_USERNAME}
+    password: ${LOS_RABBITMQ_PASSWORD}
+enabled: true
+esClient:
+  endpoint: ${LOS_ELASTIC_URL}
+  username: ${LOS_ELASTIC_USERNAME}
+  password: ${LOS_ELASTIC_PASSWORD}
+losBaseUrl: ${LOS_BASE_URL:https://poscorebe.insurancedekho.local}
+ide:
+  fraud:
+    host: ${FRAUD_API_HOST}
+    search-path: ${FRAUD_API_SEARCH_PATH}
+    do-validate: ${FRAUD_DO_VALIDATE:false}
+  iib:
+    host: ${IIB_API_HOST:https://iibautomation.insurancedekho.com}
+    path: ${IIB_API_PATH:/api/checkPanPresent}
+  lsq:
+    allowedRms: ${LSQ_ALLOWED_RM_UUIDS}
+    host: ${LSQ_HOST:https://asyncapi-in21.leadsquared.com}
+    upsert-path: ${LSQ_UPSERT_PATH:/activity/createcustom}
+    x-api-key: ${LSQ_X_API_KEY}
+    access-key: ${LSQ_ACCESS_KEY}
+    secret-key: ${LSQ_SECRET_KEY}
+  penny-drop:
+    host: ${PENNY_DROP_HOST}
+    add-beneficiary-path: ${ADD_BENEFICIARY_PATH:/bankbox/addBeneficiary}
+    do-penny-drop-path: ${DO_PENNY_DROP_PATH:/bankbox/pennyDrop/e7dc9f3a-164c-45ef-9d92-1267bea92942}
+    auth: ${PENNY_DROP_AUTHORIZATION}
+  sps:
+    host: ${SPS_HOST}
+    usersPath: ${SPS_PATH:/sfa/v2/users/get}
+  brokerage-master:
+    host: ${BROKERAGE_MASTER_HOST}
+    pincode:
+      path: ${BROKERAGE_MASTER_PINCODE_PATH:/api/v1/master/pincode}
+    fetch-tenant-path: ${MASTER_FETCH_TENANT_PATH:/api/v1/master/tenant/}
+  document-service:
+    host: ${DOCUMENT_SERVICE_HOST}
+    register-documents: ${DOCUMENT_SERVICE_REGISTER_DOCUMENTS_PATH:/doc-service/v1/documents/register}
+    upload-documents: ${DOCUMENT_SERVICE_UPLOAD_DOCUMENT_PATH:/doc-service/v1/documents}
+    x-api-key: ${DOCUMENT_SERVICE_X_API_KEY}
+  iam:
+    host: ${IAM_HOST}
+    fetch-user-path: ${IAM_FETCH_USER_PATH:/api/v1/user/accounts/uuid/}
+    create-user-path: ${IAM_CREATE_USER:/api/v1/user/accounts}
+    x-host-name: ${IAM_X_HOST_NAME}
+    x-api-key: ${IAM_X_API_KEY:472802a6-0235-4f2b-882d-73e3edb813a2}
+  cps:
+    host: ${CPS_HOST:https://apicpsstaging.insurancedekho.com}
+    path: ${CPS_PATH:/cps/v2/channel-partners}
+  apipos:
+    host: ${APIPOS_HOST:https://apiposstaging.insurancedekho.com}
+    user-info-path: ${APIPOS_USER_INFO_PATH:/api/v1/user-info}
+    x-api-key: ${APIPOS_X_API_KEY:b57d0c73-a20c-4744-9a5a-631fd06234ae}
+  encryption:
+    host: ${ENCRYPTION_SERVICE_HOST_URL}
+  trackwizz:
+    host: ${TRACKWIZZ_HOST}
+    x-api-key: ${TRACKWIZZ_X_API_KEY}
+    search-path-v2: ${TRACKWIZZ_SEARCH_API_PATH_V2}
+    download-path-v2: ${TRACKWIZZ_DOWNLOAD_API_PATH_V2}
+    aadhaar-otp-path: ${TRACKWIZZ_AADHAAR_OTP_PATH}
+    aadhaar-details-path: ${TRACKWIZZ_AADHAAR_DETAILS_PATH}
+  rabbitmq:
+    queue:
+      name: ${LSQ_QUEUE_NAME}
+      lead-event-name: ${LEAD_EVENT_QUEUE_NAME}
+      lead-event-retry-name: ${LEAD_EVENT_RETRY_QUEUE_NAME}
+      lead-event-lsq-name: ${LEAD_EVENT_LSQ_QUEUE_NAME}
+      lsq-event-retry-name: ${LSQ_EVENT_RETRY_QUEUE_NAME}
+      lead-event-irdai-name: ${LEAD_EVENT_IRDAI_QUEUE_NAME}
+      lead-event-irdai-dlq-name: ${LEAD_EVENT_IRDAI_DLQ_NAME}
+    exchange:
+      name: ${LSQ_EXCHANGE_NAME}
+      lead-event-name: ${LEAD_EVENT_EXCHANGE_NAME}
+      lead-event-retry-name: ${LEAD_EVENT_RETRY_EXCHANGE_NAME}
+      lead-event-lsq-name: ${LEAD_EVENT_LSQ_EXCHANGE_NAME}
+      lsq-event-retry-name: ${LSQ_EVENT_RETRY_EXCHANGE_NAME}
+      pos-user-creation-name: ${POS_USER_CREATION_EXCHANGE_NAME}
+    routing:
+      key: ${LSQ_ROUTING_KEY}
+      lead-event-key: ${LEAD_EVENT_KEY}
+      lead-event-retry-key: ${LEAD_EVENT_RETRY_KEY}
+      lsq-event-retry-key: ${LSQ_EVENT_RETRY_KEY}
+      pos-user-creation-name: ${POS_USER_CREATION_ROUTING_KEY}
+  signzy:
+    host: ${SIGNZY_HOST}
+    path: ${SIGNZY_PATH:/api/v2/patrons}
+    username: ${SIGNZY_USERNAME}
+    password: ${SIGNZY_PASSWORD}
+  bankVerification:
+    vendor: ${BANK_VERIFICATION_VENDOR:PENNYDROPSTUB}
+    name-score: ${BANK_VERIFICATION_NAME_SCORE:0.85}
+  panVerification:
+    vendor: ${PAN_VERIFICATION_VENDOR:SIGNZYSTUB}
+  digilocker:
+    host: ${DIGILOCKER_APP_HOST:https://digilocker.meripehchaan.gov.in}
+    response-type: ${DIGILOCKER_APP_RESPONSE_TYPE:code}
+    grant-type: ${DIGILOCKER_APP_GRANT_TYPE:authorization_code}
+    path: ${DIGILOCKER_APP_PATH:/public/oauth2/1}
+    web:
+      client-id: ${DIGILOCKER_CLIENT_ID:BI220DE196}
+      client-secret: ${DIGILOCKER_CLIENT_SECRET:ff2ded44ab8a94d52e03}
+      redirect-uri: ${DIGILOCKER_REDIRECT_URI:https://posdev.insurancedekho.com/self-onboarding}
+    app:
+      client-id: ${DIGILOCKER_APP_CLIENT_ID:014FD3A7}
+      client-secret: ${DIGILOCKER_APP_CLIENT_SECRET:a0f9e99b0128f2c8ce62}
+      redirect-uri: ${DIGILOCKER_APP_REDIRECT_URI:https://posappdev.insurancedekho.com/self-onboarding}
+  facebook-webhook:
+    host: ${FACEBOOK_WEBHOOK_HOST:https://graph.facebook.com}
+    path: ${FACEBOOK_WEBHOOK_PATH:/v17.0/}
+    access-token: ${FACEBOOK_WEBHOOK_ACCESS_TOKEN:EAABcMZAE7AZBMBO3Uz7Db38TdUCxyQkCYQ43MQBkHt1hCydQ6WxMQX2ZCrSz1aVGZCHnvt7d8gIh5mAsktGTGbLWBoze8RetwXss2ZBZAptEZBwsCcKBHzxozNOZCiXy686TPu3DdeITQqeFrS1Dje3wD3hR4bZB4sIie0FHQ07vKgbZB8Y05fT8FrUiiFTaSQ2KrLtFU44DIc}
+    verification-token: ${FACEBOOK_WEBHOOK_VERIFICATION_TOKEN:testverify}
+  s3:
+    bucket-name: ${S3_BUCKET_NAME}
+    region: ${S3_REGION}
+    access-key: ${ACCESS_KEY_ID}
+    secret-key: ${SECRET_ACCESS_KEY}

@@ -1,0 +1,99 @@
+let loadFamilyMembers = function(step,next){
+
+  let familyMembersObj = {1:'self', 2:'spouse', 3:'son', 4:'daughter', 5:'mother', 6:'father'};
+
+  let arrayOfMembers = Object.keys(familyMembersObj).map((key) => ({value: key, label: familyMembersObj[key]}))
+
+  step.fields["familyMembersMultiSelect"]["options"] = arrayOfMembers;
+
+  next(step)
+}
+
+let onDetailsSubmitReq = function(data,next) {
+
+  data['source'] = '<%= schemaVal.source %>';
+  data['subSource'] = '<%= schemaVal.subSource %>';
+  data['medium'] = '<%= schemaVal.medium %>';
+  data['creatorIamId'] = '<%= schemaVal.uuid %>';
+  data['productType'] = '<%= schemaVal.productType %>';
+  data['creatorType'] = '<%= schemaVal.creatorType %>';
+  data['guestUuid'] = '<%= schemaVal.guestUuid %>';
+
+  window.location.href = `<%= posUiUrl %>posui/wellness-insurance`;
+  
+
+  
+}
+
+let formBuilderSchema1 = {
+    formBuilder: {
+      steps: [
+        {
+          submitButtonLabel: "",
+          fields: {
+            ownerName: { 
+                type: "TextField",
+                id: "ownerName",
+                name: "ownerName",
+                label: "Customer Name",
+                value: "",
+                autoComplete: "name",
+                variant: "filled",
+                validators: ["isEmpty","!isFullName"],
+                errormessages: ["Please enter the name","Please enter valid name"],
+                onChange: (event, step, next) => {
+                 next(step);
+                },
+              },
+            pincode: {
+                type: "Pincode",
+                id: "pincode",
+                name: "pincode",
+                label: "Pincode",
+                variant: "filled",
+                
+					      value: "",
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+                onChange: (event,step,next) => {
+                  next(step)
+              }
+            },
+            familyMembersMultiSelect : {
+              type: "MultiselectReactselect",
+              options: [],
+              hide: false,
+              id: "familyMembersMultiSelect",
+              name: "familyMembersMultiSelect",
+              label: "Family Members",
+              variant: "filled",
+              value: [],
+              disabled: false,
+              validators: ["isEmpty"],
+              errormessages: ["Family Members is required field"],
+              onChange: (event, step, next) => {
+                next(step);
+              }
+            },
+          },
+          onSubmit: function (data, resolve, reject, step, next) {
+            onDetailsSubmitReq(data)
+          },
+          onLoad: function (step, next) {     
+            loadFamilyMembers(step,next);
+          },
+        },
+      ],
+      activeStep: 0,
+      customValidators: {
+        isFullName: function (str) {
+        let regexp = new RegExp(
+        /^[a-z]([-']?[a-z]+)*( [a-z]([-']?[a-z]+)*)+$/i
+        );
+        return regexp.test(str);
+        }
+      },
+    },
+  }
+
+  

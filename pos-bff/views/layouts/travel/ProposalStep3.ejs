@@ -1,0 +1,259 @@
+let getLocalStorageItem = (key) => {
+  if (typeof window.localStorage !== "undefined") {
+    let data = localStorage.getItem(key);
+    if (
+      typeof data !== "undefined" &&
+      data != "undefined" &&
+      data != undefined
+    ) {
+      let obj = JSON.parse(localStorage.getItem(key));
+      return obj;
+    }
+  }
+  return {};
+};
+let ageList = [];
+for (let i = 18; i <= 99; i++) {
+  ageList.push({
+    value: i + " Years",
+    label: i + " Years",
+  });
+}
+
+traveluserinfo = sessionStorage.getItem("traveluserinfo");
+travelBankValidationNew = localStorage.getItem("travelBankValidationNew");
+traveluserinfo = JSON.parse(traveluserinfo);
+nomineeData = traveluserinfo["nomineeDetails"];
+accountValidations = localStorage.getItem("bankValidations");
+travelAccountValidations = JSON.parse(accountValidations);
+relations = localStorage.getItem("relations");
+relations = JSON.parse(relations);
+let showBankFields = [];
+let relationFields1 = [];
+let accountType = [];
+let showAccountKey = (key) => {
+  if (key?.validationKey === "accountType") {
+    return key?.inputTypeOption;
+  } else {
+    return [];
+  }
+};
+let getAccountType = (key, value) => {
+  if (key?.validationKey === "accountType") {
+    return value;
+  } else {
+    return [];
+  }
+};
+for (var j = 0; j < relations.length; j++) {
+  relationFields1.push({
+    label: relations[j].relation,
+    value: relations[j].relation,
+  });
+}
+let validationRules = getLocalStorageItem("TravelInsurerFields");
+let hide = (key) => {
+  return (
+    validationRules.findIndex(
+      (element) => element.validationKey == "nominee" + key
+    ) == -1 ||
+    validationRules.findIndex(
+      (element) =>
+        element.validationKey == "nominee" + key && element.isMandatory == 1
+    ) == -1
+  );
+};
+
+window.formBuilderSchemaTravelProposal3 = {
+  formBuilder: {
+    heading: "Nominee & Account Detail",
+    steps: [
+      {
+        fields: {
+          ...(travelAccountValidations && travelAccountValidations.length > 0
+            ? {
+                accountDetails: {
+                  type: "HeadingComp",
+                  span: 12,
+                  label: "Account Details",
+                  name: "accountDetails",
+                },
+                description: {
+                  type: "HeadingComp",
+                  span: 14,
+                  label:
+                    "Enter the proposer's bank details for secure transactions and claim settlements.",
+                  name: "description",
+                },
+              }
+            : {}),
+          ...travelAccountValidations.reduce((acc, validation) => {
+            if (validation.inputType === "text") {
+              acc[validation.validationKey] = {
+                type: "TextField",
+                id: validation.validationKey,
+                name: validation.validationKey,
+                label: validation.validationKey
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (str) => str.toUpperCase()),
+                multiline: false,
+                variant: "filled",
+                span: 6,
+                fieldType: "text",
+                validators: ["isEmpty"],
+                errormessages: [
+                  "This field is required",
+                  `Please enter valid ${validation.validationKey}`,
+                ],
+                onChange: (event, step, next) => {
+                  if (validation.validationKey === "ifscCode") {
+                    let value = event.target.value.toUpperCase();
+                    step.fields[validation.validationKey].value = value;
+                  }
+                  next(step);
+                },
+              };
+            } else if (validation.inputType === "number") {
+              acc[validation.validationKey] = {
+                type: "TextField",
+                id: validation.validationKey,
+                name: validation.validationKey,
+                label: validation.validationKey
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (str) => str.toUpperCase()),
+                multiline: false,
+                variant: "filled",
+                span: 6,
+                fieldType: "number",
+                validators: ["isEmpty"],
+                errormessages: [
+                  "This field is required",
+                  `Please enter valid ${validation.validationKey}`,
+                ],
+                minValue: validation.minValue,
+                maxValue: validation.maxValue,
+              };
+            } else if (validation.type === "multi-select") {
+              acc[validation.validationKey] = {
+                type: "CheckBox",
+                id: validation.validationKey,
+                name: validation.validationKey,
+                label: validation.validationKey
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (str) => str.toUpperCase()),
+                span: 12,
+                value: "none",
+                validators: ["isEmpty"],
+                errormessages: [
+                  "This field is required",
+                  `Please enter valid ${validation.validationKey}`,
+                ],
+                options: [{ label: "None", value: "none" }],
+              };
+            } else if (validation.inputType === "drop_down") {
+              acc[validation.validationKey] = {
+                type: "SelectWithLabel",
+                id: validation.validationKey,
+                name: validation.validationKey,
+                span: 6,
+                label: validation.validationKey,
+                labelAuto: validation.validationKey
+                  .replace(/([A-Z])/g, " $1")
+                  .replace(/^./, (str) => str.toUpperCase()),
+                options: showAccountKey(validation),
+                autoComplete: "given-name",
+                value: "",
+                variant: "filled",
+                validators: ["isEmpty"],
+                errormessages: ["This field is required"],
+                onChange: (event, step, next) => {
+                  if (validation.validationKey === "accountType") {
+                    let value = getAccountType(
+                      validation,
+                      event.currentTarget.textContent
+                    );
+                    step.fields[validation.validationKey].value = value;
+                  }
+                  next(step);
+                },
+              };
+            }
+            return acc;
+          }, {}),
+          nomineDetails: {
+            type: "HeadingComp",
+            span: 12,
+            label: "Nominee Details",
+            name: "nomineDetails",
+          },
+          name: {
+            type: "TextField",
+            id: "name",
+            name: "name",
+            label: "Full Name",
+            multiline: false,
+            value:
+              nomineeData && nomineeData["name"] ? nomineeData["name"] : "",
+            span: 6,
+            variant: "filled",
+            hide: hide("Name"),
+            fieldType: hide("Name") ? "" : "text",
+            validators: hide("Name") ? [] : ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          selfAge: {
+            type: "SelectWithLabel",
+            id: "selfAge",
+            name: "selfAge",
+            label: "Your Age",
+            labelAuto: "Age",
+            options: ageList,
+            span: 6,
+            value:
+              nomineeData && nomineeData["age"]
+                ? nomineeData["age"] + " Years"
+                : "",
+            autoComplete: "given-name",
+            variant: "filled",
+            hide: hide("Age"),
+            validators: hide("Age") ? [] : ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+          RelationWithInsured: {
+            type: "SelectWithLabel",
+            id: "RelationWithInsured",
+            name: "RelationWithInsured",
+            label: "Relation With Insured",
+            labelAuto: "Relation With Insured",
+            options: relationFields1,
+            autoComplete: "given-name",
+            value:
+              nomineeData && nomineeData["relationId"]
+                ? relations.find(
+                    (rel) => rel.gibplMasterId == nomineeData["relationId"]
+                  )["relation"]
+                : "",
+            variant: "filled",
+            validators: ["isEmpty"],
+            errormessages: ["This field is required"],
+          },
+        },
+
+        onLoad: function (step, next) {
+          next(step);
+        },
+      },
+    ],
+    activeStep: 0,
+    customValidators: {
+      isValidAddress: function (str) {
+        var regExp = new RegExp(/^.{1,100}$/);
+        return !regExp.test(str);
+      },
+      isValidAccountNumber: function (str) {
+        const regExp = new RegExp(/^\d{9,18}$/);
+        return !regExp.test(str);
+      },
+    },
+  },
+};

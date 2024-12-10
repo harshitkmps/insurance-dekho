@@ -1,0 +1,17 @@
+{
+    "diff": true,
+    "extension": ["ts"],
+    "package": "./package.json",
+    "file": ["./test/app.setup.ts"],
+    "recursive": true,
+    "watch-files": ["./test/**/*.spec.ts"],
+    "slow": 75,
+    "exit": true,
+    "timeout": 2000,
+    "ui": "bdd",
+    "watch-ignore": ["./test/health/"],
+    "reporter": "mochawesome",
+    "reporter-options": [
+        "reportDir=mocha-report"
+    ]
+}

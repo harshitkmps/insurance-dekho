@@ -1,0 +1,25 @@
+.multiselectwithoutImg{ margin-top: 0 !important;
+    label{color: rgba(51, 56, 70, 0.70);font-size: 15px;font-weight: 500;}
+    .tabcounts{display: inline-block;margin: 14px 0 0 0;width: 100%;
+        .lists{ display: inline-block; margin-bottom: 10px;margin-right: 16px;
+            .listbox{width: auto; height: 32px; padding: 0 16px;border-radius: 38px;
+                border: 1px solid #333846; box-shadow: none; 
+                display: inline-flex;align-items: center; cursor: pointer;
+            
+                p{color: #333846; font-weight: 500;}
+            }
+
+                &.active{
+                    .listbox{border: 1px solid #007FFF;background: #F2F9FF;
+                        p{color: #007FFF;}
+                    }
+                }
+        }
+    }
+}
+
+@media screen and (max-width:1023px) {
+    .multiselectwithoutImg{min-height: 244px;
+        label{font-size: 13px;}
+     }
+}
